@@ -26,7 +26,7 @@ Deliberately absent: Redux/Zustand/TanStack Query, ORMs, UI kits, analytics. Add
 
 ## Architecture
 Screen → feature hook → repository → Supabase client → Postgres/RLS. Detail: `.claude/rules/architecture.md`.
-- `app/` thin Expo Router routes · `src/features/<name>/` · `src/repositories/` · `src/providers/` · `src/lib/supabase.ts` · `src/components/` · `src/theme/` · `src/types/`
+- `src/app/` thin Expo Router routes · `src/features/<name>/` · `src/repositories/` · `src/providers/` · `src/lib/supabase.ts` · `src/components/` · `src/theme/` · `src/types/`
 - `supabase/{migrations,functions,seed.sql}` · `docs/` · `__tests__/`
 
 ## Commands

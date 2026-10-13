@@ -35,3 +35,10 @@ coverage/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# TypeScript / Metro / Kotlin (from Expo template)
+*.tsbuildinfo
+.metro-health-check*
+.kotlin/
+*.key
+*.pem

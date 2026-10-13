@@ -15,3 +15,21 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **Why:** Proven setup from the owner's other project; keeps always-loaded context small.
 - **Alternatives:** Single large `CLAUDE.md` (original). Rejected: loaded every session, mixes spec with rules.
 - **Differences from Hippocamp:** no Zustand/TanStack Query/Drizzle/i18n/analytics (Serviloop's learning goal favours core React primitives); teaching format added.
+
+## D-003 — Routes live in `src/app/` (not `app/`)
+- **Date:** 2026-10-14
+- **What:** Use the SDK 57 template layout: Expo Router routes in `src/app/`, alias `@/*` → `./src/*`.
+- **Why:** That is what the current official template generates and Expo Router supports it; adapting is cheaper than fighting the scaffold. Everything else in `src/` stays together.
+- **Alternatives:** Move routes to a root `app/` (spec's original layout). Rejected: no benefit.
+
+## D-004 — Scaffolded into a temp dir, then merged
+- **Date:** 2026-10-14
+- **What:** `create-expo-app --no-install --no-agents-md` in a scratch dir; copied `src/`, `assets/`, `scripts/`, `.vscode/`, `app.json`, `package.json`, `tsconfig.json` into the repo; kept our own `.gitignore`, `CLAUDE.md`, `.claude/`, docs.
+- **Why:** The repo already had files; the scaffolder would also have generated `AGENTS.md` and `.claude/settings.json` that conflict with ours.
+
+## D-005 — Mock data behind repository-shaped functions (planned, slice 5)
+- **What:** `customerRepository` gets an in-memory implementation with the same async signatures the Supabase version will have in M3.
+- **Why:** Screens and hooks stay unchanged when the backend arrives.
+
+## D-006 — Strip the template demo (planned, slice 2)
+- **What:** Remove the template's demo screens, web-only files and unused deps (web, animated icon, glass effect) as we replace them, keeping only what we can explain.

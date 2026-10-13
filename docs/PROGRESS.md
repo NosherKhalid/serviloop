@@ -2,7 +2,7 @@
 
 | Milestone | Status |
 |---|---|
-| M0 Setup + mock UI | not started |
+| M0 Setup + mock UI | in progress (slice 1: scaffold) |
 | M1 Database, RLS, seed | not started |
 | M2 Auth + onboarding | not started |
 | M3 CRUD via repositories | not started |
@@ -14,7 +14,7 @@
 - 2026-10-13: Project restructured (spec moved to `docs/PROJECT_SPEC.md`, new `CLAUDE.md`, `.claude/` rules/skills/settings, git initialised). No app code yet.
 
 ## Next
-Run `/start-milestone M0`.
+M0 slice 1: scaffold Expo and run on iOS + Android.
 
 ## Open questions
 - Supabase project: not created yet (needed for M1).
