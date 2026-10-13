@@ -1,0 +1,37 @@
+# dependencies
+node_modules/
+
+# Expo / Metro
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# generated native projects (change native config in app.json / config plugins)
+ios/
+android/
+
+# secrets (keep .env.example)
+.env
+.env*.local
+.env.development
+.env.preview
+.env.production
+supabase/.env
+supabase/functions/.env
+supabase/.temp/
+
+# signing keys
+*.p8
+*.p12
+*.jks
+*.keystore
+*.mobileprovision
+
+# misc
+.DS_Store
+*.log
+coverage/
+
+# Claude Code local settings
+.claude/settings.local.json
