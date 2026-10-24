@@ -1,0 +1,35 @@
+import { StyleSheet, Text } from 'react-native';
+
+import { Button } from '@/components/Button';
+import { Screen } from '@/components/Screen';
+import { spacing, typography, useTheme } from '@/theme';
+import { useAuth } from '@/providers/AuthProvider';
+
+export function SettingsScreen() {
+  const colors = useTheme();
+  const { signOut } = useAuth();
+
+  return (
+    <Screen style={styles.content}>
+      <Text style={[styles.label, { color: colors.textMuted }]}>Business</Text>
+      {/* MOCK (M0): the real business name comes from Supabase in M2. */}
+      <Text style={[styles.value, { color: colors.text }]}>Demo Plumbing Co.</Text>
+
+      {/* No navigation call here: signOut flips the flag and the root layout swaps to the auth screens. */}
+      <Button title="Sign out" variant="secondary" onPress={signOut} />
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  content: {
+    gap: spacing.md,
+  },
+  label: {
+    ...typography.caption,
+  },
+  value: {
+    ...typography.heading,
+    marginBottom: spacing.lg,
+  },
+});

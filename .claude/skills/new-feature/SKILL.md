@@ -18,8 +18,8 @@ disable-model-invocation: true
      index.ts       # the feature's only public surface
    src/repositories/${name}Repository.ts   # typed Supabase access, no JSX
    ```
-3. If the feature has a screen, add a **thin** route in `app/` that imports it from `@/features/$name` and does nothing else.
+3. If the feature has a screen, add a **thin** route in `src/app/` that imports it from `@/features/$name` and does nothing else.
 4. Write the first test before the implementation: validation and repository error handling first, then a screen/form test covering loading, empty and error states.
 5. Implement. Add a single `// iOS:` note on the first use of each new React concept.
 6. Run `npm run check` and show the output. Fix failures; do not weaken tests.
-7. Summarise using the teaching format in `.claude/rules/teaching.md` (what hooks/ ≈ in iOS terms, trace the data flow, two-question quiz). Do not commit unless asked.
+7. Report using the format in `.claude/rules/teaching.md` (what the product does now, how to try it, real vs mock). No quiz. Do not commit unless asked.
