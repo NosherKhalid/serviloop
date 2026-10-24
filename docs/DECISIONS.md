@@ -40,3 +40,9 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **What:** Removed `experiments.reactCompiler` from `app.json`.
 - **Why:** The compiler auto-memoizes components, which hides the re-render and stale-closure behaviour the owner is here to learn. Revisit after M6 or when there is a measured performance reason.
 - **Alternatives:** Keep it on (less manual memoization, but opaque).
+
+## D-008 — Dedicated Android emulator, Metro with `--localhost`
+- **Date:** 2026-10-24
+- **What:** Use AVD `Serviloop_Pixel_7_Pro_API_36` (Pixel 7 Pro, API 36 `google_apis` image) and start Metro with `npx expo start --localhost`.
+- **Why:** `Pixel_7_Pro_API_34` and `Pixel_3a_API_34` have stripped system images (no `system.img`) and cannot boot; sharing Hippocamp's AVD mixed apps and data. `--localhost` makes Expo use `adb reverse`, so a changing Wi-Fi/DHCP address (we hit `192.168.18.160` → `.161`) cannot break the connection.
+- **Alternatives:** Re-download the API 34 image (~1.5 GB).

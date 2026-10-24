@@ -1,4 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+
+import { radius, spacing, typography, useTheme } from '@/theme';
+
+import { Button } from './Button';
 
 // iOS: this type is like the `let` parameters of a SwiftUI View struct.
 // It only exists at compile time; React does not check it at runtime.
@@ -12,53 +16,32 @@ type WelcomeCardProps = {
 // iOS: a component is just a function that returns UI (JSX), like a SwiftUI `body`.
 // React calls this function again every time the props change.
 export function WelcomeCard({ title, subtitle, count, onIncrement }: WelcomeCardProps) {
+  const colors = useTheme();
+
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.subtitle}>{subtitle}</Text>
+    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      <Text style={[styles.subtitle, { color: colors.textMuted }]}>{subtitle}</Text>
 
       {/* iOS: `onPress` is a closure passed from the parent, like a Button action.
           The card owns no state; the parent does (data flows down, events flow up). */}
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Add one to the counter"
-        onPress={onIncrement}
-        style={styles.button}>
-        <Text style={styles.buttonText}>Tapped {count} times</Text>
-      </Pressable>
+      <Button title={`Tapped ${count} times`} onPress={onIncrement} />
     </View>
   );
 }
 
-// Temporary hardcoded values: they move into src/theme in the next slice.
 const styles = StyleSheet.create({
   card: {
     alignSelf: 'stretch',
-    padding: 20,
-    borderRadius: 16,
-    backgroundColor: '#EEF2FF',
-    gap: 8,
+    padding: spacing.xl,
+    borderRadius: radius.lg,
+    gap: spacing.sm,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1E1B4B',
+    ...typography.title,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#3730A3',
-  },
-  button: {
-    marginTop: 12,
-    minHeight: 44,
-    borderRadius: 12,
-    backgroundColor: '#4338CA',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.body,
+    marginBottom: spacing.md,
   },
 });
