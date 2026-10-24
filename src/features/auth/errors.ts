@@ -1,25 +1,19 @@
+import { isNetworkProblem } from '@/utils/networkError';
+
 // Turns an error from the auth service into one short, friendly sentence for the screen.
 // Rules: never show raw service text (it can mention internals), and use the SAME message for
 // "unknown email" and "wrong password" so the app cannot be used to discover who has an account.
 
-type ErrorLike = { code?: unknown; status?: unknown; name?: unknown; message?: unknown };
+type ErrorLike = { code?: unknown };
 
 function asErrorLike(error: unknown): ErrorLike {
   return typeof error === 'object' && error !== null ? (error as ErrorLike) : {};
 }
 
-function isNetworkProblem(error: ErrorLike): boolean {
-  return (
-    error.name === 'AuthRetryableFetchError' ||
-    error.status === 0 ||
-    (typeof error.message === 'string' && /network request failed|failed to fetch|fetch failed|timed out/i.test(error.message))
-  );
-}
-
 export function authErrorMessage(error: unknown): string {
   const e = asErrorLike(error);
 
-  if (isNetworkProblem(e)) {
+  if (isNetworkProblem(error)) {
     return "We can't reach the server. Check your connection and try again.";
   }
 

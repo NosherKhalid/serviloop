@@ -156,3 +156,10 @@ One entry per non-obvious technical choice: what, why, alternatives.
 
 ## Open issue — intermittent dev warning (not fixed)
 - On one cold start (restoring a freshly created session) the dev build showed "Can't perform a React state update on a component that hasn't mounted yet". It did not reproduce in 11 later cold starts (signed in and signed out), and the log gave no component name. It appears only in development builds (React dev warning). Keep watching the device log during slices 3–4; if it returns, capture the in-app LogBox component stack.
+
+## D-028 — Onboarding and business state (M2 slice 3)
+- **Date:** 2026-10-24
+- **What:** `BusinessProvider` (inside `AuthProvider`) looks up the signed-in owner's business and exposes `idle | loading | error | none | demoLoaded | ready`. The root layout has three guarded groups: `(auth)`, `(onboarding)` (no business, or demo data just loaded) and `(app)` (ready). The splash screen stays up until both the session and the business are known; a failed lookup shows "Can't load your business" with Try again instead of a wrong screen. The business is stored together with the user id it belongs to, so a different account can never briefly see the previous owner's business. Onboarding offers "Create my business" (name, 2-100 chars, same limits as the database) or "Start with demo data" (calls `load_demo_data()`, validates its JSON answer with Zod, shows "Loaded 6 customers, 3 technicians and 6 jobs." with a Continue button).
+- **Why:** The demo data is not visible in the app until M3 (lists are still mock), so the confirmation screen is the visible proof for the owner and portfolio viewers; the shared-network-error helper (`src/utils/networkError.ts`) is used by auth and business errors.
+- **Verified:** 31 new unit tests (96 total); on the Android emulator against the hosted project: create business, restart skips onboarding, demo data path, account switching, and opening the app offline.
+- **Known limit:** a business cannot be renamed or deleted in the app yet (BACKLOG).

@@ -4,7 +4,7 @@
 |---|---|
 | M0 Setup + mock UI | complete, merged to main (PR #1) |
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
-| M2 Auth + onboarding | in progress (slices 1–2 done: encrypted storage, real sign-up, sign-in, sign-out; next slice 3: business onboarding) |
+| M2 Auth + onboarding | built and verified; awaiting owner review (slices 1–3 done; run /finish-milestone M2) |
 | M3 CRUD via repositories | not started |
 | M4 Dashboard + status | not started |
 | M5 AI summary | not started |

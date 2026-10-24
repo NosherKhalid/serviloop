@@ -4,11 +4,14 @@ import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { spacing, typography, useTheme } from '@/theme';
 import { useAuth } from '@/providers/AuthProvider';
+import { useBusiness } from '@/providers/BusinessProvider';
 
 export function SettingsScreen() {
   const colors = useTheme();
   const { state, signOut } = useAuth();
+  const { state: businessState } = useBusiness();
   const email = state.status === 'signedIn' ? state.user.email : null;
+  const businessName = businessState.status === 'ready' ? businessState.business.name : '';
 
   return (
     <Screen style={styles.content}>
@@ -16,8 +19,7 @@ export function SettingsScreen() {
       <Text style={[styles.value, { color: colors.text }]}>{email ?? 'Unknown'}</Text>
 
       <Text style={[styles.label, { color: colors.textMuted }]}>Business</Text>
-      {/* MOCK (M0): the real business name comes from Supabase in M2. */}
-      <Text style={[styles.value, { color: colors.text }]}>Demo Plumbing Co.</Text>
+      <Text style={[styles.value, { color: colors.text }]}>{businessName}</Text>
 
       {/* No navigation call here: signing out changes the auth state and the root layout swaps to the sign-in screens. */}
       <Button title="Sign out" variant="secondary" onPress={() => void signOut()} />

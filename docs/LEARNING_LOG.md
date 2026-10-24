@@ -68,3 +68,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Offline behaviour verified: a friendly message, sign-out still works, and the app recovers when the network returns.
 - Pitfall to remember: Metro reads `.env` at startup; after editing it restart with `npm start -- --clear`.
 - Next: slice 3, business onboarding (create your business or load demo data) and a real business name in Settings.
+
+## 2026-10-24 — M2 slice 3 (onboarding)
+- A new owner now sets up their business (or starts with demo data) without any SQL, and the app remembers it across restarts.
+- Remembering *who* an answer belongs to (business + user id) prevents showing one account's data to the next on a shared phone; a mutation test proved the test for it works.
+- Showing a clear retry screen when offline beats a blank or wrong screen; verified by opening the app with the network off.
+- Real-device testing found no new bugs this slice; the intermittent dev-only React warning from slice 2 did not return (0 in about 20 further launches).
+- Next: M2 close-out (`/finish-milestone M2`), then M3: customers, technicians and jobs on real data.

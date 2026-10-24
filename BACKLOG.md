@@ -20,3 +20,5 @@ Ideas outside the P0 scope. Do not build during the 30-day sprint (see `docs/PRO
 - Resend confirmation email and an in-app 'confirm your email' screen (needed once email confirmation is turned back on)
 - Delete account (removes the business and all its data)
 - Biometric unlock (Face ID / fingerprint) for returning owners
+- Rename business (Settings)
+- Reset / delete demo data from Settings for repeatable demos

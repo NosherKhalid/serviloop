@@ -1,6 +1,6 @@
 # Architecture
 
-Status: data model and security are built (M1). The app still reads mock data until M3.
+Status: data model and security are built (M1); accounts, session handling and business onboarding are built (M2). Customers, technicians and jobs still read mock data until M3.
 
 ## Data flow
 ```
@@ -38,5 +38,19 @@ businesses -----< customers      (business_id)
 ## Demo data
 `public.load_demo_data()` runs with the caller's permissions (security invoker), creates their business if missing, and inserts fictional data only into an empty business. See D-021.
 
+## Accounts, session and onboarding (M2)
+```
+app start -> splash held -> restore saved session (encrypted storage) -> signed in?
+   no  -> (auth) sign in / create account
+   yes -> look up the owner's business (RLS returns only their own)
+            none       -> (onboarding): create my business  |  start with demo data -> "Loaded 6 customers..." -> Continue
+            ready      -> (app) tabs
+            lookup fails (offline) -> "Can't load your business" + Try again
+```
+- **One Supabase client** (`src/lib/supabase.ts`) with the publishable key; the login session is stored encrypted (AES key in Keychain/Keystore, ciphertext in AsyncStorage), see D-025.
+- **Providers hold cross-screen state only:** `AuthProvider` exposes `{ status, user: { id, email } }` (never tokens); `BusinessProvider` remembers the business together with *who* it belongs to, so switching accounts can never show the previous owner's business.
+- **Route guards** (`Stack.Protected`) in `src/app/_layout.tsx` pick `(auth)`, `(onboarding)` or `(app)` from that state; nothing navigates by hand.
+- **Friendly errors:** fixed messages for wrong credentials, existing email, rate limits, offline and expired sessions; raw service text is never shown.
+
 ## Not built yet
-Auth screens wired to Supabase (M2), customer/technician/job screens on real data (M3), dashboard counts (M4), the `generate-job-summary` Edge Function with per-user limits (M5).
+Customer/technician/job screens on real data (M3), dashboard counts (M4), the `generate-job-summary` Edge Function with per-user limits (M5).
