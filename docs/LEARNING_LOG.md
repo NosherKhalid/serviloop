@@ -54,3 +54,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Expo Go quirk: its floating Tools button covers the header's right edge, so primary actions go at the bottom (D-013).
 - Lint and tests earned their keep immediately (two hook problems, and a mutation check proved the tests can fail).
 - Next: M1, the database and row-level security; the first milestone with real security requirements.
+
+## 2026-10-24 — M1 (database, security, demo data)
+- The hosted Supabase project now holds the real schema: four tables, composite foreign keys that make cross-business references impossible, and row-level security on everything.
+- Security is proven, not assumed: 56 + 10 checks in an in-memory Postgres before pushing, then 62 checks against the real project; deliberate holes were detected.
+- `load_demo_data()` gives any new user a populated business in one call (ready for the M2 onboarding button).
+- Setup lessons: Supabase CLI needs a real terminal for `login`/`link`/`db push` (password prompts); `npm run test:rls` loads `.env` via Node so keys never appear in output.
+- Next: M2, real sign-up / sign-in / session persistence replacing the mock `AuthProvider`.

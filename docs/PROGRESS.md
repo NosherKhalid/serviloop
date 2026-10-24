@@ -2,8 +2,8 @@
 
 | Milestone | Status |
 |---|---|
-| M0 Setup + mock UI | complete, awaiting owner review (2026-10-24) |
-| M1 Database, RLS, seed | not started |
+| M0 Setup + mock UI | complete, merged to main (PR #1) |
+| M1 Database, RLS, seed | built and verified; awaiting owner review (2026-10-24) |
 | M2 Auth + onboarding | not started |
 | M3 CRUD via repositories | not started |
 | M4 Dashboard + status | not started |
@@ -20,7 +20,7 @@
 - README, `docs/ARCHITECTURE.md` and `docs/TEST_PLAN.md` do not exist yet; they are due in M6.
 
 ## Next
-Owner reviews M0, then `/start-milestone M1` (database, RLS, seed).
+Owner reviews M1 (run `/finish-milestone M1`), then M2: sign-up, sign-in, session persistence and onboarding wired to Supabase.
 
 ## Open questions
 - Supabase project: not created yet (needed for M1). Local (Docker) or hosted project? Owner decides at the start of M1.

@@ -94,3 +94,39 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **What:** `open → in_progress | cancelled`; `in_progress → open | completed | cancelled`; `completed → (none)`; `cancelled → open`. Implemented as a pure module (`src/features/workOrders/status.ts`) with tests; M4 will use it for the status-change UI.
 - **Why:** Simple, matches the four statuses in the spec; a completed job is final in v0.1 so the dashboard counts stay trustworthy.
 - **Also:** scheduled dates are shown in UTC for now (same on every device); proper time zones arrive with the database (M3).
+
+## D-018 — Hosted Supabase project, Supabase CLI as a dev dependency
+- **Date:** 2026-10-24
+- **What:** Develop against a hosted (free-tier) Supabase project, no Docker. `supabase` CLI (2.122.0) installed as a dev dependency so the version is pinned in the lockfile; it is a dev tool only and never enters the app bundle. Email confirmation is OFF in development so sign-up is one step and the scripted two-user test needs only the publishable key.
+- **Why:** The hosted project is what the final demo and the AI function use, so we build and test against the real thing; Docker would add ~1–2 GB of setup for a path we do not need. Docker-free commands used: `login`, `link`, `migration list`, `db push`.
+- **Trade-offs:** no local reset (a mistake lands on the hosted dev project, which holds only fictional data); free projects pause after about a week of inactivity, so wake it before any demo. Turn email confirmation back on before any real launch.
+- **Alternatives:** local Supabase in Docker (offline, resettable); both.
+
+## D-019 — Core schema design (M1)
+- **Date:** 2026-10-24
+- **What:** `supabase/migrations/20261024103554_core_schema.sql`. One business per owner (`businesses.owner_id` unique, defaults to `auth.uid()`). Composite foreign keys `(customer_id, business_id)` and `(technician_id, business_id)` make cross-business references impossible at the database level. Foreign keys to customers/technicians use `ON DELETE NO ACTION` (not RESTRICT): a customer or technician with jobs cannot be deleted, but deleting a whole business or user still cascades cleanly (RESTRICT can fail mid-cascade). Technicians are deactivated (`active`), not deleted. Optional text fields reject empty strings (the app stores `null`, matching `validateCustomerForm`).
+- **Verified before any push:** the migration was run in an in-memory Postgres (PGlite) with stand-ins for `auth.users`/`auth.uid()`: 29 checks (forged customer/technician ids rejected, optional technician allowed, status/length rules, `updated_at` trigger, delete behaviour). Row-level security is not part of this check; it is added in the next step and tested for real in slice 5.
+- **Alternatives:** several businesses per owner (rejected for v0.1), `ON DELETE RESTRICT` or `SET NULL` for technicians.
+
+## D-020 — Row-level security model (M1, awaiting owner approval)
+- **Date:** 2026-10-24
+- **What:** Part 2 of `20261024103554_core_schema.sql`. RLS enabled on all four tables; all default grants revoked from `public`, `anon`, `authenticated`; only needed operations re-granted to `authenticated`; 14 policies (one per operation), each `to authenticated`, scoped through `businesses.owner_id = (select auth.uid())`. Column-level grants make `id`, `owner_id`, `business_id`, `created_at`, `updated_at` unwritable by the app after creation, so rows cannot be moved or re-owned. No delete on `businesses` or `technicians`. `set_updated_at()` is not callable through the API.
+- **Why:** Matches Supabase guidance and spec §5; isolation lives in the database, not the app.
+- **Known gap (by design, v0.1):** job status transitions (e.g. completed is final) are enforced in the app (`src/features/workOrders/status.ts`), not in the database; a determined owner could edit their own job's status via the API. Tenant isolation is unaffected. A database trigger can be added later (BACKLOG).
+- **Pre-push evidence:** 56 checks in an in-memory Postgres (PGlite, separate `anon`/`authenticated` roles, two fake users) all pass; two deliberate holes (open insert policy, writable `business_id`) were detected by the same checks. The real two-account test against the hosted project is slice 5.
+
+## D-021 — Demo data via `load_demo_data()` instead of `seed.sql`
+- **Date:** 2026-10-24
+- **What:** `supabase/migrations/20261024105337_demo_data.sql` adds `public.load_demo_data()` (security invoker, executable by signed-in users only). It creates the caller's business if missing and inserts 6 fictional customers, 3 technicians and 6 jobs (2 open, 1 in progress, 2 completed with realistic completion notes for the AI summary, 1 cancelled), with dates relative to now. It refuses to run if the business already has any data and serialises double taps with an advisory lock.
+- **Why:** Hosted `db push` does not run `seed.sql`, and inserting into `auth.users` would need secrets. This gives every signed-in user (including a portfolio visitor) a populated app in one tap, matching the spec's "load a seeded demo business" journey, and respects RLS.
+- **Verified before push:** 10 checks in an in-memory Postgres (anon refused, counts and status mix, relative dates, second call refused with no duplicates, other users see nothing, works for an existing empty business, refuses a business with real data); the 56 RLS checks still pass.
+- **Known limit:** the app cannot undo a demo load (no "reset demo" yet); BACKLOG.
+
+## D-022 — Security test runs over the public API with the publishable key only
+- **Date:** 2026-10-24
+- **What:** `supabase/tests/rls-check.mjs` (`npm run test:rls`) uses plain Node `fetch` against the hosted project, signs up three throwaway users, and asserts specific database error codes (`42501`, `23503`, `23505`, `23514`) for every attack. It refuses to run with any key that is not `sb_publishable_…`. No new dependency.
+- **Why:** It tests exactly what a real client or attacker can do, needs no secret key on this Mac, and doubles as the portfolio's security evidence. Requires email confirmation OFF (D-018).
+- **Trade-offs:** throwaway users accumulate in Auth (cleanup needs a secret key / dashboard); no deliberate-hole mutation test against the hosted project (would change live policies); that was done in an in-memory Postgres instead.
+
+## D-023 — Generated database types
+- **What:** `npm run db:types` writes `src/types/database.ts` from the linked hosted schema (`supabase gen types typescript --linked --schema public`). Regenerate after every migration; M3 repositories will use it.

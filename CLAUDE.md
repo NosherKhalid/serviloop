@@ -34,6 +34,8 @@ Keep in sync with `package.json`:
 - `npm start` — Metro on IPv4 loopback (D-011); press `i` for iOS simulator, `a` for Android emulator
 - `npm run lint` · `npm run typecheck` · `npm test` (Jest + RNTL, tests in `__tests__/`)
 - `npm run check` — lint + typecheck + tests; must pass before every commit that ends a task
+- `npm run test:rls` — two-account security check against the hosted Supabase project (needs `.env`; re-run after any table/policy change)
+- `npm run db:types` — regenerate `src/types/database.ts` from the hosted schema; `npx supabase db push --linked` applies migrations (owner runs it: needs the DB password)
 
 ## Environment gotchas
 - Start on **Expo Go**, but stay scalable: use only Expo Go-compatible packages and do not hand-edit `ios/`/`android/`. Moving to a development build (`expo-dev-client`) later must be a config step, not a rewrite (see `docs/DECISIONS.md`).
