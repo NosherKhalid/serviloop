@@ -1,23 +1,74 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+
+import {
+  getCurrentUser,
+  signInWithPassword,
+  signOutOfThisDevice,
+  signUpWithPassword,
+  subscribeToAuthChanges,
+  type AuthUser,
+} from '@/repositories/authRepository';
+
+// iOS: like a Swift enum with associated values. `loading` lasts only until the saved session has
+// been looked up (the splash screen stays visible meanwhile), so there is never a flash of the wrong screen.
+export type AuthState =
+  | { status: 'loading' }
+  | { status: 'signedOut' }
+  | { status: 'signedIn'; user: AuthUser };
 
 type AuthContextValue = {
-  isSignedIn: boolean;
-  signIn: () => void;
-  signOut: () => void;
+  state: AuthState;
+  // These throw the underlying error on failure; the auth screens turn it into a friendly message.
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<{ needsEmailConfirmation: boolean }>;
+  signOut: () => Promise<void>;
 };
 
 // iOS: like an `EnvironmentObject` key. The default is `null` so we can detect a missing provider.
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// MOCK (M0): a boolean flag stands in for a real session. M2 replaces the body with Supabase Auth;
-// screens keep using `useAuth()` and do not change.
+function stateFor(user: AuthUser | null): AuthState {
+  return user === null ? { status: 'signedOut' } : { status: 'signedIn', user };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [state, setState] = useState<AuthState>({ status: 'loading' });
+
+  // iOS: roughly `.task`: runs once when the app starts. It restores the saved session, then keeps
+  // listening for sign-in, sign-out and token refreshes. The cleanup stops listening and ignores a
+  // late answer, so nothing updates after the provider is gone.
+  useEffect(() => {
+    let isCancelled = false;
+
+    getCurrentUser()
+      .then((user) => {
+        if (!isCancelled) {
+          setState(stateFor(user));
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setState({ status: 'signedOut' }); // an unreadable saved session means "not signed in"
+        }
+      });
+
+    const unsubscribe = subscribeToAuthChanges((user) => {
+      if (!isCancelled) {
+        setState(stateFor(user));
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+      unsubscribe();
+    };
+  }, []);
 
   const value: AuthContextValue = {
-    isSignedIn,
-    signIn: () => setIsSignedIn(true),
-    signOut: () => setIsSignedIn(false),
+    state,
+    signIn: signInWithPassword,
+    signUp: signUpWithPassword,
+    signOut: signOutOfThisDevice,
   };
 
   // Every component below this provider can read `value`. When it changes, they all re-render.
@@ -28,7 +79,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth(): AuthContextValue {
   const value = useContext(AuthContext);
   if (value === null) {
-    // After this check TypeScript narrows `value` from `AuthContextValue | null` to `AuthContextValue`.
     throw new Error('useAuth must be used inside <AuthProvider>');
   }
   return value;

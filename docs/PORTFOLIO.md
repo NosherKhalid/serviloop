@@ -11,7 +11,7 @@ Serviloop helps a small field-service business (plumbing, electrical, HVAC, clea
 - **Where it stops (v0.1, by design):** one owner login, no technician or customer accounts, no payments, invoices, scheduling calendar, push notifications or offline mode. Those are the natural paid-product roadmap (see `BACKLOG.md`) and are the conversation to have with a real client.
 
 ## Demo story (about 2 minutes, both platforms)
-1. Sign in to the demo business (fictional data).
+1. Create an account (or sign in to the permanent demo account), tap "Start with demo data": a populated fictional business in one tap.
 2. Dashboard: open / in-progress / completed counts. *(M4)*
 3. Add a customer, then create a job for them and assign a technician. *(M3)*
 4. Move the job to in progress, add completion notes, mark it completed. *(M4)*
@@ -35,7 +35,7 @@ Serviloop helps a small field-service business (plumbing, electrical, HVAC, clea
 
 ## Demo hygiene
 - Free Supabase projects **pause after about a week of inactivity**. Open the project in the dashboard (or run `npm run test:rls`) a day before any recording or client demo so it is awake.
-- Have a clean demo account: sign up, tap "Load demo data" once. Demo data cannot be loaded twice; a reset action is in `BACKLOG.md`.
+- Have a clean demo account: sign up, tap "Start with demo data" once. Demo data cannot be loaded twice; a reset action is in `BACKLOG.md`.
 
 ## Later (outside the 30-day sprint)
 Ideas that would turn the portfolio piece into a sellable product (technician logins, customer booking, invoices, calendar, photo attachments, web admin) belong in `BACKLOG.md` until the MVP is finished.

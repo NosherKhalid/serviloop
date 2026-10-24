@@ -3,7 +3,7 @@
 Honest record of what is tested, how, and what is not. Updated at the end of each milestone.
 
 ## Automated, no backend (`npm test`)
-22 tests (Jest + React Native Testing Library): customer form validation, job-status rules, date formatting, the mock customer repository, and the customer form interaction (errors, save, failed-save message). Run with `npm run check` (lint + typecheck + tests).
+96 tests in 15 suites (Jest + React Native Testing Library). M0: customer form validation, job-status rules, date formatting, mock customer repository, customer form. M2: settings check, encrypted session storage (round trip, over 2 KB, lost key, failing keychain), auth validation and friendly errors, sign-in/sign-up screens, `AuthProvider` (restore, sign-out, listening), `BusinessProvider` (loading, error and retry, account switching never leaks, create, demo data), business repository (mocked client), onboarding screen. Mutation-checked: weakening the account-switch rule and the secret-key check each made the right test fail. Run with `npm run check` (lint + typecheck + tests).
 
 ## Security: tenant isolation (`npm run test:rls`), M1
 Runs against the **hosted Supabase project** over the same public HTTP API the app uses, with **only the publishable key**. It signs up three throwaway users, attacks data across accounts, and checks the exact database error. Re-run it after any change to a table, grant or policy, and before every demo.
@@ -34,5 +34,26 @@ Runs against the **hosted Supabase project** over the same public HTTP API the a
 - Job status transitions are enforced by the app, not the database (D-020); tenant isolation is unaffected.
 - Sign-up rate limits can stop the script; wait a few minutes and re-run.
 
+## Manual device checks: accounts and onboarding (M2), Android emulator (Pixel 7 Pro, Expo Go) against the hosted project, 2026-10-24
+| Check | Result |
+|---|---|
+| Short password blocked before any request; Go key on the keyboard submits | Pass |
+| Create a real account; lands in the app; Settings shows the email | Pass |
+| Fully close and reopen: still signed in, straight to the app, splash holds meanwhile | Pass |
+| Sign out returns to Sign in; wrong password shows "Email or password is incorrect." | Pass |
+| Sign in again with the right password | Pass |
+| Network OFF: sign-out works; sign-in shows "We can't reach the server..."; recovers when network returns | Pass |
+| Signed-in owner with no business lands on onboarding; one-letter name rejected | Pass |
+| Create "Riverside Plumbing Co": lands in the app, Settings shows it, reopening skips onboarding | Pass |
+| Second new account: "Start with demo data" shows "Loaded 6 customers, 3 technicians and 6 jobs." then Continue; Settings shows Demo Plumbing Co. | Pass |
+| Switch from the demo account to the first account: only the first account's business appears | Pass |
+| Hosted database matches: each test owner has exactly one business; demo owner has 6 / 3 / 6 rows | Pass |
+| Open the app offline while signed in: "Can't load your business" with Try again; one tap recovers online | Pass |
+
+Not verified here: the same flows on the iOS simulator (only the Sign in screen boot was confirmed; owner to walk the flow), light mode on the new screens, large text sizes, Android back from onboarding. A development-only React warning appears on the first restart after creating a brand-new account (2 of 2); its stack points into Expo Router, nothing breaks (see DECISIONS, open issue).
+
+### M2 close-out pass (fresh run, same device, 2026-10-24)
+Create account "m2-final-…" -> onboarding -> "Gate Check Plumbing" -> full app restart (straight back in, business shown) -> sign out -> sign in again with the same account: all pass. A first attempt at the last step showed "Email or password is incorrect" only because an overlapping test script typed the password twice (about 29 characters); the clean retry signed in.
+
 ## Not yet tested
-iOS and Android manual passes for M1+ (no app changes in M1), live auth (M2), repositories against Supabase (M3), the AI function (M5), accessibility at the largest text size, offline behaviour.
+iOS manual pass for M2, repositories against Supabase (M3), the AI function (M5), accessibility at the largest text size, offline behaviour.

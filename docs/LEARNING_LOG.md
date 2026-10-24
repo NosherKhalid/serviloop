@@ -61,3 +61,27 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - `load_demo_data()` gives any new user a populated business in one call (ready for the M2 onboarding button).
 - Setup lessons: Supabase CLI needs a real terminal for `login`/`link`/`db push` (password prompts); `npm run test:rls` loads `.env` via Node so keys never appear in output.
 - Next: M2, real sign-up / sign-in / session persistence replacing the mock `AuthProvider`.
+
+## 2026-10-24 — M2 slices 1–2 (real accounts)
+- The app now signs up, signs in and out against the real hosted project; the saved login is encrypted and survives closing the app.
+- Tests caught a real bug early (a pasted secret key was reported as "missing"); device checks caught a test-script mistake of mine (pressing Back exits the first screen), not an app bug.
+- Offline behaviour verified: a friendly message, sign-out still works, and the app recovers when the network returns.
+- Pitfall to remember: Metro reads `.env` at startup; after editing it restart with `npm start -- --clear`.
+- Next: slice 3, business onboarding (create your business or load demo data) and a real business name in Settings.
+
+## 2026-10-24 — M2 slice 3 (onboarding)
+- A new owner now sets up their business (or starts with demo data) without any SQL, and the app remembers it across restarts.
+- Remembering *who* an answer belongs to (business + user id) prevents showing one account's data to the next on a shared phone; a mutation test proved the test for it works.
+- Showing a clear retry screen when offline beats a blank or wrong screen; verified by opening the app with the network off.
+- Real-device testing found no new bugs this slice; the intermittent dev-only React warning from slice 2 did not return (0 in about 20 further launches).
+- Next: M2 close-out (`/finish-milestone M2`), then M3: customers, technicians and jobs on real data.
+
+## 2026-10-24 — M2 wrap-up
+- M2 delivered the full account journey on real infrastructure: create account, set up (or demo) a business, stay signed in across restarts, sign out, switch accounts safely, and a clear screen when offline.
+- Two kinds of surprises: my own test scripts (pressing Back exits the first screen; two scripts typing at once doubled a password), not product bugs; and one dev-only warning inside Expo Router, documented and left open.
+- Evidence habit that worked: unit tests mutation-checked, then real-device runs against the hosted project, then a database query to confirm the app and the data agree.
+- Next: M3, customers, technicians and jobs on real data through repositories.
+
+## 2026-10-24 — iOS text direction fix
+- Owner testing on the iOS simulator found English typing started from the right edge. Cause: Urdu (right-to-left) is in the simulator's preferred languages; fix: pin `textAlign`/`writingDirection` in the shared `Input` component (D-029).
+- Lesson: test with the owner's real device settings, not only defaults; one shared input component made a 4-line fix cover every field.

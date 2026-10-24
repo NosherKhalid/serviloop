@@ -1,17 +1,15 @@
 import { Link } from 'expo-router';
-import { useState } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { spacing, typography, useTheme } from '@/theme';
-import { useAuth } from '@/providers/AuthProvider';
+
+import { useAuthForm } from '../hooks/useAuthForm';
 
 export function SignUpScreen() {
   const colors = useTheme();
-  const { signIn } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, errors, isSubmitting, formError, notice, setField, submit } = useAuthForm('signUp');
 
   return (
     <ScrollView
@@ -23,23 +21,37 @@ export function SignUpScreen() {
 
       <Input
         label="Email"
-        value={email}
-        onChangeText={setEmail}
+        value={values.email}
+        onChangeText={(text) => setField('email', text)}
+        error={errors.email}
         keyboardType="email-address"
         autoCapitalize="none"
         autoComplete="email"
+        autoCorrect={false}
+        editable={!isSubmitting}
       />
       <Input
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
+        label="Password (at least 8 characters)"
+        value={values.password}
+        onChangeText={(text) => setField('password', text)}
+        error={errors.password}
         secureTextEntry
         autoCapitalize="none"
         autoComplete="new-password"
+        autoCorrect={false}
+        returnKeyType="go"
+        onSubmitEditing={submit}
+        editable={!isSubmitting}
       />
 
-      {/* MOCK (M0): creating an account just signs you in. */}
-      <Button title="Create account" onPress={signIn} />
+      {formError !== null ? (
+        <Text accessibilityRole="alert" style={[styles.message, { color: colors.danger }]}>
+          {formError}
+        </Text>
+      ) : null}
+      {notice !== null ? <Text style={[styles.message, { color: colors.text }]}>{notice}</Text> : null}
+
+      <Button title="Create account" onPress={submit} loading={isSubmitting} />
 
       <Link href="/sign-in" style={[styles.link, { color: colors.primary }]}>
         Already have an account? Sign in
@@ -55,6 +67,9 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.title,
+  },
+  message: {
+    ...typography.body,
   },
   link: {
     ...typography.body,
