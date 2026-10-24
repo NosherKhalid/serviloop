@@ -11,13 +11,12 @@ export type CustomerState =
 
 // Loads one customer by id. `id` is `undefined` when the route parameter was missing or malformed.
 export function useCustomer(id: string | undefined) {
-  const [state, setState] = useState<CustomerState>({ status: 'loading' });
+  const [loadedState, setLoadedState] = useState<CustomerState>({ status: 'loading' });
   const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
     if (id === undefined) {
-      setState({ status: 'notFound' });
-      return;
+      return; // nothing to load; the missing id is handled below, during render
     }
 
     let isCancelled = false;
@@ -26,11 +25,14 @@ export function useCustomer(id: string | undefined) {
       try {
         const customer = await getCustomer(customerId);
         if (!isCancelled) {
-          setState(customer === null ? { status: 'notFound' } : { status: 'ready', customer });
+          setLoadedState(customer === null ? { status: 'notFound' } : { status: 'ready', customer });
         }
       } catch {
         if (!isCancelled) {
-          setState({ status: 'error', message: "We couldn't load this customer. Check your connection and try again." });
+          setLoadedState({
+            status: 'error',
+            message: "We couldn't load this customer. Check your connection and try again.",
+          });
         }
       }
     }
@@ -43,9 +45,11 @@ export function useCustomer(id: string | undefined) {
   }, [id, reloadCount]);
 
   function reload() {
-    setState({ status: 'loading' });
+    setLoadedState({ status: 'loading' });
     setReloadCount((count) => count + 1);
   }
 
+  // Derive during render instead of storing it: a missing id is always "not found".
+  const state: CustomerState = id === undefined ? { status: 'notFound' } : loadedState;
   return { state, reload };
 }

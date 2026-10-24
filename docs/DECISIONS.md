@@ -83,3 +83,14 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **What:** The owner chose to focus on how the product is developed and what it does. Quizzes and the "explain `.tsx`/props/state" gate are removed; each slice report now describes what the product can do, how to try it, and what is real vs mock. Updated `CLAUDE.md`, `.claude/rules/teaching.md`, the `start-/finish-milestone` and `new-feature` skills, and the M0 gate in `docs/PROJECT_SPEC.md`.
 - **Why:** The owner's stated priority. Code explanations remain available on request.
 - **Alternatives:** Keep quizzes as optional (rejected by the owner).
+
+## D-016 — Dev tooling: ESLint (expo config) and Jest (jest-expo + RNTL)
+- **Date:** 2026-10-24
+- **What:** Dev dependencies installed with `npx expo install`: `eslint`, `eslint-config-expo`, `jest`, `jest-expo`, `@types/jest`, `@testing-library/react-native`. `npm run check` = lint + typecheck + test. Tests live in `__tests__/` and map the `@/` alias to `src/`. Prettier is not used.
+- **Why:** `npm run lint/typecheck/test/check` are the commands `CLAUDE.md` promises; these are Expo's documented defaults and are not shipped in the app.
+- **First catch:** lint flagged a synchronous `setState` in an effect (`useCustomer`) and an unused effect dependency (`useCustomers`); both were fixed in code, not suppressed.
+
+## D-017 — Job status rules (product decision, needs owner veto if wrong)
+- **What:** `open → in_progress | cancelled`; `in_progress → open | completed | cancelled`; `completed → (none)`; `cancelled → open`. Implemented as a pure module (`src/features/workOrders/status.ts`) with tests; M4 will use it for the status-change UI.
+- **Why:** Simple, matches the four statuses in the spec; a completed job is final in v0.1 so the dashboard counts stay trustworthy.
+- **Also:** scheduled dates are shown in UTC for now (same on every device); proper time zones arrive with the database (M3).

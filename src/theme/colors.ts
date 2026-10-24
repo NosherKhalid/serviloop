@@ -8,6 +8,8 @@ const lightColors = {
   onPrimary: '#FFFFFF',
   border: '#6B7280',
   danger: '#B91C1C',
+  success: '#15803D',
+  warning: '#B45309',
 };
 
 // TypeScript is structural: the dark palette must have exactly the same keys and
@@ -23,6 +25,8 @@ const darkColors: ThemeColors = {
   onPrimary: '#0B1020',
   border: '#8B91A5',
   danger: '#FCA5A5',
+  success: '#4ADE80',
+  warning: '#FBBF24',
 };
 
 export const palettes = { light: lightColors, dark: darkColors };

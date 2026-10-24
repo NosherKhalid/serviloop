@@ -40,3 +40,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Route params (`[id]`) arrive as `string` (or `string[]`) and are untrusted: check them before use, and handle "not found" as a normal state.
 - A screen under a pushed screen stays mounted, so `useEffect` does not re-run on return. `useFocusEffect` + `useCallback` refetches on focus; without `useCallback` the effect would re-run every render.
 - Pitfall: Expo Go's floating Tools button covers the header's right edge; keep primary actions at the bottom.
+
+## 2026-10-24 — M0 slice 7
+- The Jobs tab lists fictional work orders with a text status chip (colour is decoration only), a customer name and a scheduled date.
+- `npm run check` now exists (lint + typecheck + 22 tests) and already caught two hook problems before they reached the app.
+- Job status rules are a tested pure module, ready for the status-change UI in M4.
+- Tests were mutation-checked: breaking the name rule and the "completed is final" rule made the right tests fail.
+- Next: `/finish-milestone M0`, then M1 (database, RLS, seed).

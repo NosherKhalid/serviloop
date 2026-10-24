@@ -1,5 +1,5 @@
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { listCustomers } from '@/repositories/customerRepository';
 import type { Customer } from '@/types/customer';
@@ -14,49 +14,43 @@ export type CustomersState =
 // iOS: this hook plays the ViewModel role. The screen reads `state` and calls `reload`.
 export function useCustomers() {
   const [state, setState] = useState<CustomersState>({ status: 'loading' });
-  // Changing this number is how `reload` re-runs the effect below.
-  const [reloadCount, setReloadCount] = useState(0);
+  // True only while the screen is focused. A late response must not update a screen the user left.
+  // A ref (unlike state) can change without causing a re-render.
+  const isFocusedRef = useRef(false);
+
+  const load = useCallback(async () => {
+    try {
+      const customers = await listCustomers();
+      if (isFocusedRef.current) {
+        setState({ status: 'ready', customers });
+      }
+    } catch {
+      if (isFocusedRef.current) {
+        // Never show raw error text from the data layer to the user.
+        setState({ status: 'error', message: "We couldn't load your customers. Check your connection and try again." });
+      }
+    }
+  }, []);
 
   // iOS: this is `.onAppear` / `.task` for *navigation focus*. A screen under a pushed form stays
   // mounted, so a plain `useEffect` would not run again when you come back from saving. This runs
-  // every time the screen gains focus. It does NOT show the spinner again: old rows stay visible
+  // every time the screen gains focus and does NOT show the spinner again: old rows stay visible
   // until fresh ones arrive.
-  //
-  // `useCallback` is needed here for a real reason: `useFocusEffect` re-runs whenever the function
-  // it receives changes identity, and a new inline function is created on every render.
   useFocusEffect(
     useCallback(() => {
-      // Nothing cancels this for us (unlike `.task`). If the screen goes away while the request is
-      // in flight, the flag stops a late result from calling setState on a gone screen.
-      let isCancelled = false;
-
-      async function load() {
-        try {
-          const customers = await listCustomers();
-          if (!isCancelled) {
-            setState({ status: 'ready', customers });
-          }
-        } catch {
-          if (!isCancelled) {
-            // Never show raw error text from the data layer to the user.
-            setState({ status: 'error', message: "We couldn't load your customers. Check your connection and try again." });
-          }
-        }
-      }
-
-      void load(); // `void` = we intentionally do not await; errors are handled inside `load`
+      isFocusedRef.current = true;
+      void load(); // `void` = intentionally not awaited; errors are handled inside `load`
 
       // iOS: like `onDisappear` / task cancellation.
       return () => {
-        isCancelled = true;
+        isFocusedRef.current = false;
       };
-    }, [reloadCount]),
+    }, [load]),
   );
 
   function reload() {
     setState({ status: 'loading' });
-    // Functional update: "give me the latest value", safe even if called twice before a re-render.
-    setReloadCount((count) => count + 1);
+    void load();
   }
 
   return { state, reload };
