@@ -26,3 +26,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - `Stack.Protected guard={...}` replaces hand-written redirects: flip the flag and Expo Router moves the user.
 - Android back: from a non-first tab it returns to the first tab; from the first tab it leaves the app.
 - Pitfall: adding/deleting files under a running app can leave Fast Refresh with a stale module ("Requiring unknown module"); a cold reload fixes it, it is not a code bug.
+
+## 2026-10-24 — M0 slice 5
+- Screen state is a discriminated union (`loading | error | ready`) ≈ Swift enum with associated values; `switch (state.status)` narrows so only `ready` exposes `customers`.
+- `useEffect` ≈ `.task(id:)` but nothing cancels it for you: use a local `isCancelled` flag in the cleanup so a late response cannot set state on a gone screen.
+- `setReloadCount(c => c + 1)` (functional update) reads the latest value, avoiding stale closures; changing a dependency (`reloadCount`) is how you re-run an effect.
+- `FlatList` + `keyExtractor` (stable id, not index) ≈ `List` + `Identifiable`; `value && <X/>` can render stray `0`/`""`, so compare explicitly (`!== null`).
+- Repositories hide the data source: M3 swaps the body of `listCustomers`, not the hook or screen.

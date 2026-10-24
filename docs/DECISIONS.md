@@ -27,7 +27,7 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **What:** `create-expo-app --no-install --no-agents-md` in a scratch dir; copied `src/`, `assets/`, `scripts/`, `.vscode/`, `app.json`, `package.json`, `tsconfig.json` into the repo; kept our own `.gitignore`, `CLAUDE.md`, `.claude/`, docs.
 - **Why:** The repo already had files; the scaffolder would also have generated `AGENTS.md` and `.claude/settings.json` that conflict with ours.
 
-## D-005 — Mock data behind repository-shaped functions (planned, slice 5)
+## D-005 — Mock data behind repository-shaped functions (done, slice 5)
 - **What:** `customerRepository` gets an in-memory implementation with the same async signatures the Supabase version will have in M3.
 - **Why:** Screens and hooks stay unchanged when the backend arrives.
 
@@ -66,3 +66,4 @@ One entry per non-obvious technical choice: what, why, alternatives.
 
 ## D-012 — Xcode 27 replaced Simulator.app with DeviceHub
 - **What:** `open -a Simulator` fails on Xcode 27.0. Open `/Applications/Xcode.app/Contents/Applications/DeviceHub.app`; boot devices with `xcrun simctl boot <udid>` (iPhone 17 Pro: `C9E2F811-1A28-428C-920A-363F98A60C77`).
+- **Done 2026-10-24:** `src/repositories/customerRepository.ts` (in-memory, async, 600 ms fake latency). `getMockMode()` lets the owner rehearse `empty`, `error` and `slow` states; it is a function, not a `const`, so TypeScript does not narrow it. Default must stay `'normal'` when committing.
