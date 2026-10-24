@@ -135,3 +135,15 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **Date:** 2026-10-24
 - **What:** `supabase db advisors --linked` showed no security issue on our tables. Left as is: (1) two composite foreign keys on `work_orders` have no index starting with both columns, and `work_orders_business_status_idx` is unused so far; these are INFO-level, immaterial for a small MVP, and would need another migration for no visible benefit. (2) "Leaked password protection disabled" is an Auth setting, not schema.
 - **Revisit:** if the app ever holds many jobs per business, replace `work_orders_customer_id_idx` with `(customer_id, business_id)` and add `(technician_id, business_id)`.
+
+## D-025 — Encrypted login-session storage (M2)
+- **Date:** 2026-10-24
+- **What:** The Supabase session is stored with Supabase's documented "LargeSecureStore" pattern (`src/lib/secureSessionStorage.ts`): AES-256-CTR ciphertext in AsyncStorage, a fresh random key per write in expo-secure-store (Keychain / Keystore, `WHEN_UNLOCKED_THIS_DEVICE_ONLY`, so it does not restore to another phone). Unreadable or corrupt data counts as "signed out" and is cleaned up instead of crashing.
+- **Packages (owner approved):** `@supabase/supabase-js` ^2.118.0, `@react-native-async-storage/async-storage` 2.2.0, `expo-secure-store` ~57.0.4, `react-native-get-random-values` ~1.11.0 (all native parts are bundled in Expo Go, so D-001 holds), `aes-js` ^3.1.2 + `@types/aes-js` (plain JS; `aes-js` was last released in 2023: stable but unmaintained).
+- **Why:** Matches the project rule "tokens in encrypted storage" and the spec ("current official mechanism, no improvised storage"); Supabase's own page warns that edits to this adapter can introduce subtle vulnerabilities, so it stays close to their example and is covered by tests.
+- **Verified:** 9 unit tests; on the Android emulator and the iOS simulator a 6.8 KB value round-trips with the real native modules, is never stored as plaintext, and is removed cleanly.
+- **Not needed:** `react-native-url-polyfill` (tested without it on RN 0.86).
+- **Alternatives:** plain AsyncStorage (official quickstart default, unencrypted).
+
+## D-026 — Settings come from one validated place
+- **What:** `src/lib/env.ts` validates `EXPO_PUBLIC_SUPABASE_URL` (must be `https://<ref>.supabase.co`) and the key (must start `sb_publishable_`), and throws one readable startup error that never repeats a value. A secret key pasted by mistake is refused. After changing `.env`, restart Metro with `npm start -- --clear`.

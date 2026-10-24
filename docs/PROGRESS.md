@@ -3,8 +3,8 @@
 | Milestone | Status |
 |---|---|
 | M0 Setup + mock UI | complete, merged to main (PR #1) |
-| M1 Database, RLS, seed | complete; PR #2 open, awaiting owner review (2026-10-24) |
-| M2 Auth + onboarding | not started |
+| M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
+| M2 Auth + onboarding | in progress (slice 1 done: connection + encrypted session storage; next slice 2: real sign-up and sign-in) |
 | M3 CRUD via repositories | not started |
 | M4 Dashboard + status | not started |
 | M5 AI summary | not started |
