@@ -47,3 +47,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Job status rules are a tested pure module, ready for the status-change UI in M4.
 - Tests were mutation-checked: breaking the name rule and the "completed is final" rule made the right tests fail.
 - Next: `/finish-milestone M0`, then M1 (database, RLS, seed).
+
+## 2026-10-24 — M0 wrap-up
+- M0 delivered a navigable app with mock data: auth shell, customers (list + add + edit), jobs (list), settings, themed light/dark, 22 tests.
+- Biggest time sinks were environment, not code: stale Wi-Fi IP vs `--localhost`, IPv6-only Metro binding, Android AVD images stripped, Xcode 27 DeviceHub. All recorded in DECISIONS (D-008, D-011, D-012).
+- Expo Go quirk: its floating Tools button covers the header's right edge, so primary actions go at the bottom (D-013).
+- Lint and tests earned their keep immediately (two hook problems, and a mutation check proved the tests can fail).
+- Next: M1, the database and row-level security; the first milestone with real security requirements.

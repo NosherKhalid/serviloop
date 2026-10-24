@@ -30,13 +30,14 @@ Screen → feature hook → repository → Supabase client → Postgres/RLS. Det
 - `supabase/{migrations,functions,seed.sql}` · `docs/` · `__tests__/`
 
 ## Commands
-Created in M0; keep in sync with `package.json`:
+Keep in sync with `package.json`:
 - `npm start` — Metro on IPv4 loopback (D-011); press `i` for iOS simulator, `a` for Android emulator
-- `npm run lint` · `npm run typecheck` · `npm test`
+- `npm run lint` · `npm run typecheck` · `npm test` (Jest + RNTL, tests in `__tests__/`)
 - `npm run check` — lint + typecheck + tests; must pass before every commit that ends a task
 
 ## Environment gotchas
 - Start on **Expo Go**, but stay scalable: use only Expo Go-compatible packages and do not hand-edit `ios/`/`android/`. Moving to a development build (`expo-dev-client`) later must be a config step, not a rewrite (see `docs/DECISIONS.md`).
+- Xcode 27 has no `Simulator.app`: open DeviceHub (D-012). After restarting Metro, Android Expo Go needs `adb shell am force-stop host.exp.exponent` before `a` (see memory/docs).
 - Native arm64 toolchain only. If `arch` prints `i386` you are under Rosetta: stop and tell the owner.
 - Only `EXPO_PUBLIC_SUPABASE_URL` and the publishable key go in the app; `EXPO_PUBLIC_*` is public in the bundle.
 - Expo APIs change between SDKs. Check docs for the installed SDK (`https://docs.expo.dev/llms.txt` or the Expo MCP), not training data.
