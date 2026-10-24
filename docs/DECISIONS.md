@@ -147,3 +147,12 @@ One entry per non-obvious technical choice: what, why, alternatives.
 
 ## D-026 — Settings come from one validated place
 - **What:** `src/lib/env.ts` validates `EXPO_PUBLIC_SUPABASE_URL` (must be `https://<ref>.supabase.co`) and the key (must start `sb_publishable_`), and throws one readable startup error that never repeats a value. A secret key pasted by mistake is refused. After changing `.env`, restart Metro with `npm start -- --clear`.
+
+## D-027 — Auth design (M2 slice 2)
+- **Date:** 2026-10-24
+- **What:** `AuthProvider` exposes only `{ status, user: { id, email } }` plus `signIn` / `signUp` / `signOut`; access and refresh tokens never enter React state, context or logs. Sign-out is `scope: 'local'` (this device only; in the installed auth library the local session is removed even if the network call fails). Root layout holds the splash screen until the saved session has been looked up and guards `(app)` / `(auth)` with `Stack.Protected`. One shared message for "wrong password" and "unknown email" so the app cannot reveal who has an account; unknown service errors always show a fixed generic sentence, never raw text. New passwords: 8–72 characters (72 is the hashing limit).
+- **Known limit:** with email confirmation off, sign-up for an existing email reveals that the email is registered ("already exists"). Accepted for the MVP; it goes away when confirmation is turned back on before a real launch.
+- **Verified on the Android emulator against the hosted project:** sign-up, session survives a full app close and reopen, sign-out, wrong password (friendly message), sign-in again, sign-out and sign-in with the network off (friendly "can't reach the server", app recovers when the network returns). 29 new unit tests.
+
+## Open issue — intermittent dev warning (not fixed)
+- On one cold start (restoring a freshly created session) the dev build showed "Can't perform a React state update on a component that hasn't mounted yet". It did not reproduce in 11 later cold starts (signed in and signed out), and the log gave no component name. It appears only in development builds (React dev warning). Keep watching the device log during slices 3–4; if it returns, capture the in-app LogBox component stack.

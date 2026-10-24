@@ -61,3 +61,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - `load_demo_data()` gives any new user a populated business in one call (ready for the M2 onboarding button).
 - Setup lessons: Supabase CLI needs a real terminal for `login`/`link`/`db push` (password prompts); `npm run test:rls` loads `.env` via Node so keys never appear in output.
 - Next: M2, real sign-up / sign-in / session persistence replacing the mock `AuthProvider`.
+
+## 2026-10-24 — M2 slices 1–2 (real accounts)
+- The app now signs up, signs in and out against the real hosted project; the saved login is encrypted and survives closing the app.
+- Tests caught a real bug early (a pasted secret key was reported as "missing"); device checks caught a test-script mistake of mine (pressing Back exits the first screen), not an app bug.
+- Offline behaviour verified: a friendly message, sign-out still works, and the app recovers when the network returns.
+- Pitfall to remember: Metro reads `.env` at startup; after editing it restart with `npm start -- --clear`.
+- Next: slice 3, business onboarding (create your business or load demo data) and a real business name in Settings.

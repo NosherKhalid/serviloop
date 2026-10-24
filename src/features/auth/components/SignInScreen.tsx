@@ -1,17 +1,15 @@
 import { Link } from 'expo-router';
-import { useState } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { spacing, typography, useTheme } from '@/theme';
-import { useAuth } from '@/providers/AuthProvider';
+
+import { useAuthForm } from '../hooks/useAuthForm';
 
 export function SignInScreen() {
   const colors = useTheme();
-  const { signIn } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, errors, isSubmitting, formError, setField, submit } = useAuthForm('signIn');
 
   return (
     // ScrollView (not a plain View) so small screens and the keyboard never hide the button.
@@ -24,23 +22,36 @@ export function SignInScreen() {
 
       <Input
         label="Email"
-        value={email}
-        onChangeText={setEmail}
+        value={values.email}
+        onChangeText={(text) => setField('email', text)}
+        error={errors.email}
         keyboardType="email-address"
         autoCapitalize="none"
         autoComplete="email"
+        autoCorrect={false}
+        editable={!isSubmitting}
       />
       <Input
         label="Password"
-        value={password}
-        onChangeText={setPassword}
+        value={values.password}
+        onChangeText={(text) => setField('password', text)}
+        error={errors.password}
         secureTextEntry
         autoCapitalize="none"
         autoComplete="current-password"
+        autoCorrect={false}
+        returnKeyType="go"
+        onSubmitEditing={submit}
+        editable={!isSubmitting}
       />
 
-      {/* MOCK (M0): any input signs you in. Real validation (Zod) and Supabase Auth arrive in M2. */}
-      <Button title="Sign in" onPress={signIn} />
+      {formError !== null ? (
+        <Text accessibilityRole="alert" style={[styles.formError, { color: colors.danger }]}>
+          {formError}
+        </Text>
+      ) : null}
+
+      <Button title="Sign in" onPress={submit} loading={isSubmitting} />
 
       {/* `Link` is Expo Router's navigation element, like a SwiftUI NavigationLink. */}
       <Link href="/sign-up" style={[styles.link, { color: colors.primary }]}>
@@ -57,6 +68,9 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.title,
+  },
+  formError: {
+    ...typography.body,
   },
   link: {
     ...typography.body,

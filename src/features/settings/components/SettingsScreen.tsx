@@ -7,16 +7,20 @@ import { useAuth } from '@/providers/AuthProvider';
 
 export function SettingsScreen() {
   const colors = useTheme();
-  const { signOut } = useAuth();
+  const { state, signOut } = useAuth();
+  const email = state.status === 'signedIn' ? state.user.email : null;
 
   return (
     <Screen style={styles.content}>
+      <Text style={[styles.label, { color: colors.textMuted }]}>Signed in as</Text>
+      <Text style={[styles.value, { color: colors.text }]}>{email ?? 'Unknown'}</Text>
+
       <Text style={[styles.label, { color: colors.textMuted }]}>Business</Text>
       {/* MOCK (M0): the real business name comes from Supabase in M2. */}
       <Text style={[styles.value, { color: colors.text }]}>Demo Plumbing Co.</Text>
 
-      {/* No navigation call here: signOut flips the flag and the root layout swaps to the auth screens. */}
-      <Button title="Sign out" variant="secondary" onPress={signOut} />
+      {/* No navigation call here: signing out changes the auth state and the root layout swaps to the sign-in screens. */}
+      <Button title="Sign out" variant="secondary" onPress={() => void signOut()} />
     </Screen>
   );
 }

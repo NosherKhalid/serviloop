@@ -16,3 +16,7 @@ Ideas outside the P0 scope. Do not build during the 30-day sprint (see `docs/PRO
 - "Reset demo data" action (delete all rows in the business, then reload) for repeatable portfolio demos
 - Turn on Supabase Auth "leaked password protection" (HaveIBeenPwned check) if the plan allows, and turn email confirmation back on, before any real launch
 - Performance hygiene if data grows: covering indexes for the two composite foreign keys on work_orders (D-024)
+- Forgot / reset password flow
+- Resend confirmation email and an in-app 'confirm your email' screen (needed once email confirmation is turned back on)
+- Delete account (removes the business and all its data)
+- Biometric unlock (Face ID / fingerprint) for returning owners
