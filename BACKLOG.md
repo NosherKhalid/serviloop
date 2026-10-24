@@ -14,3 +14,5 @@ Ideas outside the P0 scope. Do not build during the 30-day sprint (see `docs/PRO
 -
 - Database trigger for job status transitions (today only the app enforces them; tenant isolation is unaffected)
 - "Reset demo data" action (delete all rows in the business, then reload) for repeatable portfolio demos
+- Turn on Supabase Auth "leaked password protection" (HaveIBeenPwned check) if the plan allows, and turn email confirmation back on, before any real launch
+- Performance hygiene if data grows: covering indexes for the two composite foreign keys on work_orders (D-024)

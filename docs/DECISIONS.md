@@ -130,3 +130,8 @@ One entry per non-obvious technical choice: what, why, alternatives.
 
 ## D-023 — Generated database types
 - **What:** `npm run db:types` writes `src/types/database.ts` from the linked hosted schema (`supabase gen types typescript --linked --schema public`). Regenerate after every migration; M3 repositories will use it.
+
+## D-024 — Accepted advisor notes at M1 close-out
+- **Date:** 2026-10-24
+- **What:** `supabase db advisors --linked` showed no security issue on our tables. Left as is: (1) two composite foreign keys on `work_orders` have no index starting with both columns, and `work_orders_business_status_idx` is unused so far; these are INFO-level, immaterial for a small MVP, and would need another migration for no visible benefit. (2) "Leaked password protection disabled" is an Auth setting, not schema.
+- **Revisit:** if the app ever holds many jobs per business, replace `work_orders_customer_id_idx` with `(customer_id, business_id)` and add `(technician_id, business_id)`.
