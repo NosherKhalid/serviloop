@@ -299,7 +299,7 @@ Work is organised as milestones. Each ends with `/finish-milestone`, an understa
 
 | Milestone | Days | Done when |
 | --- | --- | --- |
-| **M0** Setup + mock UI | 1–7 | Expo TS app runs on iOS simulator and Android emulator via Expo Go; owner can explain `.tsx`, props, state; route groups and mock-array customer/job screens with one mock CRUD flow |
+| **M0** Setup + mock UI | 1–7 | Expo TS app runs on iOS simulator and Android emulator via Expo Go; route groups and mock-array customer/job screens with one mock CRUD flow |
 | **M1** Database, RLS, seed | 8–10 | Migrations committed; RLS on all tables; cross-business reads/writes/forged FKs rejected in a scripted two-user test; fictional seed works |
 | **M2** Auth + onboarding | 11–13 | Sign-up, sign-in, session restore after restart, sign-out, first-business creation without manual SQL |
 | **M3** CRUD via repositories | 14–18 | Customers, technicians, work orders create/read/update through repositories on both platforms |

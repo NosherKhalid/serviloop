@@ -2,15 +2,15 @@
 
 Field-service management MVP for small service businesses (plumbing, electrical, HVAC, cleaning): customers, technicians, work orders and an AI-written job summary. iOS + Android from one Expo / React Native codebase.
 Full spec: `docs/PROJECT_SPEC.md` (not auto-loaded; read the section you need before starting a milestone).
-**The real goal is that the owner understands every line.** A smaller app they can explain beats a bigger app they cannot.
+**The goal is a working, demonstrable product, built in a way the owner can follow.** Reports focus on what the product does, not on code walkthroughs.
 
 ## Who you work with
 - Owner: Nosher Khalid, senior iOS engineer (Swift, SwiftUI, MVVM-C), new to JavaScript, TypeScript and React Native. Go step by step; say what and why before running unfamiliar commands.
-- Teach with iOS analogies and say where they break (skill `rn-for-ios-devs`). Teaching format: `.claude/rules/teaching.md`.
+- Reports describe what the product does now and how to try it; no quizzes. iOS analogies only when asked (skill `rn-for-ios-devs`). Format: `.claude/rules/teaching.md`.
 
 ## Working rules
 1. Work milestone by milestone (spec §8, M0–M6). Start with `/start-milestone`, end with `/finish-milestone`: run `npm run check`, update `docs/PROGRESS.md`, then STOP for owner review. Never begin the next milestone unprompted.
-2. One narrow vertical slice at a time. Before a nontrivial change: goal in 2–4 sentences, files involved, the iOS analogy, the smallest change.
+2. One narrow vertical slice at a time. Before a nontrivial change: goal in 2–4 sentences, files involved, the smallest change.
 3. Scope discipline (spec §2): anything outside P0 goes to `BACKLOG.md`, not into code. Ask before building P1.
 4. Log every non-obvious technical choice in `docs/DECISIONS.md` (what, why, alternatives).
 5. Ask before adding any dependency not in the stack below (`/add-dependency`). Install with `npx expo install`; never guess versions.
