@@ -41,6 +41,11 @@ const styles = StyleSheet.create({
   },
   input: {
     ...typography.body,
+    // Serviloop is English-only for now. Without these two lines iOS lets the phone's preferred
+    // languages decide: with an RTL language such as Urdu in the list, an empty field puts the cursor
+    // on the right and English typing starts from the right edge.
+    textAlign: 'left',
+    writingDirection: 'ltr',
     minHeight: minTouchSize,
     paddingHorizontal: spacing.md,
     borderWidth: 1,

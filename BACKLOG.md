@@ -22,3 +22,4 @@ Ideas outside the P0 scope. Do not build during the 30-day sprint (see `docs/PRO
 - Biometric unlock (Face ID / fingerprint) for returning owners
 - Rename business (Settings)
 - Reset / delete demo data from Settings for repeatable demos
+- Localisation: Urdu and other right-to-left languages (mirrored layout, translated text, RTL-aware alignment); today the app is English-only and pins text to left-to-right (D-029)

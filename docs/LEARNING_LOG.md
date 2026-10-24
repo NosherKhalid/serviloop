@@ -81,3 +81,7 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Two kinds of surprises: my own test scripts (pressing Back exits the first screen; two scripts typing at once doubled a password), not product bugs; and one dev-only warning inside Expo Router, documented and left open.
 - Evidence habit that worked: unit tests mutation-checked, then real-device runs against the hosted project, then a database query to confirm the app and the data agree.
 - Next: M3, customers, technicians and jobs on real data through repositories.
+
+## 2026-10-24 — iOS text direction fix
+- Owner testing on the iOS simulator found English typing started from the right edge. Cause: Urdu (right-to-left) is in the simulator's preferred languages; fix: pin `textAlign`/`writingDirection` in the shared `Input` component (D-029).
+- Lesson: test with the owner's real device settings, not only defaults; one shared input component made a 4-line fix cover every field.

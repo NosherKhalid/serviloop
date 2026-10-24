@@ -165,3 +165,10 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **Why:** The demo data is not visible in the app until M3 (lists are still mock), so the confirmation screen is the visible proof for the owner and portfolio viewers; the shared-network-error helper (`src/utils/networkError.ts`) is used by auth and business errors.
 - **Verified:** 31 new unit tests (96 total); on the Android emulator against the hosted project: create business, restart skips onboarding, demo data path, account switching, and opening the app offline.
 - **Known limit:** a business cannot be renamed or deleted in the app yet (BACKLOG).
+
+## D-029 — Text fields always start from the left (English-only for now)
+- **Date:** 2026-10-24
+- **What:** `src/components/Input.tsx` sets `textAlign: 'left'` and `writingDirection: 'ltr'`. All 8 text fields in the app (sign in, create account, customer form, business name) use this one component, so one change covers them all.
+- **Why:** On the owner's iPhone simulator the preferred languages are `en-GB` then `ur-US` (Urdu, a right-to-left language). iOS then put the cursor on the right edge of an empty English field and typing started from the right. The app is English-only for now, so direction is pinned explicitly instead of depending on the phone's language list.
+- **Verified:** new unit test (`__tests__/Input.test.tsx`), Android emulator (text starts on the left), iOS simulator reloads the change without a crash. **Not verified by me:** the cursor position on the iOS keyboard (I cannot tap the iOS simulator); owner to confirm.
+- **Later:** proper Urdu/RTL support (mirrored layout, translated text) would be a separate localisation task; see BACKLOG.
