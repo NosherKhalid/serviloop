@@ -22,6 +22,8 @@ Runs against the **hosted Supabase project** over the same public HTTP API the a
 | Normal use | An owner can edit their customer, rename their business, change job status and notes, save an AI summary, deactivate a technician, and delete their own job and customer; `updated_at` advances automatically | Pass |
 | Demo data | A new user gets 6 customers, 3 technicians, 6 jobs (2 open, 1 in progress, 2 completed, 1 cancelled); a second load is refused with no duplicates; other users see none of it; a business that already has data is refused | Pass |
 
+**Independent check:** Supabase's built-in advisor (`npx supabase db advisors --linked`) found no security issues on our tables, and a direct query of the hosted database confirmed RLS is ON for all four tables with 3 / 4 / 3 / 4 policies. Its only notes: leaked-password protection is disabled (an Auth setting, see `BACKLOG.md`), and two performance hints (composite foreign keys without a covering index, an index not yet used) that do not matter at MVP size.
+
 **How the evidence was strengthened**
 - Before pushing, the same rules were checked in an in-memory Postgres (56 + 10 checks). Two deliberate security holes (a policy allowing any insert, a writable `business_id`) were both detected, so the checks can fail.
 - Rejection cases must return a specific database error code, so a typo or network error cannot pass as "secure".
