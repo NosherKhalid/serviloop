@@ -31,5 +31,12 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **What:** `customerRepository` gets an in-memory implementation with the same async signatures the Supabase version will have in M3.
 - **Why:** Screens and hooks stay unchanged when the backend arrives.
 
-## D-006 — Strip the template demo (planned, slice 2)
+## D-006 — Strip the template demo (done, slice 2)
 - **What:** Remove the template's demo screens, web-only files and unused deps (web, animated icon, glass effect) as we replace them, keeping only what we can explain.
+- **Done 2026-10-14:** removed demo screens, web-only files, `scripts/reset-project`, template images, the `web` config and unused deps (`react-dom`, `react-native-web`, `expo-glass-effect`, `@expo/ui`, `expo-symbols`, `expo-device`, `expo-web-browser`, `expo-image`). Web is out of scope.
+
+## D-007 — React Compiler off while learning
+- **Date:** 2026-10-14
+- **What:** Removed `experiments.reactCompiler` from `app.json`.
+- **Why:** The compiler auto-memoizes components, which hides the re-render and stale-closure behaviour the owner is here to learn. Revisit after M6 or when there is a measured performance reason.
+- **Alternatives:** Keep it on (less manual memoization, but opaque).
