@@ -12,3 +12,5 @@ Ideas outside the P0 scope. Do not build during the 30-day sprint (see `docs/PRO
 
 ## Ideas
 -
+- Database trigger for job status transitions (today only the app enforces them; tenant isolation is unaffected)
+- "Reset demo data" action (delete all rows in the business, then reload) for repeatable portfolio demos
