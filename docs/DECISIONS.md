@@ -67,3 +67,19 @@ One entry per non-obvious technical choice: what, why, alternatives.
 ## D-012 — Xcode 27 replaced Simulator.app with DeviceHub
 - **What:** `open -a Simulator` fails on Xcode 27.0. Open `/Applications/Xcode.app/Contents/Applications/DeviceHub.app`; boot devices with `xcrun simctl boot <udid>` (iPhone 17 Pro: `C9E2F811-1A28-428C-920A-363F98A60C77`).
 - **Done 2026-10-24:** `src/repositories/customerRepository.ts` (in-memory, async, 600 ms fake latency). `getMockMode()` lets the owner rehearse `empty`, `error` and `slow` states; it is a function, not a `const`, so TypeScript does not narrow it. Default must stay `'normal'` when committing.
+
+## D-013 — "Add customer" lives at the bottom of the list, not in the header
+- **Date:** 2026-10-24
+- **What:** A full-width `Button` pinned under the `FlatList` (plus an action in the empty state) instead of a header-right "Add".
+- **Why:** In Expo Go the floating gear ("Tools") button covers the header's right edge, so a header button opens the dev menu instead. A bottom primary action also matches the thumb-reach rule in `.claude/rules/ui-accessibility.md`.
+- **Alternatives:** Header button (unusable in Expo Go); floating action button (extra component, same overlap risk at the right edge).
+
+## D-014 — Validation with Zod, as a pure function
+- **What:** `validateCustomerForm(values)` in `src/features/customers/validation.ts` wraps `customerFormSchema.safeParse` and returns `{ success, data | errors }`. Form values are strings (`z.input`); saved values are trimmed with blank phone/address as `null` (`z.output`).
+- **Why:** Types vanish at runtime, so user input must be validated; keeping it React-free makes it unit-testable (slice 7) and reusable for Supabase in M3.
+
+## D-015 — Product-focused reporting, no quizzes
+- **Date:** 2026-10-24
+- **What:** The owner chose to focus on how the product is developed and what it does. Quizzes and the "explain `.tsx`/props/state" gate are removed; each slice report now describes what the product can do, how to try it, and what is real vs mock. Updated `CLAUDE.md`, `.claude/rules/teaching.md`, the `start-/finish-milestone` and `new-feature` skills, and the M0 gate in `docs/PROJECT_SPEC.md`.
+- **Why:** The owner's stated priority. Code explanations remain available on request.
+- **Alternatives:** Keep quizzes as optional (rejected by the owner).

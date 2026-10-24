@@ -1,3 +1,4 @@
+import type { CustomerInput } from '@/features/customers/validation';
 import type { Customer } from '@/types/customer';
 
 // MOCK (M0): everything here is in memory and resets when the app reloads. In M3 the bodies of
@@ -12,6 +13,8 @@ let customers: Customer[] = [
   { id: 'c6', name: 'Amelia Brooks', phone: '555-0106', address: '9 Willow Way', createdAt: '2026-09-25T13:05:00Z' },
 ];
 
+let nextCustomerNumber = customers.length;
+
 // Edit the return value to rehearse each screen state with Fast Refresh:
 // 'normal' | 'empty' | 'error' | 'slow'. A function (not a const) so TypeScript does not narrow it.
 type MockMode = 'normal' | 'empty' | 'error' | 'slow';
@@ -23,17 +26,49 @@ function wait(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-// iOS: `async` functions return a Promise, like Swift's `async throws` returning a value.
-// A thrown error rejects the Promise, and the caller handles it with try/catch or `.catch`.
-export async function listCustomers(): Promise<Customer[]> {
+// Shared by every function: pretend to be a network request, and fail on demand.
+async function simulateNetwork(): Promise<MockMode> {
   const mode = getMockMode();
-  await wait(mode === 'slow' ? 5000 : 600); // pretend to be a network request
-
+  await wait(mode === 'slow' ? 5000 : 600);
   if (mode === 'error') {
     throw new Error('Mock network failure');
   }
-  if (mode === 'empty') {
-    return [];
+  return mode;
+}
+
+// iOS: `async` functions return a Promise, like Swift's `async throws` returning a value.
+// A thrown error rejects the Promise, and the caller handles it with try/catch or `.catch`.
+export async function listCustomers(): Promise<Customer[]> {
+  const mode = await simulateNetwork();
+  return mode === 'empty' ? [] : customers;
+}
+
+// `Customer | null`: null means "no customer with that id", which is not an error.
+export async function getCustomer(id: string): Promise<Customer | null> {
+  await simulateNetwork();
+  return customers.find((customer) => customer.id === id) ?? null;
+}
+
+export async function createCustomer(input: CustomerInput): Promise<Customer> {
+  await simulateNetwork();
+  nextCustomerNumber += 1;
+  const customer: Customer = {
+    id: `c${nextCustomerNumber}`, // M3: the database generates a UUID
+    ...input,
+    createdAt: new Date().toISOString(),
+  };
+  // Never mutate state in place: build a new array. (The same rule React state follows.)
+  customers = [...customers, customer];
+  return customer;
+}
+
+export async function updateCustomer(id: string, input: CustomerInput): Promise<Customer> {
+  await simulateNetwork();
+  const existing = customers.find((customer) => customer.id === id);
+  if (existing === undefined) {
+    throw new Error('Customer not found');
   }
-  return customers;
+  const updated: Customer = { ...existing, ...input };
+  customers = customers.map((customer) => (customer.id === id ? updated : customer));
+  return updated;
 }

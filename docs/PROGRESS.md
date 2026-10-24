@@ -2,7 +2,7 @@
 
 | Milestone | Status |
 |---|---|
-| M0 Setup + mock UI | in progress (slices 1–5 done) |
+| M0 Setup + mock UI | in progress (slices 1–6 done) |
 | M1 Database, RLS, seed | not started |
 | M2 Auth + onboarding | not started |
 | M3 CRUD via repositories | not started |
@@ -14,7 +14,7 @@
 - 2026-10-13: Project restructured (spec moved to `docs/PROJECT_SPEC.md`, new `CLAUDE.md`, `.claude/` rules/skills/settings, git initialised). No app code yet.
 
 ## Next
-M0 slice 6: customer create/edit form (Zod, params, keyboard).
+M0 slice 7: mock jobs list + jest + `npm run check`.
 
 ## Open questions
 - Supabase project: not created yet (needed for M1).

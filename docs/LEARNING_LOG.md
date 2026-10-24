@@ -33,3 +33,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - `setReloadCount(c => c + 1)` (functional update) reads the latest value, avoiding stale closures; changing a dependency (`reloadCount`) is how you re-run an effect.
 - `FlatList` + `keyExtractor` (stable id, not index) ≈ `List` + `Identifiable`; `value && <X/>` can render stray `0`/`""`, so compare explicitly (`!== null`).
 - Repositories hide the data source: M3 swaps the body of `listCustomers`, not the hook or screen.
+
+## 2026-10-24 — M0 slice 6
+- Controlled inputs: the field always shows `values[field]`; typing calls `setField`, which uses a functional update (`setValues(current => ({...current, [field]: value}))`) so it never overwrites newer state with a stale copy.
+- `z.input` vs `z.output`: the form holds strings; after `safeParse` we get trimmed values with blank optional fields as `null`. Types are erased at runtime, Zod is not.
+- Route params (`[id]`) arrive as `string` (or `string[]`) and are untrusted: check them before use, and handle "not found" as a normal state.
+- A screen under a pushed screen stays mounted, so `useEffect` does not re-run on return. `useFocusEffect` + `useCallback` refetches on focus; without `useCallback` the effect would re-run every render.
+- Pitfall: Expo Go's floating Tools button covers the header's right edge; keep primary actions at the bottom.

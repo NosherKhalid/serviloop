@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 
 import { listCustomers } from '@/repositories/customerRepository';
 import type { Customer } from '@/types/customer';
@@ -16,34 +17,41 @@ export function useCustomers() {
   // Changing this number is how `reload` re-runs the effect below.
   const [reloadCount, setReloadCount] = useState(0);
 
-  // iOS: roughly `.task(id: reloadCount)`. It runs after the first render and again whenever a
-  // value in the dependency array `[reloadCount]` changes.
-  useEffect(() => {
-    // Difference from `.task`: nothing cancels this for us. If the screen goes away while the
-    // request is in flight, the flag stops a late result from calling setState on a gone screen.
-    let isCancelled = false;
+  // iOS: this is `.onAppear` / `.task` for *navigation focus*. A screen under a pushed form stays
+  // mounted, so a plain `useEffect` would not run again when you come back from saving. This runs
+  // every time the screen gains focus. It does NOT show the spinner again: old rows stay visible
+  // until fresh ones arrive.
+  //
+  // `useCallback` is needed here for a real reason: `useFocusEffect` re-runs whenever the function
+  // it receives changes identity, and a new inline function is created on every render.
+  useFocusEffect(
+    useCallback(() => {
+      // Nothing cancels this for us (unlike `.task`). If the screen goes away while the request is
+      // in flight, the flag stops a late result from calling setState on a gone screen.
+      let isCancelled = false;
 
-    async function load() {
-      try {
-        const customers = await listCustomers();
-        if (!isCancelled) {
-          setState({ status: 'ready', customers });
-        }
-      } catch {
-        if (!isCancelled) {
-          // Never show raw error text from the data layer to the user.
-          setState({ status: 'error', message: "We couldn't load your customers. Check your connection and try again." });
+      async function load() {
+        try {
+          const customers = await listCustomers();
+          if (!isCancelled) {
+            setState({ status: 'ready', customers });
+          }
+        } catch {
+          if (!isCancelled) {
+            // Never show raw error text from the data layer to the user.
+            setState({ status: 'error', message: "We couldn't load your customers. Check your connection and try again." });
+          }
         }
       }
-    }
 
-    void load(); // `void` = we intentionally do not await; errors are handled inside `load`
+      void load(); // `void` = we intentionally do not await; errors are handled inside `load`
 
-    // iOS: like `onDisappear` / task cancellation. React runs this before the next effect and on unmount.
-    return () => {
-      isCancelled = true;
-    };
-  }, [reloadCount]);
+      // iOS: like `onDisappear` / task cancellation.
+      return () => {
+        isCancelled = true;
+      };
+    }, [reloadCount]),
+  );
 
   function reload() {
     setState({ status: 'loading' });
