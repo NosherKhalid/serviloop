@@ -31,7 +31,7 @@ Screen → feature hook → repository → Supabase client → Postgres/RLS. Det
 
 ## Commands
 Created in M0; keep in sync with `package.json`:
-- `npm start` — Metro; press `i` for iOS simulator, `a` for Android emulator
+- `npm start` — Metro on IPv4 loopback (D-011); press `i` for iOS simulator, `a` for Android emulator
 - `npm run lint` · `npm run typecheck` · `npm test`
 - `npm run check` — lint + typecheck + tests; must pass before every commit that ends a task
 

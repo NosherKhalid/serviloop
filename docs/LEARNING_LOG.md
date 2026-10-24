@@ -19,3 +19,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Union types (`'primary' | 'secondary'`) ≈ Swift enums without payloads; `?` makes a prop optional (`T | undefined`).
 - `{...rest}` forwards all remaining props; `A & B` combines types. Derived values (e.g. `nameError`) are computed during render, not stored in state.
 - Next: route groups and the navigation shell (slice 4).
+
+## 2026-10-24 — M0 slice 4
+- Folders in `src/app` are the navigation graph: `(auth)` and `(app)` are route groups (parentheses = no URL segment); `_layout.tsx` is the container (Stack/Tabs) ≈ coordinator.
+- Context = shared value for a whole subtree (`AuthProvider` + `useAuth`) ≈ `@EnvironmentObject`; every consumer re-renders when the value changes. `useContext` returns `T | null` here, so the hook narrows away `null`.
+- `Stack.Protected guard={...}` replaces hand-written redirects: flip the flag and Expo Router moves the user.
+- Android back: from a non-first tab it returns to the first tab; from the first tab it leaves the app.
+- Pitfall: adding/deleting files under a running app can leave Fast Refresh with a stale module ("Requiring unknown module"); a cold reload fixes it, it is not a code bug.

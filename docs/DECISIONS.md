@@ -46,3 +46,23 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **What:** Use AVD `Serviloop_Pixel_7_Pro_API_36` (Pixel 7 Pro, API 36 `google_apis` image) and start Metro with `npx expo start --localhost`.
 - **Why:** `Pixel_7_Pro_API_34` and `Pixel_3a_API_34` have stripped system images (no `system.img`) and cannot boot; sharing Hippocamp's AVD mixed apps and data. `--localhost` makes Expo use `adb reverse`, so a changing Wi-Fi/DHCP address (we hit `192.168.18.160` → `.161`) cannot break the connection.
 - **Alternatives:** Re-download the API 34 image (~1.5 GB).
+
+## D-009 — Mock auth via React Context + `Stack.Protected` (slice 4)
+- **Date:** 2026-10-24
+- **What:** `AuthProvider` holds an `isSignedIn` boolean (mock). The root layout wraps `(app)` and `(auth)` in `<Stack.Protected guard=...>`, so Expo Router switches flows when the flag flips. Screens call `useAuth()`.
+- **Why:** This is the documented SDK 57 pattern (docs.expo.dev/router/advanced/authentication). In M2 only the provider's body changes (Supabase session); routes and screens stay the same.
+- **Alternatives:** Manual `router.replace` redirects in each screen (more code, easy to forget); a state library (not justified).
+
+## D-010 — JS tabs, text-only for now
+- **What:** `Tabs` from `expo-router` (JS tabs, bundled since SDK 56) with icons hidden.
+- **Why:** No icon library is in the stack; adding `@expo/vector-icons` needs `/add-dependency` approval. Revisit in the M6 polish pass.
+
+## D-011 — `npm start` binds Metro to IPv4 loopback
+- **Date:** 2026-10-24
+- **What:** `"start": "NODE_OPTIONS=--dns-result-order=ipv4first expo start --localhost"`.
+- **Why:** `--localhost` binds to `localhost`, which Node resolves to `::1` (IPv6) on this Mac. Metro then listened on `[::1]:8081` only, and the iOS simulator's Expo Go (which opens `exp://127.0.0.1:8081`, IPv4) got `Connection refused`. Preferring IPv4 makes Metro bind `127.0.0.1`, reachable from the iOS simulator and, via `adb reverse`, the Android emulator. Verified with `curl` on a spare port; end-to-end on both devices still to be confirmed by the owner.
+- **Alternatives:** `npx expo start` without `--localhost` (works, but the URL embeds the Wi-Fi IP, which changed once already, see D-008).
+- **Note:** macOS/Linux syntax; Windows would need `cross-env`.
+
+## D-012 — Xcode 27 replaced Simulator.app with DeviceHub
+- **What:** `open -a Simulator` fails on Xcode 27.0. Open `/Applications/Xcode.app/Contents/Applications/DeviceHub.app`; boot devices with `xcrun simctl boot <udid>` (iPhone 17 Pro: `C9E2F811-1A28-428C-920A-363F98A60C77`).
