@@ -50,7 +50,10 @@ Runs against the **hosted Supabase project** over the same public HTTP API the a
 | Hosted database matches: each test owner has exactly one business; demo owner has 6 / 3 / 6 rows | Pass |
 | Open the app offline while signed in: "Can't load your business" with Try again; one tap recovers online | Pass |
 
-Not verified here: the same flows on the iOS simulator (only the Sign in screen boot was confirmed; owner to walk the flow), light mode on the new screens, large text sizes, Android back from onboarding. One intermittent development-only React warning was seen once and not reproduced (see D-027, open issue).
+Not verified here: the same flows on the iOS simulator (only the Sign in screen boot was confirmed; owner to walk the flow), light mode on the new screens, large text sizes, Android back from onboarding. A development-only React warning appears on the first restart after creating a brand-new account (2 of 2); its stack points into Expo Router, nothing breaks (see DECISIONS, open issue).
+
+### M2 close-out pass (fresh run, same device, 2026-10-24)
+Create account "m2-final-…" -> onboarding -> "Gate Check Plumbing" -> full app restart (straight back in, business shown) -> sign out -> sign in again with the same account: all pass. A first attempt at the last step showed "Email or password is incorrect" only because an overlapping test script typed the password twice (about 29 characters); the clean retry signed in.
 
 ## Not yet tested
 iOS manual pass for M2, repositories against Supabase (M3), the AI function (M5), accessibility at the largest text size, offline behaviour.

@@ -4,7 +4,7 @@
 |---|---|
 | M0 Setup + mock UI | complete, merged to main (PR #1) |
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
-| M2 Auth + onboarding | built and verified; awaiting owner review (slices 1–3 done; run /finish-milestone M2) |
+| M2 Auth + onboarding | complete; awaiting owner review and PR (2026-10-24) |
 | M3 CRUD via repositories | not started |
 | M4 Dashboard + status | not started |
 | M5 AI summary | not started |
@@ -26,8 +26,13 @@
 - Owner to confirm in the dashboard (cannot be checked from here): Authentication > Sign In / Providers > Email > "Confirm email" is OFF; Table Editor shows RLS enabled.
 - README still not written (due M6).
 
+## M2 close-out (2026-10-24)
+- Gate verified with fresh evidence on the Android emulator against the hosted project: sign-up, sign-in, session restore after a full restart, sign-out, first-business creation with no SQL (also the demo-data path, account switching and offline start, earlier the same day).
+- `npm run check`: lint clean, typecheck clean, 96/96 tests (15 suites). No `any`/suppressions, no `console` calls, no token handling outside the Supabase client, no secrets or `.env` ever committed. Database unchanged since M1 (migrations identical), so the M1 62-check security result still applies; Supabase's own security advisor shows only the known leaked-password-protection note.
+- Open: one dev-only React warning on the first restart after sign-up (inside Expo Router's own code); iOS flows not walked by me (cannot tap the simulator); light mode, large text and Android back on the new screens untested.
+
 ## Next
-Owner reviews/merges PR #2, then `/start-milestone M2`: real sign-up / sign-in / sign-out, session persistence, first-business onboarding with a "Load demo data" button.
+Owner reviews M2 and merges the PR (not opened yet), then `/start-milestone M3`: customers, technicians and jobs on real data through repositories.
 
 ## Open questions
 - AI provider for M5: undecided (mock summary is the fallback).

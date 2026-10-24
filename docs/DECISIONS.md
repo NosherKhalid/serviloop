@@ -154,8 +154,10 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **Known limit:** with email confirmation off, sign-up for an existing email reveals that the email is registered ("already exists"). Accepted for the MVP; it goes away when confirmation is turned back on before a real launch.
 - **Verified on the Android emulator against the hosted project:** sign-up, session survives a full app close and reopen, sign-out, wrong password (friendly message), sign-in again, sign-out and sign-in with the network off (friendly "can't reach the server", app recovers when the network returns). 29 new unit tests.
 
-## Open issue — intermittent dev warning (not fixed)
-- On one cold start (restoring a freshly created session) the dev build showed "Can't perform a React state update on a component that hasn't mounted yet". It did not reproduce in 11 later cold starts (signed in and signed out), and the log gave no component name. It appears only in development builds (React dev warning). Keep watching the device log during slices 3–4; if it returns, capture the in-app LogBox component stack.
+## Open issue — dev-only React warning on the first restart after sign-up (not fixed)
+- **What:** Android, development build only: "Can't perform a React state update on a component that hasn't mounted yet". It showed on the **first cold start after creating a brand-new account** (2 of 2 times, 2026-10-24) and did not appear in about 25 other cold starts (signed in, signed out, offline). Nothing breaks: the app lands on the right screen, and sign-in, restore and sign-out all work.
+- **Where it comes from:** the in-app component stack names `ContextNavigator` and `ExpoRoot` (Expo Router's own root code in `node_modules/expo-router`), not any Serviloop component; no Serviloop code appears in the stack.
+- **Status:** not reproduced on demand beyond that pattern and not fixed; it is a React *development* warning (not shown in release builds). Revisit when Expo Router is patched (`npx expo install --check`) or if it ever appears on another flow. If it does, capture the LogBox component stack again.
 
 ## D-028 — Onboarding and business state (M2 slice 3)
 - **Date:** 2026-10-24

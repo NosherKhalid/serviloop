@@ -75,3 +75,9 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Showing a clear retry screen when offline beats a blank or wrong screen; verified by opening the app with the network off.
 - Real-device testing found no new bugs this slice; the intermittent dev-only React warning from slice 2 did not return (0 in about 20 further launches).
 - Next: M2 close-out (`/finish-milestone M2`), then M3: customers, technicians and jobs on real data.
+
+## 2026-10-24 — M2 wrap-up
+- M2 delivered the full account journey on real infrastructure: create account, set up (or demo) a business, stay signed in across restarts, sign out, switch accounts safely, and a clear screen when offline.
+- Two kinds of surprises: my own test scripts (pressing Back exits the first screen; two scripts typing at once doubled a password), not product bugs; and one dev-only warning inside Expo Router, documented and left open.
+- Evidence habit that worked: unit tests mutation-checked, then real-device runs against the hosted project, then a database query to confirm the app and the data agree.
+- Next: M3, customers, technicians and jobs on real data through repositories.
