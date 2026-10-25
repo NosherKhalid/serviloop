@@ -2,6 +2,8 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 
 import { listWorkOrders } from '@/repositories/workOrderRepository';
+
+import { sortForList } from '../sort';
 import type { WorkOrder } from '@/types/workOrder';
 
 export type WorkOrdersState =
@@ -18,7 +20,7 @@ export function useWorkOrders() {
     try {
       const workOrders = await listWorkOrders();
       if (isFocusedRef.current) {
-        setState({ status: 'ready', workOrders });
+        setState({ status: 'ready', workOrders: sortForList(workOrders) });
       }
     } catch {
       if (isFocusedRef.current) {

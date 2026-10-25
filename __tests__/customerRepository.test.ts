@@ -1,62 +1,103 @@
-import { createCustomer, getCustomer, listCustomers, updateCustomer } from '@/repositories/customerRepository';
+jest.mock('@/lib/supabase', () => ({ supabase: require('@/testing/mockSupabase').mockDb.client }));
 
-// The mock repository waits 600 ms to imitate a network call. Fake timers let tests skip the wait.
-beforeEach(() => {
-  jest.useFakeTimers();
-});
+import { mockDb } from '@/testing/mockSupabase';
+import { createCustomer, deleteCustomer, getCustomer, listCustomers, updateCustomer } from '@/repositories/customerRepository';
 
-afterEach(() => {
-  jest.useRealTimers();
-});
-
-// Runs `action` and fast-forwards the fake network delay.
-async function finish<T>(action: Promise<T>): Promise<T> {
-  await jest.advanceTimersByTimeAsync(600);
-  return action;
-}
-
+const row = { id: 'c1', name: 'Maple Street Bakery', phone: '555-0101', address: '12 Maple Street', created_at: '2026-09-01T09:00:00Z' };
+const customer = { id: 'c1', name: 'Maple Street Bakery', phone: '555-0101', address: '12 Maple Street', createdAt: '2026-09-01T09:00:00Z' };
 const input = { name: 'Riverside Cafe', phone: null, address: '5 River Road' };
 
-describe('customerRepository (mock)', () => {
-  it('adds a created customer to the list with a new id', async () => {
-    const before = await finish(listCustomers());
+const called = (method: string) => mockDb.called(method);
 
-    const created = await finish(createCustomer(input));
-    const after = await finish(listCustomers());
+beforeEach(() => {
+  mockDb.reset();
+});
 
-    expect(after).toHaveLength(before.length + 1);
-    expect(after.map((customer) => customer.id)).toContain(created.id);
-    expect(before.map((customer) => customer.id)).not.toContain(created.id);
+describe('customerRepository (real queries, mocked client)', () => {
+  it('lists customers by name and converts rows to the app\'s shape', async () => {
+    mockDb.result = { data: [row], error: null };
+
+    expect(await listCustomers()).toEqual([customer]);
+    expect(called('from')).toEqual([['customers']]);
+    expect(called('order')).toEqual([['name', { ascending: true }]]);
   });
 
-  it('does not change the previously returned list (no in-place mutation)', async () => {
-    const before = await finish(listCustomers());
-    const sizeBefore = before.length;
+  it('throws the service error when listing fails', async () => {
+    const failure = { code: '', message: 'TypeError: Network request failed' };
+    mockDb.result = { data: null, error: failure };
+    await expect(listCustomers()).rejects.toBe(failure);
+  });
 
-    await finish(createCustomer({ ...input, name: 'Another Cafe' }));
+  it('gets one customer by id', async () => {
+    mockDb.result = { data: row, error: null };
+    expect(await getCustomer('c1')).toEqual(customer);
+    expect(called('eq')).toEqual([['id', 'c1']]);
+  });
 
-    expect(before).toHaveLength(sizeBefore);
+  it('returns null for a customer that does not exist (or is not yours)', async () => {
+    mockDb.result = { data: null, error: null };
+    expect(await getCustomer('missing')).toBeNull();
+  });
+
+  it('creates a customer in the given business and returns it', async () => {
+    mockDb.result = { data: { ...row, name: 'Riverside Cafe', phone: null, address: '5 River Road' }, error: null };
+
+    const created = await createCustomer('b1', input);
+
+    expect(created.name).toBe('Riverside Cafe');
+    expect(called('insert')).toEqual([[{ business_id: 'b1', name: 'Riverside Cafe', phone: null, address: '5 River Road' }]]);
+  });
+
+  it('never sends columns the database does not let the app write', async () => {
+    mockDb.result = { data: row, error: null };
+    await createCustomer('b1', input);
+    await updateCustomer('c1', input);
+
+    const sent = [...called('insert'), ...called('update')].flat() as Record<string, unknown>[];
+    for (const payload of sent) {
+      expect(Object.keys(payload)).not.toContain('id');
+      expect(Object.keys(payload)).not.toContain('created_at');
+    }
+    // business_id is sent on creation only: rows can never be moved to another business.
+    expect(Object.keys(called('update')[0][0] as object)).not.toContain('business_id');
+  });
+
+  it('throws the service error when the database refuses a new customer', async () => {
+    const refusal = { code: '42501', message: 'new row violates row-level security policy' };
+    mockDb.result = { data: null, error: refusal };
+    await expect(createCustomer('someone-elses-business', input)).rejects.toBe(refusal);
   });
 
   it('updates only the edited customer', async () => {
-    const created = await finish(createCustomer(input));
+    mockDb.result = { data: { ...row, name: 'Riverside Bistro' }, error: null };
 
-    const updated = await finish(updateCustomer(created.id, { ...input, name: 'Riverside Bistro' }));
-    const reloaded = await finish(getCustomer(created.id));
+    const updated = await updateCustomer('c1', { ...input, name: 'Riverside Bistro' });
 
     expect(updated.name).toBe('Riverside Bistro');
-    expect(reloaded?.name).toBe('Riverside Bistro');
-    expect(reloaded?.createdAt).toBe(created.createdAt);
+    expect(called('eq')).toEqual([['id', 'c1']]);
   });
 
-  it('returns null for an unknown customer id', async () => {
-    expect(await finish(getCustomer('does-not-exist'))).toBeNull();
+  it('reports "not found" when an update matches nothing', async () => {
+    mockDb.result = { data: null, error: null };
+    await expect(updateCustomer('missing', input)).rejects.toThrow('Customer not found');
+  });
+});
+
+describe('customerRepository.deleteCustomer (real query, mocked client)', () => {
+  it('deletes only the chosen customer', async () => {
+    mockDb.result = { data: null, error: null };
+
+    await deleteCustomer('c1');
+
+    expect(called('from')).toEqual([['customers']]);
+    expect(called('delete')).toHaveLength(1);
+    expect(called('eq')).toEqual([['id', 'c1']]);
   });
 
-  it('rejects when updating a customer that does not exist', async () => {
-    const attempt = expect(updateCustomer('does-not-exist', input)).rejects.toThrow('Customer not found');
+  it('throws the service error when the database refuses (the customer still has jobs)', async () => {
+    const refusal = { code: '23503', message: 'update or delete on table "customers" violates foreign key constraint' };
+    mockDb.result = { data: null, error: refusal };
 
-    await jest.advanceTimersByTimeAsync(600);
-    await attempt;
+    await expect(deleteCustomer('c1')).rejects.toBe(refusal);
   });
 });

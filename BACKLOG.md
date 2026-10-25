@@ -23,3 +23,7 @@ Ideas outside the P0 scope. Do not build during the 30-day sprint (see `docs/PRO
 - Rename business (Settings)
 - Reset / delete demo data from Settings for repeatable demos
 - Localisation: Urdu and other right-to-left languages (mirrored layout, translated text, RTL-aware alignment); today the app is English-only and pins text to left-to-right (D-029)
+- Search and filter customers and jobs (spec P1); sort or filter jobs by technician or date
+- Undo for delete (soft delete / archive instead of permanent removal), and a way to remove a technician for good (needs a database rule; today: deactivate only)
+- A "this customer's jobs" list on the customer screen, so a customer who cannot be deleted can be cleared in one place
+- Open job detail from the list, with completion notes and the AI summary (M4 / M5)

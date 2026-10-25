@@ -4,8 +4,8 @@
 |---|---|
 | M0 Setup + mock UI | complete, merged to main (PR #1) |
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
-| M2 Auth + onboarding | complete; awaiting owner review and PR (2026-10-24) |
-| M3 CRUD via repositories | not started |
+| M2 Auth + onboarding | complete, merged to main (PR #4) |
+| M3 CRUD via repositories | all slices built (customers, technicians and jobs on real data; create, edit and delete of jobs and customers); 216 tests, 62/62 security checks, docs and test table updated. Waiting for the owner to try the iOS flows, then `/finish-milestone M3` |
 | M4 Dashboard + status | not started |
 | M5 AI summary | not started |
 | M6 Tests, polish, docs | not started |
@@ -32,7 +32,7 @@
 - Open: one dev-only React warning on the first restart after sign-up (inside Expo Router's own code); iOS flows not walked by me (cannot tap the simulator); light mode, large text and Android back on the new screens untested.
 
 ## Next
-Owner reviews M2 and merges the PR (not opened yet), then `/start-milestone M3`: customers, technicians and jobs on real data through repositories.
+Owner tries the M3 flows on iOS (date pickers, delete, customer navigation fix), runs `/finish-milestone M3`, a PR is opened, then `/start-milestone M4`: dashboard counts, completion notes and job detail.
 
 ## Open questions
 - AI provider for M5: undecided (mock summary is the fallback).

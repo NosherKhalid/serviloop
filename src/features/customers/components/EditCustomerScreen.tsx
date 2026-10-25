@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
 
+import { DeleteButton } from '@/components/DeleteButton';
 import { EmptyState } from '@/components/EmptyState';
 import { Screen } from '@/components/Screen';
-import { updateCustomer } from '@/repositories/customerRepository';
 import { useTheme } from '@/theme';
 
+import { useDeleteCustomer, useUpdateCustomer } from '../hooks/useCustomerActions';
 import { useCustomer } from '../hooks/useCustomer';
 import type { CustomerInput } from '../validation';
 import { CustomerForm } from './CustomerForm';
@@ -21,6 +22,8 @@ export function EditCustomerScreen({ id }: EditCustomerScreenProps) {
   const router = useRouter();
   const customerId = typeof id === 'string' && id !== '' ? id : undefined;
   const { state, reload } = useCustomer(customerId);
+  const updateCustomer = useUpdateCustomer();
+  const deleteCustomer = useDeleteCustomer();
 
   switch (state.status) {
     case 'loading':
@@ -54,7 +57,7 @@ export function EditCustomerScreen({ id }: EditCustomerScreenProps) {
 
       async function handleSave(input: CustomerInput) {
         await updateCustomer(customer.id, input);
-        router.back();
+        router.dismissTo('/customers');
       }
 
       return (
@@ -63,6 +66,17 @@ export function EditCustomerScreen({ id }: EditCustomerScreenProps) {
           initialValues={{ name: customer.name, phone: customer.phone ?? '', address: customer.address ?? '' }}
           submitLabel="Save changes"
           onSave={handleSave}
+          footer={
+            <DeleteButton
+              title="Delete customer"
+              confirmTitle="Delete this customer?"
+              confirmMessage={`${customer.name} will be removed permanently. This cannot be undone.`}
+              onDelete={() => deleteCustomer(customer.id)}
+              onDeleted={() => router.dismissTo('/customers')}
+              blockedMessage="This customer still has jobs. Delete those jobs first, then delete the customer."
+              failureMessage="We couldn't delete this customer. Please try again."
+            />
+          }
         />
       );
     }

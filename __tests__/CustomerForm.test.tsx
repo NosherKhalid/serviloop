@@ -49,7 +49,17 @@ describe('<CustomerForm />', () => {
     await fireEvent.changeText(screen.getByLabelText('Name'), 'Jane Doe');
     await fireEvent.press(screen.getByRole('button', { name: 'Add customer' }));
 
-    expect(await screen.findByText("We couldn't save this customer. Check your connection and try again.")).toBeTruthy();
+    expect(await screen.findByText("We couldn't save this customer. Please try again.")).toBeTruthy();
     expect(screen.queryByText(/network down/)).toBeNull(); // raw error text is never shown
+  });
+
+  it('says so when the phone has no connection', async () => {
+    const onSave = jest.fn().mockRejectedValue(new TypeError('Network request failed'));
+    await setup(onSave);
+
+    await fireEvent.changeText(screen.getByLabelText('Name'), 'Jane Doe');
+    await fireEvent.press(screen.getByRole('button', { name: 'Add customer' }));
+
+    expect(await screen.findByText("We can't reach the server. Check your connection and try again.")).toBeTruthy();
   });
 });

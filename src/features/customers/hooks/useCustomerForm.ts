@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { dataErrorMessage } from '@/utils/dataErrors';
+
 import {
   validateCustomerForm,
   type CustomerFormErrors,
@@ -43,8 +45,8 @@ export function useCustomerForm({ initialValues, onSave }: UseCustomerFormOption
     setSubmitError(null);
     try {
       await onSave(result.data);
-    } catch {
-      setSubmitError("We couldn't save this customer. Check your connection and try again.");
+    } catch (error) {
+      setSubmitError(dataErrorMessage(error, "We couldn't save this customer. Please try again."));
     } finally {
       setIsSubmitting(false);
     }

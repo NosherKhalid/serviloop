@@ -16,10 +16,10 @@ export default function AppLayout() {
         tabBarLabelPosition: 'beside-icon',
       }}>
       <Tabs.Screen name="index" options={{ title: 'Dashboard' }} />
-      {/* These two own a nested Stack (list -> detail), and that Stack draws its own header. */}
+      {/* These three own a nested Stack (list -> detail), and that Stack draws its own header. */}
       <Tabs.Screen name="customers" options={{ title: 'Customers', headerShown: false }} />
       <Tabs.Screen name="work-orders" options={{ title: 'Jobs', headerShown: false }} />
-      <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
+      <Tabs.Screen name="settings" options={{ title: 'Settings', headerShown: false }} />
     </Tabs>
   );
 }

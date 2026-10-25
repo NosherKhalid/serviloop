@@ -1,5 +1,4 @@
 import { canTransition, nextStatuses, statusLabel, workOrderStatuses } from '@/features/workOrders/status';
-import { formatScheduledDate } from '@/features/workOrders/format';
 
 describe('work order status rules', () => {
   it('has a readable label for every status', () => {
@@ -28,16 +27,5 @@ describe('work order status rules', () => {
     for (const status of workOrderStatuses) {
       expect(canTransition(status, status)).toBe(false);
     }
-  });
-});
-
-describe('formatScheduledDate', () => {
-  it('shows a short date', () => {
-    expect(formatScheduledDate('2026-10-26T09:00:00Z')).toBe('Oct 26');
-  });
-
-  it('says "Not scheduled" for null or an unreadable date', () => {
-    expect(formatScheduledDate(null)).toBe('Not scheduled');
-    expect(formatScheduledDate('not a date')).toBe('Not scheduled');
   });
 });

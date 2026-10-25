@@ -85,3 +85,34 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 ## 2026-10-24 — iOS text direction fix
 - Owner testing on the iOS simulator found English typing started from the right edge. Cause: Urdu (right-to-left) is in the simulator's preferred languages; fix: pin `textAlign`/`writingDirection` in the shared `Input` component (D-029).
 - Lesson: test with the owner's real device settings, not only defaults; one shared input component made a 4-line fix cover every field.
+
+## 2026-10-24 — M3 slice 1 (customers on real data)
+- The Customers tab now reads and writes the real database: alphabetical from the database, add and edit survive a full restart, other businesses see nothing.
+- Swapping mock for real was small because the repository kept the same function names (D-005); the only structural fix was moving create/update calls out of screens into hooks.
+- Two false alarms were test-script timing (emulator floating keyboard + Back key), caught by checking the database before blaming the app.
+- Next: slice 2, technicians (list, add, edit, deactivate).
+
+## 2026-10-25 — M3 slice 2 (technicians)
+- Technicians can be listed, added, edited and deactivated/reactivated from Settings; inactive ones are marked in words and will be excluded from new-job pickers (slice 4).
+- A shared recording mock (`src/testing/mockSupabase.ts`) now backs the repository tests, so each new repository costs fewer lines.
+- Found the emulator signed in as the owner's own account: live testing must not change their data or session without asking.
+- Next: slice 3, jobs on real data (read).
+
+## 2026-10-25 — M3 slice 3 (jobs on real data)
+- The Jobs tab reads the real database, with customer and technician names joined in one request, sorted so unfinished work comes first.
+- Dates now follow the phone's own time zone (UTC-only display would have shown a 9:00 job at the wrong hour once owners pick local times).
+- Read-only live checks on the owner's own demo data caught nothing wrong; tests cover the empty and error states.
+- Next: slice 4, create and edit jobs (pickers, native date and time, allowed status moves); needs approval to install the date-picker package.
+
+## 2026-10-25 — M3 slice 4 (create and edit jobs)
+- Owners can now create a job for a customer, optionally assign a technician and a date and time with the phone's own date and time controls, and move it through allowed statuses. Everything persists and matches the database.
+- Two product catches: the field placeholder and its error said the same sentence (fixed), and a library deprecation warning caught while testing live led to the newer date-picker callbacks.
+- Test discipline: asked before changing the owner's emulator session, used a throwaway account, left the owner's demo data untouched.
+- Next: slice 5, final M3 checks (security regression run, docs, test matrix).
+
+## 2026-10-25 — M3 slice 4b (delete jobs and customers)
+- Owners can now remove a job or a customer from its edit screen, after a confirmation; a customer with jobs is protected by the database and the app explains why.
+- Technicians stay deactivate-only on purpose, so job history is never lost.
+- The delete rules already existed since M1 and the two-account check already tested them, so no security change was needed (62 of 62 re-run).
+- Pitfall: the first navigation fix for the customer form was reported as done before a live check; the real fix needed an explicit "go to the list" after saving. Do not call a navigation fix done without seeing it.
+- Next: slice 5, final M3 pass.
