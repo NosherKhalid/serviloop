@@ -5,7 +5,7 @@
 | M0 Setup + mock UI | complete, merged to main (PR #1) |
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
-| M3 CRUD via repositories | all slices built (customers, technicians and jobs on real data; create, edit and delete of jobs and customers); 216 tests, 62/62 security checks, docs and test table updated. Waiting for the owner to try the iOS flows, then `/finish-milestone M3` |
+| M3 CRUD via repositories | complete, merged to main (PR #5); iOS flows still to be confirmed by the owner (see close-out) |
 | M4 Dashboard + status | not started |
 | M5 AI summary | not started |
 | M6 Tests, polish, docs | not started |
@@ -31,8 +31,17 @@
 - `npm run check`: lint clean, typecheck clean, 96/96 tests (15 suites). No `any`/suppressions, no `console` calls, no token handling outside the Supabase client, no secrets or `.env` ever committed. Database unchanged since M1 (migrations identical), so the M1 62-check security result still applies; Supabase's own security advisor shows only the known leaked-password-protection note.
 - Open: one dev-only React warning on the first restart after sign-up (inside Expo Router's own code); iOS flows not walked by me (cannot tap the simulator); light mode, large text and Android back on the new screens untested.
 
+## M3 close-out (2026-10-25)
+- `npm run check`: lint clean, typecheck clean, 216/216 tests (33 suites). No `any`/suppressions, no `console` calls, no secrets or `.env` tracked (the only scan hit is the warning comment in `.env.example`).
+- Gate ("customers, technicians, work orders create/read/update through repositories on both platforms"): **Android verified live** against the hosted project (customers, jobs, assignment, restart persistence, database matches); **iOS not verified by me** (cannot tap the simulator). Technician add/edit/deactivate and job/customer delete are covered by unit tests and the security script, not yet walked on a device.
+- Security: no migration or policy change since M1; `npm run test:rls` re-run 2026-10-25: 62/62 (includes B cannot delete A's customer or job, customers with jobs refused, A deletes own).
+- Bugs found by owner testing and fixed: customer form left on screen after saving (D-034; the first fix was reported done before a live check, the real fix is an explicit `dismissTo` after save).
+- Decisions D-030 to D-035; new dependency `@react-native-community/datetimepicker` 9.1.0 (owner-approved).
+- No CI exists in the repository (rule says CI must be green before merge); owner chose to postpone it.
+- Open: iOS walk-through of date and time controls, keyboard with the job form, delete alert, customer navigation; the dev-only Expo Router warning; offline, light mode and large text on the M3 screens.
+
 ## Next
-Owner tries the M3 flows on iOS (date pickers, delete, customer navigation fix), runs `/finish-milestone M3`, a PR is opened, then `/start-milestone M4`: dashboard counts, completion notes and job detail.
+`/start-milestone M4`: dashboard counts and recent jobs, status changes with completion notes, job detail. Dashboard must refetch on focus (D-034).
 
 ## Open questions
 - AI provider for M5: undecided (mock summary is the fallback).
