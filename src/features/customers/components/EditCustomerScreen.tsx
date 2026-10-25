@@ -55,7 +55,7 @@ export function EditCustomerScreen({ id }: EditCustomerScreenProps) {
 
       async function handleSave(input: CustomerInput) {
         await updateCustomer(customer.id, input);
-        router.back();
+        router.dismissTo('/customers');
       }
 
       return (
