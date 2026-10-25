@@ -1,6 +1,6 @@
 # Architecture
 
-Status: data model and security are built (M1); accounts, session handling and business onboarding are built (M2). Customers, technicians and jobs are read, created, edited and (jobs and customers) deleted against the real database (M3).
+Status: data model and security are built (M1); accounts, session handling and business onboarding are built (M2). Customers, technicians and jobs are read, created, edited and (jobs and customers) deleted against the real database (M3); the Dashboard and the Job detail screen (status moves and completion notes) are built (M4).
 
 ## Data flow
 ```
@@ -63,5 +63,15 @@ Screen (list / form) -> feature hook (useCustomers, useWorkOrderForm, ...) -> re
 - **Delete rules:** jobs and customers can be deleted by their owner; a customer with jobs is refused by the database (foreign key). Technicians are deactivated, never deleted (D-035).
 - **Times** are stored as UTC and shown in the phone's time zone (D-032, D-033).
 
+## Dashboard and job detail (M4)
+```
+Dashboard tab -> useDashboard -> countWorkOrdersByStatus (4 head counts) + listRecentWorkOrders(5) -> RLS
+Job detail    -> useWorkOrderDetail (refetch on focus) + useWorkOrderProgress -> updateWorkOrderProgress({ status?, completionNotes })
+```
+- **Counts** are four small `count` requests (`head: true`, one per status) sent together, so the numbers always come from the database; if any fails the whole screen shows a retryable error, never a half-right number (D-037). "Recent" = the 5 jobs with the newest `updated_at`.
+- **Both screens refetch whenever they regain focus**, silently after the first load (no spinner; a failed refresh keeps what is on screen), because tabs and stacks stay mounted (D-034).
+- **Job detail** is separate from the edit form (D-036): the allowed next moves (`status.ts`, D-017) are buttons, "Mark completed" or any move saves the typed notes in the same update, and `updateWorkOrderProgress` writes only `status` and `completion_notes` (D-038). Routes: `work-orders/[id]/index` (detail) and `[id]/edit`.
+- **Known limit:** `anchor: 'index'` does not apply to jumps between tabs, so a screen opened that way has no back arrow (see `BACKLOG.md`).
+
 ## Not built yet
-Dashboard counts (M4), completion notes and job detail (M4), the `generate-job-summary` Edge Function with per-user limits (M5).
+The `generate-job-summary` Edge Function with per-user limits (M5).

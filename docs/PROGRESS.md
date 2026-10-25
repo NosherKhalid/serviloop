@@ -6,7 +6,7 @@
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
 | M3 CRUD via repositories | complete, merged to main (PR #5, close-out PR #6); iOS flows still to be confirmed by the owner |
-| M4 Dashboard + status | in progress (slices 1-2 built: job detail with status and notes, dashboard; next slice 3: main-journey pass and docs) |
+| M4 Dashboard + status | all slices built (job detail with status and notes, dashboard, whole journey verified on Android); 261 tests, 62/62 security checks. Waiting for the owner to try the iOS flows, then `/finish-milestone M4` |
 | M5 AI summary | not started |
 | M6 Tests, polish, docs | not started |
 

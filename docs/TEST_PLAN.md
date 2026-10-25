@@ -3,12 +3,12 @@
 Honest record of what is tested, how, and what is not. Updated at the end of each milestone.
 
 ## Automated, no backend (`npm test`)
-216 tests in 33 suites (Jest + React Native Testing Library; counted by `npm run check` on 2026-10-25). M3 added 120: customer, technician and job repositories (recording mock client; the exact query, the column mapping, errors surface, deletes target one id), job and technician validation, status rules, sorting and time-zone formatting, `OptionPicker`, `DateTimeField` (iOS and Android paths), the customer, technician and job screens (loading, empty, error and retry, validation, create, edit, delete), the section layouts, and the job form's refresh when the owner returns to it. Mutation-checked: breaking that refresh made 3 tests fail. M0 (first 96 tests): customer form validation, job-status rules, date formatting, mock customer repository, customer form. M2: settings check, encrypted session storage (round trip, over 2 KB, lost key, failing keychain), auth validation and friendly errors, sign-in/sign-up screens, `AuthProvider` (restore, sign-out, listening), `BusinessProvider` (loading, error and retry, account switching never leaks, create, demo data), business repository (mocked client), onboarding screen. Mutation-checked: weakening the account-switch rule and the secret-key check each made the right test fail. Run with `npm run check` (lint + typecheck + tests).
+261 tests in 35 suites (Jest + React Native Testing Library; counted by `npm run check` on 2026-10-25). M4 added 45: job detail (every status's allowed moves, notes saved with a status change, failures, too-long notes, refresh on return), completion-notes validation and button labels, the progress, recent-jobs and count repository queries, and the Dashboard (counts, singular/plural, recent rows, empty, error and retry, silent refresh, failed refresh keeps numbers); mutation-checked (saving stale notes with a status change fails a test). M3 added 120 (of the first 216): customer, technician and job repositories (recording mock client; the exact query, the column mapping, errors surface, deletes target one id), job and technician validation, status rules, sorting and time-zone formatting, `OptionPicker`, `DateTimeField` (iOS and Android paths), the customer, technician and job screens (loading, empty, error and retry, validation, create, edit, delete), the section layouts, and the job form's refresh when the owner returns to it. Mutation-checked: breaking that refresh made 3 tests fail. M0 (first 96 tests): customer form validation, job-status rules, date formatting, mock customer repository, customer form. M2: settings check, encrypted session storage (round trip, over 2 KB, lost key, failing keychain), auth validation and friendly errors, sign-in/sign-up screens, `AuthProvider` (restore, sign-out, listening), `BusinessProvider` (loading, error and retry, account switching never leaks, create, demo data), business repository (mocked client), onboarding screen. Mutation-checked: weakening the account-switch rule and the secret-key check each made the right test fail. Run with `npm run check` (lint + typecheck + tests).
 
 ## Security: tenant isolation (`npm run test:rls`), M1
 Runs against the **hosted Supabase project** over the same public HTTP API the app uses, with **only the publishable key**. It signs up three throwaway users, attacks data across accounts, and checks the exact database error. Re-run it after any change to a table, grant or policy, and before every demo.
 
-**Result (2026-10-24, and again 2026-10-25 after M3 added create/edit/delete screens; no schema change): 62 of 62 checks passed.**
+**Result (2026-10-24, and again 2026-10-25 after M3 and M4 added screens; no schema change): 62 of 62 checks passed.**
 
 | Area | What must happen | Result |
 |---|---|---|
@@ -78,5 +78,25 @@ Run with throwaway accounts (the owner's own demo data was only read, never chan
 - Everything on **iOS**: the date and time controls, the keyboard with the job form, the alert. The owner's own run on the iPhone simulator found the customer-form navigation bug; the fix has not been confirmed there yet.
 - Offline behaviour on the M3 screens, light mode, largest text size, Android hardware back on the new screens.
 
+## Manual device checks: dashboard, job detail and the whole journey (M4), Android emulator (Pixel 7 Pro, Expo Go) against the hosted project, 2026-10-25
+Run with throwaway accounts (the owner's own data was never touched). Database values were read back with read-only queries.
+
+| Check | Result |
+|---|---|
+| Job detail shows customer, technician (or "Unassigned"), date, description and only the allowed moves for the job's status | Pass |
+| Open job -> "Start job": screen shows In progress with the next moves; database `in_progress`, `updated_at` moved | Pass |
+| Typed notes + "Mark completed": database `completed` with the exact notes in one write; screen says "Completed jobs are final"; "Save notes" disabled when nothing changed; list shows Completed after going back | Pass |
+| Dashboard on a business with demo data: cards 1 / 2 / 3, "Cancelled: 1 · 7 jobs in total" equal a direct database count; newest-changed job on top | Pass |
+| Start a job on the Jobs tab, return to the Dashboard: counts 0 / 3 / 3 and that job on top, equal to the database | Pass |
+| **Whole journey on a brand-new account:** sign up -> onboarding "Journey Test Co" -> empty Dashboard ("No jobs yet", Add job) -> "Add a customer first" -> Add customer -> save lands on the Customers list with the customer -> Jobs shows the full job form with that customer in the picker -> save job lands on the Dashboard (1 open, 1 job) -> open job -> Start job -> notes -> Mark completed (database `completed` with the notes) | Pass |
+| Sign out, sign back in: Dashboard shows 0 / 0 / 1 and the completed job; everything persisted | Pass |
+| Customer-form fix from M3 (D-034): saving a customer opened from another tab returns to the Customers list; the job form offers the new customer | Pass (this was unverified on a device before) |
+
+**Findings on the device**
+- Opening a screen from another tab (Dashboard -> Add job, Jobs -> Add customer) leaves a screen with **no back arrow**: the `anchor: 'index'` setting from D-034 does **not** take effect for jumps between tabs. Saving still lands in the right place because of `dismissTo` (customers) and because the job form was opened from the Dashboard, but the header has no back arrow on those cross-tab screens (Android hardware back still works). Logged in `BACKLOG.md`.
+- After saving a job opened from the Dashboard's empty state, the app returns to the Dashboard, not the Jobs list.
+
+**Not verified here (owner to check):** everything on **iOS** (detail screen, notes with the keyboard, dashboard, the cross-tab back-arrow finding), light mode and the largest text size on the new screens, offline behaviour on Dashboard and Job detail, Edit -> Save -> back to detail on a device, deleting from the edit screen, technician add/edit/deactivate (still unit-tested only), the Android hardware back button on every new screen.
+
 ## Not yet tested
-iOS manual pass for M2 and M3, the AI function (M5), accessibility at the largest text size, offline behaviour on data screens.
+iOS manual pass for M2, M3 and M4, the AI function (M5), accessibility at the largest text size, offline behaviour on data screens.
