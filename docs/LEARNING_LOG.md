@@ -85,3 +85,9 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 ## 2026-10-24 — iOS text direction fix
 - Owner testing on the iOS simulator found English typing started from the right edge. Cause: Urdu (right-to-left) is in the simulator's preferred languages; fix: pin `textAlign`/`writingDirection` in the shared `Input` component (D-029).
 - Lesson: test with the owner's real device settings, not only defaults; one shared input component made a 4-line fix cover every field.
+
+## 2026-10-24 — M3 slice 1 (customers on real data)
+- The Customers tab now reads and writes the real database: alphabetical from the database, add and edit survive a full restart, other businesses see nothing.
+- Swapping mock for real was small because the repository kept the same function names (D-005); the only structural fix was moving create/update calls out of screens into hooks.
+- Two false alarms were test-script timing (emulator floating keyboard + Back key), caught by checking the database before blaming the app.
+- Next: slice 2, technicians (list, add, edit, deactivate).

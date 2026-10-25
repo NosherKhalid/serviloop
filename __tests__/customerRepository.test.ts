@@ -1,62 +1,111 @@
-import { createCustomer, getCustomer, listCustomers, updateCustomer } from '@/repositories/customerRepository';
+// A recording stand-in for the Supabase query builder: every call is remembered so tests can check
+// exactly what the repository asks the database for.
+const mockCalls: { method: string; args: unknown[] }[] = [];
+let mockResult: { data: unknown; error: unknown } = { data: null, error: null };
 
-// The mock repository waits 600 ms to imitate a network call. Fake timers let tests skip the wait.
-beforeEach(() => {
-  jest.useFakeTimers();
-});
-
-afterEach(() => {
-  jest.useRealTimers();
-});
-
-// Runs `action` and fast-forwards the fake network delay.
-async function finish<T>(action: Promise<T>): Promise<T> {
-  await jest.advanceTimersByTimeAsync(600);
-  return action;
+function mockBuilder(): Record<string, unknown> {
+  const builder: Record<string, unknown> = {};
+  for (const method of ['select', 'insert', 'update', 'eq', 'order']) {
+    builder[method] = (...args: unknown[]) => {
+      mockCalls.push({ method, args });
+      return builder;
+    };
+  }
+  builder.single = () => Promise.resolve(mockResult);
+  builder.maybeSingle = () => Promise.resolve(mockResult);
+  // `await builder` (a list query with no .single()) resolves to the result.
+  builder.then = (resolve: (value: unknown) => unknown) => Promise.resolve(mockResult).then(resolve);
+  return builder;
 }
 
+jest.mock('@/lib/supabase', () => ({
+  supabase: {
+    from: (table: string) => {
+      mockCalls.push({ method: 'from', args: [table] });
+      return mockBuilder();
+    },
+  },
+}));
+
+import { createCustomer, getCustomer, listCustomers, updateCustomer } from '@/repositories/customerRepository';
+
+const row = { id: 'c1', name: 'Maple Street Bakery', phone: '555-0101', address: '12 Maple Street', created_at: '2026-09-01T09:00:00Z' };
+const customer = { id: 'c1', name: 'Maple Street Bakery', phone: '555-0101', address: '12 Maple Street', createdAt: '2026-09-01T09:00:00Z' };
 const input = { name: 'Riverside Cafe', phone: null, address: '5 River Road' };
 
-describe('customerRepository (mock)', () => {
-  it('adds a created customer to the list with a new id', async () => {
-    const before = await finish(listCustomers());
+const called = (method: string) => mockCalls.filter((call) => call.method === method).map((call) => call.args);
 
-    const created = await finish(createCustomer(input));
-    const after = await finish(listCustomers());
+beforeEach(() => {
+  mockCalls.length = 0;
+  mockResult = { data: null, error: null };
+});
 
-    expect(after).toHaveLength(before.length + 1);
-    expect(after.map((customer) => customer.id)).toContain(created.id);
-    expect(before.map((customer) => customer.id)).not.toContain(created.id);
+describe('customerRepository (real queries, mocked client)', () => {
+  it('lists customers by name and converts rows to the app\'s shape', async () => {
+    mockResult = { data: [row], error: null };
+
+    expect(await listCustomers()).toEqual([customer]);
+    expect(called('from')).toEqual([['customers']]);
+    expect(called('order')).toEqual([['name', { ascending: true }]]);
   });
 
-  it('does not change the previously returned list (no in-place mutation)', async () => {
-    const before = await finish(listCustomers());
-    const sizeBefore = before.length;
+  it('throws the service error when listing fails', async () => {
+    const failure = { code: '', message: 'TypeError: Network request failed' };
+    mockResult = { data: null, error: failure };
+    await expect(listCustomers()).rejects.toBe(failure);
+  });
 
-    await finish(createCustomer({ ...input, name: 'Another Cafe' }));
+  it('gets one customer by id', async () => {
+    mockResult = { data: row, error: null };
+    expect(await getCustomer('c1')).toEqual(customer);
+    expect(called('eq')).toEqual([['id', 'c1']]);
+  });
 
-    expect(before).toHaveLength(sizeBefore);
+  it('returns null for a customer that does not exist (or is not yours)', async () => {
+    mockResult = { data: null, error: null };
+    expect(await getCustomer('missing')).toBeNull();
+  });
+
+  it('creates a customer in the given business and returns it', async () => {
+    mockResult = { data: { ...row, name: 'Riverside Cafe', phone: null, address: '5 River Road' }, error: null };
+
+    const created = await createCustomer('b1', input);
+
+    expect(created.name).toBe('Riverside Cafe');
+    expect(called('insert')).toEqual([[{ business_id: 'b1', name: 'Riverside Cafe', phone: null, address: '5 River Road' }]]);
+  });
+
+  it('never sends columns the database does not let the app write', async () => {
+    mockResult = { data: row, error: null };
+    await createCustomer('b1', input);
+    await updateCustomer('c1', input);
+
+    const sent = [...called('insert'), ...called('update')].flat() as Record<string, unknown>[];
+    for (const payload of sent) {
+      expect(Object.keys(payload)).not.toContain('id');
+      expect(Object.keys(payload)).not.toContain('created_at');
+    }
+    // business_id is sent on creation only: rows can never be moved to another business.
+    expect(Object.keys(called('update')[0][0] as object)).not.toContain('business_id');
+  });
+
+  it('throws the service error when the database refuses a new customer', async () => {
+    const refusal = { code: '42501', message: 'new row violates row-level security policy' };
+    mockResult = { data: null, error: refusal };
+    await expect(createCustomer('someone-elses-business', input)).rejects.toBe(refusal);
   });
 
   it('updates only the edited customer', async () => {
-    const created = await finish(createCustomer(input));
+    mockResult = { data: { ...row, name: 'Riverside Bistro' }, error: null };
 
-    const updated = await finish(updateCustomer(created.id, { ...input, name: 'Riverside Bistro' }));
-    const reloaded = await finish(getCustomer(created.id));
+    const updated = await updateCustomer('c1', { ...input, name: 'Riverside Bistro' });
 
     expect(updated.name).toBe('Riverside Bistro');
-    expect(reloaded?.name).toBe('Riverside Bistro');
-    expect(reloaded?.createdAt).toBe(created.createdAt);
+    expect(called('eq')).toEqual([['id', 'c1']]);
   });
 
-  it('returns null for an unknown customer id', async () => {
-    expect(await finish(getCustomer('does-not-exist'))).toBeNull();
-  });
-
-  it('rejects when updating a customer that does not exist', async () => {
-    const attempt = expect(updateCustomer('does-not-exist', input)).rejects.toThrow('Customer not found');
-
-    await jest.advanceTimersByTimeAsync(600);
-    await attempt;
+  it('reports "not found" when an update matches nothing', async () => {
+    mockResult = { data: null, error: null };
+    await expect(updateCustomer('missing', input)).rejects.toThrow('Customer not found');
   });
 });

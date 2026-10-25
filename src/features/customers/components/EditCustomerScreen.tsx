@@ -3,9 +3,9 @@ import { ActivityIndicator } from 'react-native';
 
 import { EmptyState } from '@/components/EmptyState';
 import { Screen } from '@/components/Screen';
-import { updateCustomer } from '@/repositories/customerRepository';
 import { useTheme } from '@/theme';
 
+import { useUpdateCustomer } from '../hooks/useCustomerActions';
 import { useCustomer } from '../hooks/useCustomer';
 import type { CustomerInput } from '../validation';
 import { CustomerForm } from './CustomerForm';
@@ -21,6 +21,7 @@ export function EditCustomerScreen({ id }: EditCustomerScreenProps) {
   const router = useRouter();
   const customerId = typeof id === 'string' && id !== '' ? id : undefined;
   const { state, reload } = useCustomer(customerId);
+  const updateCustomer = useUpdateCustomer();
 
   switch (state.status) {
     case 'loading':
