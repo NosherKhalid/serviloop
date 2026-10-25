@@ -35,3 +35,12 @@ export function nextStatuses(from: WorkOrderStatus): readonly WorkOrderStatus[] 
 export function canTransition(from: WorkOrderStatus, to: WorkOrderStatus): boolean {
   return transitions[from].includes(to);
 }
+
+// What the button that makes this move says. The person is acting on the job, so it reads as an action
+// ("Start job"), not as the resulting state.
+export function transitionLabel(from: WorkOrderStatus, to: WorkOrderStatus): string {
+  if (to === 'in_progress') return 'Start job';
+  if (to === 'completed') return 'Mark completed';
+  if (to === 'cancelled') return 'Cancel job';
+  return from === 'cancelled' ? 'Reopen job' : 'Back to open';
+}

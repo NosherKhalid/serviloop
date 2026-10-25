@@ -12,7 +12,8 @@ export default function WorkOrdersLayout() {
     <Stack>
       <Stack.Screen name="index" options={{ title: 'Jobs' }} />
       <Stack.Screen name="new" options={{ title: 'New job' }} />
-      <Stack.Screen name="[id]" options={{ title: 'Edit job' }} />
+      <Stack.Screen name="[id]/index" options={{ title: 'Job' }} />
+      <Stack.Screen name="[id]/edit" options={{ title: 'Edit job' }} />
     </Stack>
   );
 }

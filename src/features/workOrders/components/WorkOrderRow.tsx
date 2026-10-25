@@ -20,7 +20,7 @@ export function WorkOrderRow({ workOrder, onPress }: WorkOrderRowProps) {
     // One spoken summary per row, so a screen reader reads it as a single item.
     <Pressable
       accessibilityRole="button"
-      accessibilityHint="Opens the job to edit"
+      accessibilityHint="Opens the job"
       onPress={onPress}
       accessibilityLabel={`${workOrder.title}, ${workOrder.customerName}, ${assigned}, ${statusLabel(workOrder.status)}, ${formatScheduledDate(workOrder.scheduledFor)}`}
       style={({ pressed }) => [styles.row, { backgroundColor: colors.surface }, pressed && styles.pressed]}>

@@ -8,7 +8,7 @@ import type { WorkOrder, WorkOrderStatus } from '@/types/workOrder';
 // `!work_orders_..._same_business` hints name the foreign keys that link a job to its customer and
 // technician (see the M1 schema), so there is no second request per row.
 const COLUMNS =
-  'id, title, description, status, scheduled_for, customer_id, technician_id, ' +
+  'id, title, description, status, scheduled_for, completion_notes, customer_id, technician_id, ' +
   'customers!work_orders_customer_same_business(name), technicians!work_orders_technician_same_business(name)';
 
 // What the database sends back for one job (snake_case, with the joined names nested).
@@ -18,6 +18,7 @@ type WorkOrderRow = {
   description: string | null;
   status: string;
   scheduled_for: string | null;
+  completion_notes: string | null;
   customer_id: string;
   technician_id: string | null;
   customers: { name: string } | null;
@@ -43,6 +44,7 @@ export function toWorkOrder(row: WorkOrderRow): WorkOrder {
     technicianId: row.technician_id,
     technicianName: row.technicians?.name ?? null,
     scheduledFor: row.scheduled_for,
+    completionNotes: row.completion_notes,
   };
 }
 
@@ -104,6 +106,31 @@ export async function updateWorkOrder(id: string, input: WorkOrderInput): Promis
       status: input.status,
       scheduled_for: input.scheduledFor,
     })
+    .eq('id', id)
+    .select(COLUMNS)
+    .returns<WorkOrderRow>()
+    .maybeSingle();
+  if (error) {
+    throw error;
+  }
+  if (data === null) {
+    throw new Error('Job not found'); // updating a row that does not exist (or is not yours) changes nothing
+  }
+  return toWorkOrder(data);
+}
+
+// Moves a job along (and/or saves its completion notes). Writes only these two columns, so nothing else
+// about the job can change through this path. `status` is optional: omit it to save the notes alone.
+export type WorkOrderProgress = { status?: WorkOrderStatus; completionNotes: string | null };
+
+export async function updateWorkOrderProgress(id: string, progress: WorkOrderProgress): Promise<WorkOrder> {
+  const { data, error } = await supabase
+    .from('work_orders')
+    .update(
+      progress.status === undefined
+        ? { completion_notes: progress.completionNotes }
+        : { status: progress.status, completion_notes: progress.completionNotes },
+    )
     .eq('id', id)
     .select(COLUMNS)
     .returns<WorkOrderRow>()

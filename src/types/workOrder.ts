@@ -11,4 +11,5 @@ export type WorkOrder = {
   technicianId: string | null; // null = not assigned yet
   technicianName: string | null;
   scheduledFor: string | null; // UTC ISO timestamp, or null when not scheduled yet
+  completionNotes: string | null; // what was done, written by the owner; null until something is entered
 };

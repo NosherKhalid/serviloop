@@ -5,8 +5,8 @@
 | M0 Setup + mock UI | complete, merged to main (PR #1) |
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
-| M3 CRUD via repositories | complete, merged to main (PR #5); iOS flows still to be confirmed by the owner (see close-out) |
-| M4 Dashboard + status | not started |
+| M3 CRUD via repositories | complete, merged to main (PR #5, close-out PR #6); iOS flows still to be confirmed by the owner |
+| M4 Dashboard + status | in progress (slice 1 built: job detail with status and notes; next slice 2: dashboard) |
 | M5 AI summary | not started |
 | M6 Tests, polish, docs | not started |
 

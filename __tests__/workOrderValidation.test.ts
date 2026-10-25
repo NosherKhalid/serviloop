@@ -1,4 +1,4 @@
-import { emptyWorkOrderForm, statusChoices, validateWorkOrderForm } from '@/features/workOrders/validation';
+import { completionNotesMaxLength, emptyWorkOrderForm, statusChoices, validateCompletionNotes, validateWorkOrderForm } from '@/features/workOrders/validation';
 
 const valid = { ...emptyWorkOrderForm, title: 'Replace kitchen faucet', customerId: 'c1' };
 
@@ -89,5 +89,24 @@ describe('statusChoices', () => {
     expect(statusChoices('in_progress')).toEqual(['open', 'in_progress', 'completed', 'cancelled']);
     expect(statusChoices('completed')).toEqual(['completed']);
     expect(statusChoices('cancelled')).toEqual(['open', 'cancelled']);
+  });
+});
+
+describe('validateCompletionNotes', () => {
+  it('trims the text', () => {
+    expect(validateCompletionNotes('  Replaced the washer.  ')).toEqual({ success: true, data: 'Replaced the washer.' });
+  });
+
+  it('treats blank text as "no notes" (null)', () => {
+    expect(validateCompletionNotes('')).toEqual({ success: true, data: null });
+    expect(validateCompletionNotes('  \n  ')).toEqual({ success: true, data: null });
+  });
+
+  it('accepts exactly the database limit and refuses one more', () => {
+    expect(validateCompletionNotes('a'.repeat(completionNotesMaxLength)).success).toBe(true);
+    expect(validateCompletionNotes('a'.repeat(completionNotesMaxLength + 1))).toEqual({
+      success: false,
+      error: 'Keep the notes under 4000 characters',
+    });
   });
 });
