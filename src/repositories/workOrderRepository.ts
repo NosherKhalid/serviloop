@@ -71,6 +71,39 @@ export async function getWorkOrder(id: string): Promise<WorkOrder | null> {
   return data === null ? null : toWorkOrder(data);
 }
 
+// The newest activity first: the jobs changed most recently, whatever their status. `updated_at` is set by the
+// database on every change (M1), so a status change or a note moves a job to the top.
+export async function listRecentWorkOrders(limit: number): Promise<WorkOrder[]> {
+  const { data, error } = await supabase
+    .from('work_orders')
+    .select(COLUMNS)
+    .order('updated_at', { ascending: false })
+    .limit(limit)
+    .returns<WorkOrderRow[]>();
+  if (error) {
+    throw error;
+  }
+  return data.map(toWorkOrder);
+}
+
+// How many jobs have each status, counted by the database (one small request per status, sent together).
+// `head: true` means "send me the count, not the rows", so the number stays right however many jobs there are.
+export async function countWorkOrdersByStatus(): Promise<Record<WorkOrderStatus, number>> {
+  const counts = await Promise.all(
+    statuses.map(async (status) => {
+      const { count, error } = await supabase
+        .from('work_orders')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', status);
+      if (error) {
+        throw error;
+      }
+      return count ?? 0;
+    }),
+  );
+  return { open: counts[0], in_progress: counts[1], completed: counts[2], cancelled: counts[3] };
+}
+
 // A new job always starts as 'open'. `businessId` comes from the signed-in owner's business; the
 // database refuses a customer or technician from any other business (composite foreign keys, M1).
 export async function createWorkOrder(businessId: string, input: WorkOrderInput): Promise<WorkOrder> {

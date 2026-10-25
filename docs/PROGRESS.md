@@ -6,7 +6,7 @@
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
 | M3 CRUD via repositories | complete, merged to main (PR #5, close-out PR #6); iOS flows still to be confirmed by the owner |
-| M4 Dashboard + status | in progress (slice 1 built: job detail with status and notes; next slice 2: dashboard) |
+| M4 Dashboard + status | in progress (slices 1-2 built: job detail with status and notes, dashboard; next slice 3: main-journey pass and docs) |
 | M5 AI summary | not started |
 | M6 Tests, polish, docs | not started |
 

@@ -1,6 +1,15 @@
 jest.mock('@/lib/supabase', () => ({ supabase: require('@/testing/mockSupabase').mockDb.client }));
 
-import { createWorkOrder, deleteWorkOrder, getWorkOrder, listWorkOrders, updateWorkOrder, updateWorkOrderProgress } from '@/repositories/workOrderRepository';
+import {
+  countWorkOrdersByStatus,
+  createWorkOrder,
+  deleteWorkOrder,
+  getWorkOrder,
+  listRecentWorkOrders,
+  listWorkOrders,
+  updateWorkOrder,
+  updateWorkOrderProgress,
+} from '@/repositories/workOrderRepository';
 import { mockDb } from '@/testing/mockSupabase';
 
 const row = {
@@ -216,5 +225,60 @@ describe('workOrderRepository.updateWorkOrderProgress (real query, mocked client
     const refusal = { code: '42501', message: 'permission denied' };
     mockDb.result = { data: null, error: refusal };
     await expect(updateWorkOrderProgress('w1', { status: 'open', completionNotes: null })).rejects.toBe(refusal);
+  });
+});
+
+describe('workOrderRepository.countWorkOrdersByStatus (real queries, mocked client)', () => {
+  it('asks the database for one count per status, without fetching any rows', async () => {
+    mockDb.queue.push(
+      { data: null, error: null, count: 2 },
+      { data: null, error: null, count: 1 },
+      { data: null, error: null, count: 2 },
+      { data: null, error: null, count: 1 },
+    );
+
+    const counts = await countWorkOrdersByStatus();
+
+    expect(mockDb.called('from')).toEqual([['work_orders'], ['work_orders'], ['work_orders'], ['work_orders']]);
+    expect(mockDb.called('select')).toEqual(Array(4).fill(['id', { count: 'exact', head: true }]));
+    expect(mockDb.called('eq')).toEqual([
+      ['status', 'open'],
+      ['status', 'in_progress'],
+      ['status', 'completed'],
+      ['status', 'cancelled'],
+    ]);
+    expect(counts).toEqual({ open: 2, in_progress: 1, completed: 2, cancelled: 1 });
+  });
+
+  it('counts a status nobody has as zero', async () => {
+    mockDb.result = { data: null, error: null, count: null };
+
+    expect(await countWorkOrdersByStatus()).toEqual({ open: 0, in_progress: 0, completed: 0, cancelled: 0 });
+  });
+
+  it('throws the service error if any count fails, instead of showing a wrong number', async () => {
+    const failure = { code: 'PGRST301', message: 'JWT expired' };
+    mockDb.queue.push({ data: null, error: null, count: 2 }, { data: null, error: failure, count: null });
+
+    await expect(countWorkOrdersByStatus()).rejects.toBe(failure);
+  });
+});
+
+describe('workOrderRepository.listRecentWorkOrders (real query, mocked client)', () => {
+  it('asks for the most recently changed jobs, newest first, up to the limit', async () => {
+    mockDb.result = { data: [row], error: null };
+
+    const jobs = await listRecentWorkOrders(5);
+
+    expect(mockDb.called('order')).toEqual([['updated_at', { ascending: false }]]);
+    expect(mockDb.called('limit')).toEqual([[5]]);
+    expect(jobs.map((job) => job.title)).toEqual(['Replace kitchen faucet']);
+  });
+
+  it('throws the service error when the request fails', async () => {
+    const failure = new TypeError('Network request failed');
+    mockDb.result = { data: null, error: failure };
+
+    await expect(listRecentWorkOrders(5)).rejects.toBe(failure);
   });
 });
