@@ -97,3 +97,9 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - A shared recording mock (`src/testing/mockSupabase.ts`) now backs the repository tests, so each new repository costs fewer lines.
 - Found the emulator signed in as the owner's own account: live testing must not change their data or session without asking.
 - Next: slice 3, jobs on real data (read).
+
+## 2026-10-25 — M3 slice 3 (jobs on real data)
+- The Jobs tab reads the real database, with customer and technician names joined in one request, sorted so unfinished work comes first.
+- Dates now follow the phone's own time zone (UTC-only display would have shown a 9:00 job at the wrong hour once owners pick local times).
+- Read-only live checks on the owner's own demo data caught nothing wrong; tests cover the empty and error states.
+- Next: slice 4, create and edit jobs (pickers, native date and time, allowed status moves); needs approval to install the date-picker package.

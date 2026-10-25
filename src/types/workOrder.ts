@@ -4,8 +4,11 @@ export type WorkOrderStatus = 'open' | 'in_progress' | 'completed' | 'cancelled'
 export type WorkOrder = {
   id: string;
   title: string;
+  description: string | null;
   status: WorkOrderStatus;
   customerId: string;
-  customerName: string; // MOCK: denormalised; in M3 this comes from a join on customers
+  customerName: string; // looked up from the customer record (a join), so renaming a customer updates every job
+  technicianId: string | null; // null = not assigned yet
+  technicianName: string | null;
   scheduledFor: string | null; // UTC ISO timestamp, or null when not scheduled yet
 };

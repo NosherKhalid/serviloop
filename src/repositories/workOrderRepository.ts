@@ -1,21 +1,60 @@
-import type { WorkOrder } from '@/types/workOrder';
+import { supabase } from '@/lib/supabase';
+import type { WorkOrder, WorkOrderStatus } from '@/types/workOrder';
 
-// MOCK (M0): in-memory and fictional, like customerRepository. In M3 the body becomes a Supabase
-// query joined with customers; the function name and return type stay.
-const workOrders: WorkOrder[] = [
-  { id: 'w1', title: 'Replace kitchen faucet', status: 'in_progress', customerId: 'c1', customerName: 'Maple Street Bakery', scheduledFor: '2026-10-26T09:00:00Z' },
-  { id: 'w2', title: 'Annual boiler service', status: 'open', customerId: 'c3', customerName: 'Harbor View Dental', scheduledFor: '2026-10-28T13:30:00Z' },
-  { id: 'w3', title: 'Fix leaking pipe under sink', status: 'completed', customerId: 'c2', customerName: 'Priya Natarajan', scheduledFor: '2026-10-20T10:00:00Z' },
-  { id: 'w4', title: 'Install outdoor lighting', status: 'open', customerId: 'c4', customerName: 'Tomás Rivera', scheduledFor: null },
-  { id: 'w5', title: 'Unblock main drain', status: 'completed', customerId: 'c5', customerName: 'Greenfield Community Hall', scheduledFor: '2026-10-18T08:00:00Z' },
-  { id: 'w6', title: 'Quote for bathroom refit', status: 'cancelled', customerId: 'c6', customerName: 'Amelia Brooks', scheduledFor: '2026-10-22T15:00:00Z' },
-];
+// Real data (M3). Row-level security means this only ever returns the signed-in owner's own jobs.
+//
+// The customer's and technician's names come from the database in the same request: the two
+// `!work_orders_..._same_business` hints name the foreign keys that link a job to its customer and
+// technician (see the M1 schema), so there is no second request per row.
+const COLUMNS =
+  'id, title, description, status, scheduled_for, customer_id, technician_id, ' +
+  'customers!work_orders_customer_same_business(name), technicians!work_orders_technician_same_business(name)';
 
-function wait(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+// What the database sends back for one job (snake_case, with the joined names nested).
+type WorkOrderRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  scheduled_for: string | null;
+  customer_id: string;
+  technician_id: string | null;
+  customers: { name: string } | null;
+  technicians: { name: string } | null;
+};
+
+const statuses: readonly WorkOrderStatus[] = ['open', 'in_progress', 'completed', 'cancelled'];
+
+// The database only stores these four values (a check constraint), but TypeScript cannot know that,
+// and anything unexpected must not crash the screen.
+function toStatus(value: string): WorkOrderStatus {
+  return statuses.find((status) => status === value) ?? 'open';
 }
 
+export function toWorkOrder(row: WorkOrderRow): WorkOrder {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    status: toStatus(row.status),
+    customerId: row.customer_id,
+    customerName: row.customers?.name ?? 'Unknown customer',
+    technicianId: row.technician_id,
+    technicianName: row.technicians?.name ?? null,
+    scheduledFor: row.scheduled_for,
+  };
+}
+
+// Order here is only a stable starting point (soonest first, undated last); the screen sorts for display.
 export async function listWorkOrders(): Promise<WorkOrder[]> {
-  await wait(600); // pretend to be a network request
-  return workOrders;
+  const { data, error } = await supabase
+    .from('work_orders')
+    .select(COLUMNS)
+    .order('scheduled_for', { ascending: true, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .returns<WorkOrderRow[]>();
+  if (error) {
+    throw error;
+  }
+  return data.map(toWorkOrder);
 }

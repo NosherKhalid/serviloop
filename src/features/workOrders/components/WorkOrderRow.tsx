@@ -13,15 +13,19 @@ type WorkOrderRowProps = {
 
 export function WorkOrderRow({ workOrder }: WorkOrderRowProps) {
   const colors = useTheme();
+  const assigned = workOrder.technicianName !== null ? `assigned to ${workOrder.technicianName}` : 'unassigned';
 
   return (
     // One spoken summary per row, so a screen reader reads it as a single item.
     <View
       accessible
-      accessibilityLabel={`${workOrder.title}, ${workOrder.customerName}, ${statusLabel(workOrder.status)}, ${formatScheduledDate(workOrder.scheduledFor)}`}
+      accessibilityLabel={`${workOrder.title}, ${workOrder.customerName}, ${assigned}, ${statusLabel(workOrder.status)}, ${formatScheduledDate(workOrder.scheduledFor)}`}
       style={[styles.row, { backgroundColor: colors.surface }]}>
       <Text style={[styles.title, { color: colors.text }]}>{workOrder.title}</Text>
       <Text style={{ color: colors.textMuted }}>{workOrder.customerName}</Text>
+      <Text style={{ color: colors.textMuted }}>
+        {workOrder.technicianName !== null ? `Assigned to ${workOrder.technicianName}` : 'Unassigned'}
+      </Text>
       <View style={styles.footer}>
         <StatusChip status={workOrder.status} />
         <Text style={{ color: colors.textMuted }}>{formatScheduledDate(workOrder.scheduledFor)}</Text>
