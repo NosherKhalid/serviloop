@@ -6,7 +6,7 @@
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
 | M3 CRUD via repositories | complete, merged to main (PR #5, close-out PR #6); iOS flows still to be confirmed by the owner |
-| M4 Dashboard + status | all slices built (job detail with status and notes, dashboard, whole journey verified on Android); 261 tests, 62/62 security checks. Waiting for the owner to try the iOS flows, then `/finish-milestone M4` |
+| M4 Dashboard + status | complete, PR #7 open for review; iOS flows still to be confirmed by the owner |
 | M5 AI summary | not started |
 | M6 Tests, polish, docs | not started |
 
@@ -40,9 +40,15 @@
 - No CI exists in the repository (rule says CI must be green before merge); owner chose to postpone it.
 - Open: iOS walk-through of date and time controls, keyboard with the job form, delete alert, customer navigation; the dev-only Expo Router warning; offline, light mode and large text on the M3 screens.
 
+## M4 close-out (2026-10-25)
+- `npm run check`: lint clean, typecheck clean, 261/261 tests (35 suites). No `any`/suppressions, no `console`, no non-null assertions, no secrets or `.env` tracked. No schema or policy change (`supabase/` untouched since M3), so the 62/62 two-account result from 2026-10-25 still applies (re-run the same day, after the M4 screens were built).
+- Gate: **dashboard counts match the database** (Android, compared with direct database counts: 1/2/3/1, then 0/3/3/1 after a status change); **status changes and notes persist** (database read-back: `completed` with the exact notes in one write; after sign-out and sign-in the Dashboard showed 0/0/1); **loading, empty and error states present** (dashboard: spinner, "No jobs yet", retryable error; job detail: spinner, not found, retryable error; all unit-tested and the empty dashboard seen on the device); **main journey with no fake data** (sign-up to completed job on a brand-new account, Android; no mock data left in the app).
+- Decisions D-036 (job detail), D-037 (dashboard counts), D-038 (completion notes); D-034 corrected (stack anchor does not apply across tabs).
+- Open: iOS flows not walked (detail, notes with keyboard, dashboard); light mode, largest text and offline behaviour on the new screens; no back arrow on screens opened from another tab (BACKLOG); Back from a job opened on the Dashboard returns to the Jobs list.
+- No CI in the repository (owner postponed it).
+
 ## Next
-`/start-milestone M4`: dashboard counts and recent jobs, status changes with completion notes, job detail. Dashboard must refetch on focus (D-034).
+Owner tries the M4 flows on iOS, merges PR #7, then `/start-milestone M5`: the AI job summary (Edge Function that verifies the caller and the job's owner, editable and saved summary).
 
 ## Open questions
-- AI provider for M5: undecided (mock summary is the fallback).
-- AI provider: undecided (mock summary is the fallback; see spec §7).
+- AI provider for M5: undecided. Live model, or a clearly labelled mock summary as the fallback (spec §7). The owner decides at `/start-milestone M5`.
