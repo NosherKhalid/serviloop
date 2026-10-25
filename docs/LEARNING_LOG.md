@@ -91,3 +91,9 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Swapping mock for real was small because the repository kept the same function names (D-005); the only structural fix was moving create/update calls out of screens into hooks.
 - Two false alarms were test-script timing (emulator floating keyboard + Back key), caught by checking the database before blaming the app.
 - Next: slice 2, technicians (list, add, edit, deactivate).
+
+## 2026-10-25 — M3 slice 2 (technicians)
+- Technicians can be listed, added, edited and deactivated/reactivated from Settings; inactive ones are marked in words and will be excluded from new-job pickers (slice 4).
+- A shared recording mock (`src/testing/mockSupabase.ts`) now backs the repository tests, so each new repository costs fewer lines.
+- Found the emulator signed in as the owner's own account: live testing must not change their data or session without asking.
+- Next: slice 3, jobs on real data (read).

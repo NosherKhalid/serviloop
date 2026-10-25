@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { StyleSheet, Text } from 'react-native';
 
 import { Button } from '@/components/Button';
@@ -8,6 +9,7 @@ import { useBusiness } from '@/providers/BusinessProvider';
 
 export function SettingsScreen() {
   const colors = useTheme();
+  const router = useRouter();
   const { state, signOut } = useAuth();
   const { state: businessState } = useBusiness();
   const email = state.status === 'signedIn' ? state.user.email : null;
@@ -20,6 +22,8 @@ export function SettingsScreen() {
 
       <Text style={[styles.label, { color: colors.textMuted }]}>Business</Text>
       <Text style={[styles.value, { color: colors.text }]}>{businessName}</Text>
+
+      <Button title="Manage technicians" variant="secondary" onPress={() => router.push('/settings/technicians')} />
 
       {/* No navigation call here: signing out changes the auth state and the root layout swaps to the sign-in screens. */}
       <Button title="Sign out" variant="secondary" onPress={() => void signOut()} />
