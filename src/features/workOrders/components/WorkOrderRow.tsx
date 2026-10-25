@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { radius, spacing, typography, useTheme } from '@/theme';
 import type { WorkOrder } from '@/types/workOrder';
@@ -9,18 +9,21 @@ import { StatusChip } from './StatusChip';
 
 type WorkOrderRowProps = {
   workOrder: WorkOrder;
+  onPress: () => void;
 };
 
-export function WorkOrderRow({ workOrder }: WorkOrderRowProps) {
+export function WorkOrderRow({ workOrder, onPress }: WorkOrderRowProps) {
   const colors = useTheme();
   const assigned = workOrder.technicianName !== null ? `assigned to ${workOrder.technicianName}` : 'unassigned';
 
   return (
     // One spoken summary per row, so a screen reader reads it as a single item.
-    <View
-      accessible
+    <Pressable
+      accessibilityRole="button"
+      accessibilityHint="Opens the job to edit"
+      onPress={onPress}
       accessibilityLabel={`${workOrder.title}, ${workOrder.customerName}, ${assigned}, ${statusLabel(workOrder.status)}, ${formatScheduledDate(workOrder.scheduledFor)}`}
-      style={[styles.row, { backgroundColor: colors.surface }]}>
+      style={({ pressed }) => [styles.row, { backgroundColor: colors.surface }, pressed && styles.pressed]}>
       <Text style={[styles.title, { color: colors.text }]}>{workOrder.title}</Text>
       <Text style={{ color: colors.textMuted }}>{workOrder.customerName}</Text>
       <Text style={{ color: colors.textMuted }}>
@@ -30,7 +33,7 @@ export function WorkOrderRow({ workOrder }: WorkOrderRowProps) {
         <StatusChip status={workOrder.status} />
         <Text style={{ color: colors.textMuted }}>{formatScheduledDate(workOrder.scheduledFor)}</Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -39,6 +42,9 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: radius.md,
     gap: spacing.xs,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   title: {
     ...typography.heading,

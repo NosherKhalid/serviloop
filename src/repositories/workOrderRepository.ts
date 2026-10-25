@@ -1,3 +1,4 @@
+import type { WorkOrderInput } from '@/features/workOrders/validation';
 import { supabase } from '@/lib/supabase';
 import type { WorkOrder, WorkOrderStatus } from '@/types/workOrder';
 
@@ -57,4 +58,61 @@ export async function listWorkOrders(): Promise<WorkOrder[]> {
     throw error;
   }
   return data.map(toWorkOrder);
+}
+
+// `null` means "no such job (or not yours)", which is not an error.
+export async function getWorkOrder(id: string): Promise<WorkOrder | null> {
+  const { data, error } = await supabase.from('work_orders').select(COLUMNS).eq('id', id).returns<WorkOrderRow[]>().maybeSingle();
+  if (error) {
+    throw error;
+  }
+  return data === null ? null : toWorkOrder(data);
+}
+
+// A new job always starts as 'open'. `businessId` comes from the signed-in owner's business; the
+// database refuses a customer or technician from any other business (composite foreign keys, M1).
+export async function createWorkOrder(businessId: string, input: WorkOrderInput): Promise<WorkOrder> {
+  const { data, error } = await supabase
+    .from('work_orders')
+    .insert({
+      business_id: businessId,
+      customer_id: input.customerId,
+      technician_id: input.technicianId,
+      title: input.title,
+      description: input.description,
+      status: 'open',
+      scheduled_for: input.scheduledFor,
+    })
+    .select(COLUMNS)
+    .returns<WorkOrderRow>()
+    .single();
+  if (error) {
+    throw error;
+  }
+  return toWorkOrder(data);
+}
+
+// `business_id` is never sent on an update: a job can never be moved to another business.
+export async function updateWorkOrder(id: string, input: WorkOrderInput): Promise<WorkOrder> {
+  const { data, error } = await supabase
+    .from('work_orders')
+    .update({
+      customer_id: input.customerId,
+      technician_id: input.technicianId,
+      title: input.title,
+      description: input.description,
+      status: input.status,
+      scheduled_for: input.scheduledFor,
+    })
+    .eq('id', id)
+    .select(COLUMNS)
+    .returns<WorkOrderRow>()
+    .maybeSingle();
+  if (error) {
+    throw error;
+  }
+  if (data === null) {
+    throw new Error('Job not found'); // updating a row that does not exist (or is not yours) changes nothing
+  }
+  return toWorkOrder(data);
 }

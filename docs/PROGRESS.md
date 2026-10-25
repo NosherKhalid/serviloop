@@ -5,7 +5,7 @@
 | M0 Setup + mock UI | complete, merged to main (PR #1) |
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
-| M3 CRUD via repositories | in progress (slices 1–3 built: customers, technicians and the jobs list on real data; next slice 4: create and edit jobs) |
+| M3 CRUD via repositories | in progress (slices 1–4 built: customers, technicians and jobs on real data, with create and edit; next slice 5: tests, security re-check, docs) |
 | M4 Dashboard + status | not started |
 | M5 AI summary | not started |
 | M6 Tests, polish, docs | not started |

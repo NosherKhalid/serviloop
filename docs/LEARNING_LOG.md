@@ -103,3 +103,9 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Dates now follow the phone's own time zone (UTC-only display would have shown a 9:00 job at the wrong hour once owners pick local times).
 - Read-only live checks on the owner's own demo data caught nothing wrong; tests cover the empty and error states.
 - Next: slice 4, create and edit jobs (pickers, native date and time, allowed status moves); needs approval to install the date-picker package.
+
+## 2026-10-25 — M3 slice 4 (create and edit jobs)
+- Owners can now create a job for a customer, optionally assign a technician and a date and time with the phone's own date and time controls, and move it through allowed statuses. Everything persists and matches the database.
+- Two product catches: the field placeholder and its error said the same sentence (fixed), and a library deprecation warning caught while testing live led to the newer date-picker callbacks.
+- Test discipline: asked before changing the owner's emulator session, used a throwaway account, left the owner's demo data untouched.
+- Next: slice 5, final M3 checks (security regression run, docs, test matrix).

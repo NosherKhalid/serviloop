@@ -59,7 +59,7 @@ describe('<WorkOrderListScreen />', () => {
     await render(<WorkOrderListScreen />);
     await screen.findByText('Upcoming job');
 
-    const titles = screen.getAllByText(/job$/).map((node) => node.props.children);
+    const titles = screen.getAllByText(/^(Upcoming|Finished) job$/).map((node) => node.props.children);
     expect(titles).toEqual(['Upcoming job', 'Finished job']);
   });
 
