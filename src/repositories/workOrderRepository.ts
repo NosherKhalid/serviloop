@@ -116,3 +116,11 @@ export async function updateWorkOrder(id: string, input: WorkOrderInput): Promis
   }
   return toWorkOrder(data);
 }
+
+// Permanent. Same rules as `deleteCustomer`: a job that is already gone is not an error.
+export async function deleteWorkOrder(id: string): Promise<void> {
+  const { error } = await supabase.from('work_orders').delete().eq('id', id);
+  if (error) {
+    throw error;
+  }
+}

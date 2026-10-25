@@ -1,5 +1,5 @@
 import { useBusiness } from '@/providers/BusinessProvider';
-import { createCustomer, updateCustomer } from '@/repositories/customerRepository';
+import { createCustomer, deleteCustomer, updateCustomer } from '@/repositories/customerRepository';
 
 import type { CustomerInput } from '../validation';
 
@@ -21,5 +21,11 @@ export function useCreateCustomer() {
 export function useUpdateCustomer() {
   return async function update(id: string, input: CustomerInput): Promise<void> {
     await updateCustomer(id, input);
+  };
+}
+
+export function useDeleteCustomer() {
+  return async function remove(id: string): Promise<void> {
+    await deleteCustomer(id);
   };
 }

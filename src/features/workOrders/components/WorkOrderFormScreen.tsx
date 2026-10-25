@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import type { ReactNode } from 'react';
 import { ActivityIndicator } from 'react-native';
 
 import { EmptyState } from '@/components/EmptyState';
@@ -15,11 +16,12 @@ type WorkOrderFormScreenProps = {
   originalStatus?: WorkOrderStatus;
   submitLabel: string;
   onSave: (input: WorkOrderInput) => Promise<void>;
+  footer?: ReactNode;
 };
 
 // Shared by "new job" and "edit job": loads the customers and technicians to choose from, and handles
 // the three situations around them (loading, failed, no customers yet) before showing the form.
-export function WorkOrderFormScreen({ initialValues, originalStatus, submitLabel, onSave }: WorkOrderFormScreenProps) {
+export function WorkOrderFormScreen({ initialValues, originalStatus, submitLabel, onSave, footer }: WorkOrderFormScreenProps) {
   const colors = useTheme();
   const router = useRouter();
   const { state, reload } = useWorkOrderFormOptions();
@@ -61,6 +63,7 @@ export function WorkOrderFormScreen({ initialValues, originalStatus, submitLabel
           technicians={state.technicians}
           submitLabel={submitLabel}
           onSave={onSave}
+          footer={footer}
         />
       );
   }

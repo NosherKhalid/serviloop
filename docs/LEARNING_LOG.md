@@ -109,3 +109,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Two product catches: the field placeholder and its error said the same sentence (fixed), and a library deprecation warning caught while testing live led to the newer date-picker callbacks.
 - Test discipline: asked before changing the owner's emulator session, used a throwaway account, left the owner's demo data untouched.
 - Next: slice 5, final M3 checks (security regression run, docs, test matrix).
+
+## 2026-10-25 — M3 slice 4b (delete jobs and customers)
+- Owners can now remove a job or a customer from its edit screen, after a confirmation; a customer with jobs is protected by the database and the app explains why.
+- Technicians stay deactivate-only on purpose, so job history is never lost.
+- The delete rules already existed since M1 and the two-account check already tested them, so no security change was needed (62 of 62 re-run).
+- Pitfall: the first navigation fix for the customer form was reported as done before a live check; the real fix needed an explicit "go to the list" after saving. Do not call a navigation fix done without seeing it.
+- Next: slice 5, final M3 pass.

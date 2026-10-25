@@ -4,7 +4,7 @@ import { minTouchSize, radius, spacing, typography, useTheme } from '@/theme';
 
 // A union of string literals: the compiler only accepts these exact values.
 // iOS: like a Swift enum without associated values.
-type ButtonVariant = 'primary' | 'secondary';
+type ButtonVariant = 'primary' | 'secondary' | 'danger';
 
 type ButtonProps = {
   title: string;
@@ -19,8 +19,9 @@ export function Button({ title, onPress, variant = 'primary', disabled = false, 
   const isPrimary = variant === 'primary';
   const isInactive = disabled || loading;
 
+  const accent = variant === 'danger' ? colors.danger : colors.primary;
   const backgroundColor = isPrimary ? colors.primary : 'transparent';
-  const textColor = isPrimary ? colors.onPrimary : colors.primary;
+  const textColor = isPrimary ? colors.onPrimary : accent;
 
   return (
     <Pressable
@@ -32,7 +33,7 @@ export function Button({ title, onPress, variant = 'primary', disabled = false, 
       // `style` can be a function of the press state. Arrays merge styles; later items win.
       style={({ pressed }) => [
         styles.base,
-        { backgroundColor, borderColor: colors.primary },
+        { backgroundColor, borderColor: accent },
         pressed && styles.pressed,
         isInactive && styles.inactive,
       ]}>

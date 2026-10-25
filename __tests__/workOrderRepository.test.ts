@@ -1,6 +1,6 @@
 jest.mock('@/lib/supabase', () => ({ supabase: require('@/testing/mockSupabase').mockDb.client }));
 
-import { createWorkOrder, getWorkOrder, listWorkOrders, updateWorkOrder } from '@/repositories/workOrderRepository';
+import { createWorkOrder, deleteWorkOrder, getWorkOrder, listWorkOrders, updateWorkOrder } from '@/repositories/workOrderRepository';
 import { mockDb } from '@/testing/mockSupabase';
 
 const row = {
@@ -147,5 +147,24 @@ describe('workOrderRepository.updateWorkOrder', () => {
   it('reports "not found" when an update matches nothing', async () => {
     mockDb.result = { data: null, error: null };
     await expect(updateWorkOrder('missing', input)).rejects.toThrow('Job not found');
+  });
+});
+
+describe('workOrderRepository.deleteWorkOrder (real query, mocked client)', () => {
+  it('deletes only the chosen job', async () => {
+    mockDb.result = { data: null, error: null };
+
+    await deleteWorkOrder('w1');
+
+    expect(mockDb.called('from')).toEqual([['work_orders']]);
+    expect(mockDb.called('delete')).toHaveLength(1);
+    expect(mockDb.called('eq')).toEqual([['id', 'w1']]);
+  });
+
+  it('throws the service error when the database refuses', async () => {
+    const refusal = { code: '42501', message: 'permission denied for table work_orders' };
+    mockDb.result = { data: null, error: refusal };
+
+    await expect(deleteWorkOrder('w1')).rejects.toBe(refusal);
   });
 });

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Button } from '@/components/Button';
@@ -21,9 +22,10 @@ type WorkOrderFormProps = {
   technicians: readonly Technician[];
   submitLabel: string;
   onSave: (input: WorkOrderInput) => Promise<void>;
+  footer?: ReactNode; // extra content under the save button (the edit screen puts "Delete job" here)
 };
 
-export function WorkOrderForm({ initialValues, originalStatus, customers, technicians, submitLabel, onSave }: WorkOrderFormProps) {
+export function WorkOrderForm({ initialValues, originalStatus, customers, technicians, submitLabel, onSave, footer }: WorkOrderFormProps) {
   const colors = useTheme();
   const { values, errors, isSubmitting, submitError, setField, submit } = useWorkOrderForm({ initialValues, originalStatus, onSave });
 
@@ -116,6 +118,7 @@ export function WorkOrderForm({ initialValues, originalStatus, customers, techni
       ) : null}
 
       <Button title={submitLabel} onPress={submit} loading={isSubmitting} />
+      {footer}
     </ScrollView>
   );
 }

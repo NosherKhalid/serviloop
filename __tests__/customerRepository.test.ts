@@ -1,7 +1,7 @@
 jest.mock('@/lib/supabase', () => ({ supabase: require('@/testing/mockSupabase').mockDb.client }));
 
 import { mockDb } from '@/testing/mockSupabase';
-import { createCustomer, getCustomer, listCustomers, updateCustomer } from '@/repositories/customerRepository';
+import { createCustomer, deleteCustomer, getCustomer, listCustomers, updateCustomer } from '@/repositories/customerRepository';
 
 const row = { id: 'c1', name: 'Maple Street Bakery', phone: '555-0101', address: '12 Maple Street', created_at: '2026-09-01T09:00:00Z' };
 const customer = { id: 'c1', name: 'Maple Street Bakery', phone: '555-0101', address: '12 Maple Street', createdAt: '2026-09-01T09:00:00Z' };
@@ -80,5 +80,24 @@ describe('customerRepository (real queries, mocked client)', () => {
   it('reports "not found" when an update matches nothing', async () => {
     mockDb.result = { data: null, error: null };
     await expect(updateCustomer('missing', input)).rejects.toThrow('Customer not found');
+  });
+});
+
+describe('customerRepository.deleteCustomer (real query, mocked client)', () => {
+  it('deletes only the chosen customer', async () => {
+    mockDb.result = { data: null, error: null };
+
+    await deleteCustomer('c1');
+
+    expect(called('from')).toEqual([['customers']]);
+    expect(called('delete')).toHaveLength(1);
+    expect(called('eq')).toEqual([['id', 'c1']]);
+  });
+
+  it('throws the service error when the database refuses (the customer still has jobs)', async () => {
+    const refusal = { code: '23503', message: 'update or delete on table "customers" violates foreign key constraint' };
+    mockDb.result = { data: null, error: refusal };
+
+    await expect(deleteCustomer('c1')).rejects.toBe(refusal);
   });
 });

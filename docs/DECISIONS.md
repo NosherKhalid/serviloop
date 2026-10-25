@@ -209,5 +209,14 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **Follow-up:** the M4 dashboard counts must refetch on focus for the same reason.
 - **Verified:** 7 new tests (197 total); breaking the refetch makes 3 of them fail. **Live re-check on the Android emulator was not completed:** the emulator became overloaded (guest load average above 28, "system isn't responding") before the new empty-business account could be created. Owner to confirm on their device.
 
+## D-035 — Delete jobs and customers (M3 slice 4b)
+- **Date:** 2026-10-25
+- **What:** The edit screens for a job and a customer end with a red "Delete job" / "Delete customer" button. The first tap only asks (native alert: "Delete this job?", Cancel / Delete, the confirm button marked destructive); deleting is permanent with no undo. On success the app shows the list. A customer who still has jobs cannot be deleted: the database refuses (foreign key, error 23503) and the screen says "This customer still has jobs. Delete those jobs first, then delete the customer." Other failures show a fixed friendly sentence, never raw database text. The new job and new customer forms have no delete button.
+- **Technicians are not deletable (unchanged):** they are deactivated so old jobs keep their history; the database has no delete rule for them and none was added.
+- **No migration and no security-policy change:** the delete rules and grants for customers and jobs already existed from M1 (owner-scoped through the business). `npm run test:rls` already covers B deleting A's customer or job (no rows affected), A deleting a customer with jobs (refused) and A deleting own records; re-run: 62 of 62.
+- **Scope:** this goes beyond the spec's "delete may be deferred" ("Delete may be deferred or restricted if customers have work orders", `docs/PROJECT_SPEC.md` line 47) at the owner's request.
+- **Alternatives:** soft delete / archive with undo (more states, more screens; backlog if ever needed); checking "has jobs?" before offering the button (extra request, can go stale; the database rule is the real guard).
+- **Verified:** 17 new tests (216 total): repository deletes (one row targeted by id, refusals surface), the shared `DeleteButton` (asks first, cancel does nothing, destructive confirm, in-use message, friendly failures, retry), and both edit screens (delete then return to the list; no button on new forms). **Not yet checked by me on a device:** the emulator became unreliable earlier, so the owner should try it (see report).
+
 ## Open issue (update, 2026-10-25) — Expo Router dev warning
 Seen a third time (Android, first cold start after signing in as a different account). Component stack still points into Expo Router's own `ContextNavigator` / `ExpoRoot`, nothing breaks, development builds only.

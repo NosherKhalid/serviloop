@@ -62,3 +62,12 @@ export async function updateCustomer(id: string, input: CustomerInput): Promise<
   }
   return toCustomer(data);
 }
+
+// Permanent. The database refuses (error 23503) while the customer still has jobs; the screen explains that.
+// Deleting a customer that is already gone (or not yours) removes nothing and is not an error.
+export async function deleteCustomer(id: string): Promise<void> {
+  const { error } = await supabase.from('customers').delete().eq('id', id);
+  if (error) {
+    throw error;
+  }
+}

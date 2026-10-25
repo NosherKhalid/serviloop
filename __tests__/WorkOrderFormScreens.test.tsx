@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { Alert, type AlertButton } from 'react-native';
 
 import type { Customer } from '@/types/customer';
 import type { Technician } from '@/types/technician';
@@ -6,6 +7,8 @@ import type { WorkOrder } from '@/types/workOrder';
 
 const mockPush = jest.fn();
 const mockBack = jest.fn();
+const mockDismissTo = jest.fn();
+const mockDelete = jest.fn();
 const mockListCustomers = jest.fn<Promise<Customer[]>, []>();
 const mockListTechnicians = jest.fn<Promise<Technician[]>, []>();
 const mockGetWorkOrder = jest.fn<Promise<WorkOrder | null>, [string]>();
@@ -23,7 +26,7 @@ const mockFocusEffects: Array<() => void | (() => void)> = [];
 jest.mock('expo-router', () => {
   const { useEffect } = jest.requireActual('react');
   return {
-    useRouter: () => ({ push: mockPush, back: mockBack }),
+    useRouter: () => ({ push: mockPush, back: mockBack, dismissTo: mockDismissTo }),
     useFocusEffect: (effect: () => void | (() => void)) =>
       useEffect(() => {
         mockFocusEffects.push(effect);
@@ -40,6 +43,7 @@ jest.mock('@/repositories/workOrderRepository', () => ({
   getWorkOrder: (id: string) => mockGetWorkOrder(id),
   createWorkOrder: (...args: unknown[]) => mockCreate(...args),
   updateWorkOrder: (...args: unknown[]) => mockUpdate(...args),
+  deleteWorkOrder: (...args: unknown[]) => mockDelete(...args),
 }));
 
 import { EditWorkOrderScreen } from '@/features/workOrders/components/EditWorkOrderScreen';
@@ -283,5 +287,50 @@ describe('job form choices stay current when the owner returns to it', () => {
 
     expect(screen.getByDisplayValue('Fix leaking pipe')).toBeTruthy();
     expect(screen.queryByText(/We couldn't load your customers and technicians/)).toBeNull();
+  });
+});
+
+describe('deleting a job', () => {
+  function confirmDelete() {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    return () =>
+      act(async () => {
+        (alertSpy.mock.calls[0][2] as AlertButton[]).find((button) => button.text === 'Delete')?.onPress?.();
+      });
+  }
+
+  beforeEach(() => mockGetWorkOrder.mockResolvedValue(existing));
+
+  it('asks first, then deletes that job and returns to the Jobs list', async () => {
+    const tapDelete = confirmDelete();
+    mockDelete.mockResolvedValue(undefined);
+    await render(<EditWorkOrderScreen id="w1" />);
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Delete job' }));
+    expect(mockDelete).not.toHaveBeenCalled();
+    await tapDelete();
+
+    await waitFor(() => expect(mockDelete).toHaveBeenCalledWith('w1'));
+    await waitFor(() => expect(mockDismissTo).toHaveBeenCalledWith('/work-orders'));
+  });
+
+  it('keeps the job and shows a friendly message when the delete fails', async () => {
+    const tapDelete = confirmDelete();
+    mockDelete.mockRejectedValue({ code: 'XX000', message: 'relation "work_orders" exploded' });
+    await render(<EditWorkOrderScreen id="w1" />);
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Delete job' }));
+    await tapDelete();
+
+    expect(await screen.findByText("We couldn't delete this job. Please try again.")).toBeTruthy();
+    expect(screen.queryByText(/exploded/)).toBeNull();
+    expect(mockDismissTo).not.toHaveBeenCalled();
+  });
+
+  it('offers no delete on the new job form', async () => {
+    await render(<NewWorkOrderScreen />);
+
+    await screen.findByText('Title');
+    expect(screen.queryByRole('button', { name: 'Delete job' })).toBeNull();
   });
 });

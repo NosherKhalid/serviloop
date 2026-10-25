@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
 
+import { DeleteButton } from '@/components/DeleteButton';
 import { EmptyState } from '@/components/EmptyState';
 import { Screen } from '@/components/Screen';
 import { useTheme } from '@/theme';
 
-import { useUpdateWorkOrder } from '../hooks/useWorkOrderActions';
+import { useDeleteWorkOrder, useUpdateWorkOrder } from '../hooks/useWorkOrderActions';
 import { useWorkOrder } from '../hooks/useWorkOrder';
 import type { WorkOrderInput } from '../validation';
 import { WorkOrderFormScreen } from './WorkOrderFormScreen';
@@ -21,6 +22,7 @@ export function EditWorkOrderScreen({ id }: EditWorkOrderScreenProps) {
   const workOrderId = typeof id === 'string' && id !== '' ? id : undefined;
   const { state, reload } = useWorkOrder(workOrderId);
   const updateWorkOrder = useUpdateWorkOrder();
+  const deleteWorkOrder = useDeleteWorkOrder();
 
   switch (state.status) {
     case 'loading':
@@ -71,6 +73,17 @@ export function EditWorkOrderScreen({ id }: EditWorkOrderScreenProps) {
           originalStatus={workOrder.status}
           submitLabel="Save changes"
           onSave={handleSave}
+          footer={
+            <DeleteButton
+              title="Delete job"
+              confirmTitle="Delete this job?"
+              confirmMessage={`"${workOrder.title}" will be removed permanently. This cannot be undone.`}
+              onDelete={() => deleteWorkOrder(workOrder.id)}
+              onDeleted={() => router.dismissTo('/work-orders')}
+              blockedMessage="This job can't be deleted right now."
+              failureMessage="We couldn't delete this job. Please try again."
+            />
+          }
         />
       );
     }

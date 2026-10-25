@@ -1,5 +1,5 @@
 import { useBusiness } from '@/providers/BusinessProvider';
-import { createWorkOrder, updateWorkOrder } from '@/repositories/workOrderRepository';
+import { createWorkOrder, deleteWorkOrder, updateWorkOrder } from '@/repositories/workOrderRepository';
 
 import type { WorkOrderInput } from '../validation';
 
@@ -20,5 +20,11 @@ export function useCreateWorkOrder() {
 export function useUpdateWorkOrder() {
   return async function update(id: string, input: WorkOrderInput): Promise<void> {
     await updateWorkOrder(id, input);
+  };
+}
+
+export function useDeleteWorkOrder() {
+  return async function remove(id: string): Promise<void> {
+    await deleteWorkOrder(id);
   };
 }

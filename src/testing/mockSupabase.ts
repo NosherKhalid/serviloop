@@ -13,7 +13,7 @@ const calls: Call[] = [];
 
 function createBuilder(): Record<string, unknown> {
   const builder: Record<string, unknown> = {};
-  for (const method of ['select', 'insert', 'update', 'eq', 'in', 'order', 'returns']) {
+  for (const method of ['select', 'insert', 'update', 'delete', 'eq', 'in', 'order', 'returns']) {
     builder[method] = (...args: unknown[]) => {
       calls.push({ method, args });
       return builder;

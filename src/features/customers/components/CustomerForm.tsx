@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Button } from '@/components/Button';
@@ -11,10 +12,11 @@ type CustomerFormProps = {
   initialValues: CustomerFormValues;
   submitLabel: string;
   onSave: (input: CustomerInput) => Promise<void>;
+  footer?: ReactNode; // extra content under the save button (the edit screen puts "Delete" here)
 };
 
 // Shared by "new" and "edit": the only differences are the starting values and what `onSave` does.
-export function CustomerForm({ initialValues, submitLabel, onSave }: CustomerFormProps) {
+export function CustomerForm({ initialValues, submitLabel, onSave, footer }: CustomerFormProps) {
   const colors = useTheme();
   const { values, errors, isSubmitting, submitError, setField, submit } = useCustomerForm({ initialValues, onSave });
 
@@ -62,6 +64,7 @@ export function CustomerForm({ initialValues, submitLabel, onSave }: CustomerFor
       ) : null}
 
       <Button title={submitLabel} onPress={submit} loading={isSubmitting} />
+      {footer}
     </ScrollView>
   );
 }
