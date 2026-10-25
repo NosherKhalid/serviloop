@@ -116,3 +116,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - The delete rules already existed since M1 and the two-account check already tested them, so no security change was needed (62 of 62 re-run).
 - Pitfall: the first navigation fix for the customer form was reported as done before a live check; the real fix needed an explicit "go to the list" after saving. Do not call a navigation fix done without seeing it.
 - Next: slice 5, final M3 pass.
+
+## 2026-10-25 — M3 closed
+- M3 is merged: the owner can manage customers, technicians and jobs on real data, with delete for jobs and customers.
+- Owner testing found the one real product bug of the milestone (the form stayed after saving); a fix that was not tried on a screen did not hold. Rule of thumb: show the result before saying "fixed".
+- The repository has no CI, so "CI must be green" is not enforced yet; the local `npm run check` and the security script are the only gates.
+- Emulator overload (guest load above 28) can look like app bugs; restart the emulator before blaming the code.
+- Next: M4 (dashboard, status and notes, job detail).

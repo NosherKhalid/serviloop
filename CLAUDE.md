@@ -21,7 +21,7 @@ Full spec: `docs/PROJECT_SPEC.md` (not auto-loaded; read the section you need be
 10. If the spec is ambiguous, stop and ask. Keep this file under ~80 lines; detail goes to `.claude/rules/` or a skill.
 
 ## Stack (fixed — ask before deviating)
-Expo (current SDK, installed via `npx expo install`) · React Native · TypeScript strict · Expo Router · `@supabase/supabase-js` (Auth, Postgres + RLS, one Edge Function) · Zod · core `StyleSheet` + small theme file · Jest + React Native Testing Library · npm.
+Expo (current SDK, installed via `npx expo install`) · React Native · TypeScript strict · Expo Router · `@supabase/supabase-js` (Auth, Postgres + RLS, one Edge Function) · Zod · `@react-native-community/datetimepicker` (native date/time, D-033) · core `StyleSheet` + small theme file · Jest + React Native Testing Library · npm.
 Deliberately absent: Redux/Zustand/TanStack Query, ORMs, UI kits, analytics. Add only with demonstrated need.
 
 ## Architecture
