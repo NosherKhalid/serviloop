@@ -3,12 +3,12 @@
 Honest record of what is tested, how, and what is not. Updated at the end of each milestone.
 
 ## Automated, no backend (`npm test`)
-96 tests in 15 suites (Jest + React Native Testing Library). M0: customer form validation, job-status rules, date formatting, mock customer repository, customer form. M2: settings check, encrypted session storage (round trip, over 2 KB, lost key, failing keychain), auth validation and friendly errors, sign-in/sign-up screens, `AuthProvider` (restore, sign-out, listening), `BusinessProvider` (loading, error and retry, account switching never leaks, create, demo data), business repository (mocked client), onboarding screen. Mutation-checked: weakening the account-switch rule and the secret-key check each made the right test fail. Run with `npm run check` (lint + typecheck + tests).
+216 tests in 33 suites (Jest + React Native Testing Library; counted by `npm run check` on 2026-10-25). M3 added 120: customer, technician and job repositories (recording mock client; the exact query, the column mapping, errors surface, deletes target one id), job and technician validation, status rules, sorting and time-zone formatting, `OptionPicker`, `DateTimeField` (iOS and Android paths), the customer, technician and job screens (loading, empty, error and retry, validation, create, edit, delete), the section layouts, and the job form's refresh when the owner returns to it. Mutation-checked: breaking that refresh made 3 tests fail. M0 (first 96 tests): customer form validation, job-status rules, date formatting, mock customer repository, customer form. M2: settings check, encrypted session storage (round trip, over 2 KB, lost key, failing keychain), auth validation and friendly errors, sign-in/sign-up screens, `AuthProvider` (restore, sign-out, listening), `BusinessProvider` (loading, error and retry, account switching never leaks, create, demo data), business repository (mocked client), onboarding screen. Mutation-checked: weakening the account-switch rule and the secret-key check each made the right test fail. Run with `npm run check` (lint + typecheck + tests).
 
 ## Security: tenant isolation (`npm run test:rls`), M1
 Runs against the **hosted Supabase project** over the same public HTTP API the app uses, with **only the publishable key**. It signs up three throwaway users, attacks data across accounts, and checks the exact database error. Re-run it after any change to a table, grant or policy, and before every demo.
 
-**Result (2026-10-24): 62 of 62 checks passed.**
+**Result (2026-10-24, and again 2026-10-25 after M3 added create/edit/delete screens; no schema change): 62 of 62 checks passed.**
 
 | Area | What must happen | Result |
 |---|---|---|
@@ -55,5 +55,28 @@ Not verified here: the same flows on the iOS simulator (only the Sign in screen 
 ### M2 close-out pass (fresh run, same device, 2026-10-24)
 Create account "m2-final-…" -> onboarding -> "Gate Check Plumbing" -> full app restart (straight back in, business shown) -> sign out -> sign in again with the same account: all pass. A first attempt at the last step showed "Email or password is incorrect" only because an overlapping test script typed the password twice (about 29 characters); the clean retry signed in.
 
+## Manual device checks: customers, technicians and jobs (M3), Android emulator (Pixel 7 Pro, Expo Go) against the hosted project, 2026-10-25
+Run with throwaway accounts (the owner's own demo data was only read, never changed).
+
+| Check | Result |
+|---|---|
+| Customers tab shows the demo account's 6 customers, alphabetical | Pass |
+| Add "Zephyr Air Cafe", rename to "Zephyr Air Bistro" with a new address; full app restart keeps both; a database query matches | Pass |
+| A second, new business sees "No customers yet" | Pass |
+| Settings -> Manage technicians lists the 3 real technicians; edit form is pre-filled with Deactivate | Pass (read only) |
+| Jobs tab shows all 6 demo jobs with the right customer, technician, status and date; unfinished jobs first | Pass |
+| The 09:00 UTC demo job shows as 2:00 PM on a UTC+5 phone (time-zone conversion) | Pass |
+| Job form lists the real customers and technicians; the real Android date dialog then time dialog set "Oct 21, 2:00 PM"; cancelling a dialog changes nothing | Pass |
+| Create "Replace bathroom tap" (customer + technician + date); edit to In progress with another technician; restart; a database query matches (customer, technician, `in_progress`, 09:00 UTC, newer `updated_at`) | Pass |
+| Empty job form shows the title and customer errors | Pass |
+| New business, Jobs -> Add job shows "Add a customer first" -> Add customer: reproduced a **bug** (no back arrow; saving fell through to Dashboard; job form kept saying "Add a customer first"). Fixed in D-034 | Bug found and fixed |
+
+**Not verified live (owner to try, or still open):**
+- The fix for the empty-business flow above (the emulator became overloaded before the re-check; covered by unit tests only).
+- Deleting a job or a customer, the in-use refusal and the confirmation alert (unit tests, plus the database rules via `npm run test:rls`).
+- Technician add, edit, deactivate and reactivate against the database (unit tests only).
+- Everything on **iOS**: the date and time controls, the keyboard with the job form, the alert. The owner's own run on the iPhone simulator found the customer-form navigation bug; the fix has not been confirmed there yet.
+- Offline behaviour on the M3 screens, light mode, largest text size, Android hardware back on the new screens.
+
 ## Not yet tested
-iOS manual pass for M2, repositories against Supabase (M3), the AI function (M5), accessibility at the largest text size, offline behaviour.
+iOS manual pass for M2 and M3, the AI function (M5), accessibility at the largest text size, offline behaviour on data screens.

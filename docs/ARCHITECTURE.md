@@ -1,6 +1,6 @@
 # Architecture
 
-Status: data model and security are built (M1); accounts, session handling and business onboarding are built (M2). Customers, technicians and jobs still read mock data until M3.
+Status: data model and security are built (M1); accounts, session handling and business onboarding are built (M2). Customers, technicians and jobs are read, created, edited and (jobs and customers) deleted against the real database (M3).
 
 ## Data flow
 ```
@@ -52,5 +52,16 @@ app start -> splash held -> restore saved session (encrypted storage) -> signed 
 - **Route guards** (`Stack.Protected`) in `src/app/_layout.tsx` pick `(auth)`, `(onboarding)` or `(app)` from that state; nothing navigates by hand.
 - **Friendly errors:** fixed messages for wrong credentials, existing email, rate limits, offline and expired sessions; raw service text is never shown.
 
+## Customers, technicians and jobs (M3)
+```
+Screen (list / form) -> feature hook (useCustomers, useWorkOrderForm, ...) -> repository -> Supabase -> RLS
+```
+- **Repositories** (`customerRepository`, `technicianRepository`, `workOrderRepository`) are the only code that queries tables. They convert database rows (snake_case) to app types (camelCase) and throw the service error; hooks and `dataErrorMessage` turn that into one friendly sentence. A job list is one request that also returns the customer and technician names through the composite foreign keys.
+- **Validation** is a pure Zod function per form (`validation.ts`), run before any request; the database rules are the second line.
+- **Navigation:** each tab owns a stack (list -> new / edit). Saving or deleting calls `router.dismissTo(list)` so the result does not depend on how the screen was opened (D-034). Screens that offer choices (the job form) refetch customers and technicians whenever they regain focus, because tabs stay mounted.
+- **Shared pieces:** `OptionPicker` (list sheet for customer and technician), `DateTimeField` (native date and time controls), `DeleteButton` (confirmation alert, permanent delete, friendly errors).
+- **Delete rules:** jobs and customers can be deleted by their owner; a customer with jobs is refused by the database (foreign key). Technicians are deactivated, never deleted (D-035).
+- **Times** are stored as UTC and shown in the phone's time zone (D-032, D-033).
+
 ## Not built yet
-Customer/technician/job screens on real data (M3), dashboard counts (M4), the `generate-job-summary` Edge Function with per-user limits (M5).
+Dashboard counts (M4), completion notes and job detail (M4), the `generate-job-summary` Edge Function with per-user limits (M5).

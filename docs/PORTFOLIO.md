@@ -13,7 +13,7 @@ Serviloop helps a small field-service business (plumbing, electrical, HVAC, clea
 ## Demo story (about 2 minutes, both platforms)
 1. Create an account (or sign in to the permanent demo account), tap "Start with demo data": a populated fictional business in one tap.
 2. Dashboard: open / in-progress / completed counts. *(M4)*
-3. Add a customer, then create a job for them and assign a technician. *(M3)*
+3. Add a customer, then create a job for them, assign a technician and pick a date and time. *(built in M3)* Optional: delete a test job.
 4. Move the job to in progress, add completion notes, mark it completed. *(M4)*
 5. Tap **Generate summary**: the AI drafts a customer-facing write-up, the owner edits and saves it. *(M5)*
 6. Sign out and back in: everything persisted.
@@ -25,7 +25,7 @@ Serviloop helps a small field-service business (plumbing, electrical, HVAC, clea
 - [ ] Architecture diagram: app → Supabase (Auth, Postgres + RLS) → Edge Function → AI provider.
 - [x] Security notes: tenant isolation tested with real accounts against the hosted project, 62 of 62 checks (results in `docs/TEST_PLAN.md`; re-run with `npm run test:rls` before a demo). Secrets kept server-side.
 - [ ] AI notes: what the model may and may not say, input limits, per-user rate limit, graceful fallback, spend cap.
-- [ ] Test and tooling evidence: `npm run check` output, test count.
+- [ ] Test and tooling evidence: `npm run check` output (216 tests in 33 suites after M3), the 62-check tenant-isolation run.
 - [ ] README with problem, target user, scope, stack, setup, limitations and an honest AI-assistance disclosure.
 
 ## Talking points for AI-integration work
