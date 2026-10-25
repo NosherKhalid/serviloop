@@ -123,3 +123,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - The repository has no CI, so "CI must be green" is not enforced yet; the local `npm run check` and the security script are the only gates.
 - Emulator overload (guest load above 28) can look like app bugs; restart the emulator before blaming the code.
 - Next: M4 (dashboard, status and notes, job detail).
+
+## 2026-10-25 — M4 (dashboard, job detail, status and notes)
+- The product now does its whole day-to-day loop: add a customer, create a job, start it, write notes, complete it, and watch the Dashboard counts follow. Verified on Android from a brand-new account to sign-out and back in.
+- Counts are asked of the database (one small count per status), so they stay correct however many jobs exist; every screen that shows data refetches when it comes back into view.
+- Walking the whole journey on a clean account found what unit tests could not: a screen opened from another tab has no back arrow, and my earlier "anchor" fix never worked across tabs (the explicit `dismissTo` did the real work). Logged, not hidden.
+- Test hygiene: a hand-called `unmount()` in one test silently broke every later render in the file; split such tests instead.
+- Next: M5, the AI job summary (needs the provider decision: live model or clearly labelled mock).

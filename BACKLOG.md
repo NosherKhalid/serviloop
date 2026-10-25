@@ -27,3 +27,5 @@ Ideas outside the P0 scope. Do not build during the 30-day sprint (see `docs/PRO
 - Undo for delete (soft delete / archive instead of permanent removal), and a way to remove a technician for good (needs a database rule; today: deactivate only)
 - A "this customer's jobs" list on the customer screen, so a customer who cannot be deleted can be cleared in one place
 - Open job detail from the list, with completion notes and the AI summary (M4 / M5)
+- Back arrow on screens opened from another tab (Dashboard -> Add job, Jobs -> Add customer): `anchor: 'index'` does not apply across tabs (D-034 update); options are pushing the list first (`navigate` then `push`) or a custom header back button
+- After opening a job from the Dashboard, Back returns to the Jobs list, not the Dashboard (tab stack behaviour, D-037)

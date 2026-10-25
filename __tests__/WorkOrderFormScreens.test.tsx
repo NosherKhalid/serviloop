@@ -64,6 +64,7 @@ const existing: WorkOrder = {
   technicianId: null,
   technicianName: null,
   scheduledFor: null,
+  completionNotes: null,
 };
 
 beforeEach(() => {

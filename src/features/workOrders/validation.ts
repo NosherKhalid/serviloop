@@ -76,3 +76,17 @@ export function validateWorkOrderForm(values: WorkOrderFormValues, originalStatu
 export function statusChoices(current: WorkOrderStatus): WorkOrderStatus[] {
   return workOrderStatuses.filter((status) => status === current || canTransition(current, status));
 }
+
+// Completion notes: free text, optional. Blank means "no notes" (stored as null). The limit mirrors the
+// database check (4000 characters).
+export const completionNotesMaxLength = 4000;
+
+export type CompletionNotesResult = { success: true; data: string | null } | { success: false; error: string };
+
+export function validateCompletionNotes(text: string): CompletionNotesResult {
+  const trimmed = text.trim();
+  if (trimmed.length > completionNotesMaxLength) {
+    return { success: false, error: `Keep the notes under ${completionNotesMaxLength} characters` };
+  }
+  return { success: true, data: blankToNull(trimmed) };
+}

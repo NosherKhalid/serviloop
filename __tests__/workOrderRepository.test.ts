@@ -1,6 +1,15 @@
 jest.mock('@/lib/supabase', () => ({ supabase: require('@/testing/mockSupabase').mockDb.client }));
 
-import { createWorkOrder, deleteWorkOrder, getWorkOrder, listWorkOrders, updateWorkOrder } from '@/repositories/workOrderRepository';
+import {
+  countWorkOrdersByStatus,
+  createWorkOrder,
+  deleteWorkOrder,
+  getWorkOrder,
+  listRecentWorkOrders,
+  listWorkOrders,
+  updateWorkOrder,
+  updateWorkOrderProgress,
+} from '@/repositories/workOrderRepository';
 import { mockDb } from '@/testing/mockSupabase';
 
 const row = {
@@ -9,6 +18,7 @@ const row = {
   description: 'Dripping tap',
   status: 'in_progress',
   scheduled_for: '2026-10-26T09:00:00Z',
+  completion_notes: 'Replaced the washer.',
   customer_id: 'c1',
   technician_id: 't1',
   customers: { name: 'Maple Street Bakery' },
@@ -45,6 +55,7 @@ describe('workOrderRepository.listWorkOrders (real query, mocked client)', () =>
         technicianId: 't1',
         technicianName: 'Sam Rivera',
         scheduledFor: '2026-10-26T09:00:00Z',
+        completionNotes: 'Replaced the washer.',
       },
     ]);
   });
@@ -166,5 +177,108 @@ describe('workOrderRepository.deleteWorkOrder (real query, mocked client)', () =
     mockDb.result = { data: null, error: refusal };
 
     await expect(deleteWorkOrder('w1')).rejects.toBe(refusal);
+  });
+});
+
+describe('workOrderRepository.updateWorkOrderProgress (real query, mocked client)', () => {
+  it('asks for the completion notes with every job', async () => {
+    mockDb.result = { data: [row], error: null };
+
+    await listWorkOrders();
+
+    const [columns] = mockDb.called('select')[0] as [string];
+    expect(columns).toContain('completion_notes');
+  });
+
+  it('moves a job and saves its notes in one update, touching nothing else', async () => {
+    mockDb.result = { data: { ...row, status: 'completed', completion_notes: 'Done.' }, error: null };
+
+    const job = await updateWorkOrderProgress('w1', { status: 'completed', completionNotes: 'Done.' });
+
+    expect(mockDb.called('update')).toEqual([[{ status: 'completed', completion_notes: 'Done.' }]]);
+    expect(mockDb.called('eq')).toEqual([['id', 'w1']]);
+    expect(job.status).toBe('completed');
+    expect(job.completionNotes).toBe('Done.');
+  });
+
+  it('saves only the notes when no status is given', async () => {
+    mockDb.result = { data: row, error: null };
+
+    await updateWorkOrderProgress('w1', { completionNotes: null });
+
+    expect(mockDb.called('update')).toEqual([[{ completion_notes: null }]]);
+  });
+
+  it('never sends the business, customer or any other column', async () => {
+    mockDb.result = { data: row, error: null };
+
+    await updateWorkOrderProgress('w1', { status: 'in_progress', completionNotes: null });
+
+    const sent = mockDb.called('update')[0][0] as Record<string, unknown>;
+    expect(Object.keys(sent).sort()).toEqual(['completion_notes', 'status']);
+  });
+
+  it('reports "not found" when nothing matched, and throws the service error otherwise', async () => {
+    mockDb.result = { data: null, error: null };
+    await expect(updateWorkOrderProgress('gone', { completionNotes: null })).rejects.toThrow('Job not found');
+
+    const refusal = { code: '42501', message: 'permission denied' };
+    mockDb.result = { data: null, error: refusal };
+    await expect(updateWorkOrderProgress('w1', { status: 'open', completionNotes: null })).rejects.toBe(refusal);
+  });
+});
+
+describe('workOrderRepository.countWorkOrdersByStatus (real queries, mocked client)', () => {
+  it('asks the database for one count per status, without fetching any rows', async () => {
+    mockDb.queue.push(
+      { data: null, error: null, count: 2 },
+      { data: null, error: null, count: 1 },
+      { data: null, error: null, count: 2 },
+      { data: null, error: null, count: 1 },
+    );
+
+    const counts = await countWorkOrdersByStatus();
+
+    expect(mockDb.called('from')).toEqual([['work_orders'], ['work_orders'], ['work_orders'], ['work_orders']]);
+    expect(mockDb.called('select')).toEqual(Array(4).fill(['id', { count: 'exact', head: true }]));
+    expect(mockDb.called('eq')).toEqual([
+      ['status', 'open'],
+      ['status', 'in_progress'],
+      ['status', 'completed'],
+      ['status', 'cancelled'],
+    ]);
+    expect(counts).toEqual({ open: 2, in_progress: 1, completed: 2, cancelled: 1 });
+  });
+
+  it('counts a status nobody has as zero', async () => {
+    mockDb.result = { data: null, error: null, count: null };
+
+    expect(await countWorkOrdersByStatus()).toEqual({ open: 0, in_progress: 0, completed: 0, cancelled: 0 });
+  });
+
+  it('throws the service error if any count fails, instead of showing a wrong number', async () => {
+    const failure = { code: 'PGRST301', message: 'JWT expired' };
+    mockDb.queue.push({ data: null, error: null, count: 2 }, { data: null, error: failure, count: null });
+
+    await expect(countWorkOrdersByStatus()).rejects.toBe(failure);
+  });
+});
+
+describe('workOrderRepository.listRecentWorkOrders (real query, mocked client)', () => {
+  it('asks for the most recently changed jobs, newest first, up to the limit', async () => {
+    mockDb.result = { data: [row], error: null };
+
+    const jobs = await listRecentWorkOrders(5);
+
+    expect(mockDb.called('order')).toEqual([['updated_at', { ascending: false }]]);
+    expect(mockDb.called('limit')).toEqual([[5]]);
+    expect(jobs.map((job) => job.title)).toEqual(['Replace kitchen faucet']);
+  });
+
+  it('throws the service error when the request fails', async () => {
+    const failure = new TypeError('Network request failed');
+    mockDb.result = { data: null, error: failure };
+
+    await expect(listRecentWorkOrders(5)).rejects.toBe(failure);
   });
 });
