@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
@@ -12,12 +13,16 @@ type JobSummarySectionProps = {
   // True while the notes box holds text that is not saved yet: the summary is written from the SAVED notes.
   notesUnsaved: boolean;
   onWorkOrderChanged: (workOrder: WorkOrder) => void;
+  // Called when the summary box gets focus, with its distance from the top of this section, so the screen can
+  // scroll it above the keyboard.
+  onSummaryFocus?: (offsetInSection: number) => void;
 };
 
 // Customer-friendly summary: generate a draft from the saved notes, edit it, save it, share it.
-export function JobSummarySection({ workOrder, notesUnsaved, onWorkOrderChanged }: JobSummarySectionProps) {
+export function JobSummarySection({ workOrder, notesUnsaved, onWorkOrderChanged, onSummaryFocus }: JobSummarySectionProps) {
   const colors = useTheme();
   const summary = useJobSummary(workOrder, onWorkOrderChanged);
+  const summaryBoxTop = useRef(0);
 
   const hasSavedNotes = (workOrder.completionNotes ?? '').trim() !== '';
   const hasText = summary.text.trim() !== '';
@@ -60,6 +65,7 @@ export function JobSummarySection({ workOrder, notesUnsaved, onWorkOrderChanged 
 
       {hasText || summary.hasDraft ? (
         <>
+          <View onLayout={(event) => (summaryBoxTop.current = event.nativeEvent.layout.y)}>
           <Input
             label="Summary"
             value={summary.text}
@@ -68,7 +74,9 @@ export function JobSummarySection({ workOrder, notesUnsaved, onWorkOrderChanged 
             textAlignVertical="top"
             style={styles.summaryBox}
             editable={!isBusy}
+            onFocus={() => onSummaryFocus?.(summaryBoxTop.current)}
           />
+          </View>
           <View style={styles.actions}>
             <Button title="Save summary" disabled={!summary.changed || isBusy} loading={summary.busy === 'saving'} onPress={summary.save} />
             <Button title="Share summary" variant="secondary" disabled={!hasText || isBusy} onPress={summary.share} />
