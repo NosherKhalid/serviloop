@@ -27,6 +27,7 @@ function job(overrides: Partial<WorkOrder>): WorkOrder {
     technicianName: null,
     scheduledFor: null,
     completionNotes: null,
+    aiSummary: null,
     ...overrides,
   };
 }

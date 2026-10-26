@@ -44,6 +44,7 @@ function job(id: string, title: string, status: WorkOrderStatus): WorkOrder {
     technicianName: null,
     scheduledFor: null,
     completionNotes: null,
+    aiSummary: null,
   };
 }
 

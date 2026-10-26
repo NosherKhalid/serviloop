@@ -9,6 +9,7 @@ import {
   listWorkOrders,
   updateWorkOrder,
   updateWorkOrderProgress,
+  updateWorkOrderSummary,
 } from '@/repositories/workOrderRepository';
 import { mockDb } from '@/testing/mockSupabase';
 
@@ -19,6 +20,7 @@ const row = {
   status: 'in_progress',
   scheduled_for: '2026-10-26T09:00:00Z',
   completion_notes: 'Replaced the washer.',
+  ai_summary: 'We replaced the washer.',
   customer_id: 'c1',
   technician_id: 't1',
   customers: { name: 'Maple Street Bakery' },
@@ -56,6 +58,7 @@ describe('workOrderRepository.listWorkOrders (real query, mocked client)', () =>
         technicianName: 'Sam Rivera',
         scheduledFor: '2026-10-26T09:00:00Z',
         completionNotes: 'Replaced the washer.',
+        aiSummary: 'We replaced the washer.',
       },
     ]);
   });
@@ -280,5 +283,44 @@ describe('workOrderRepository.listRecentWorkOrders (real query, mocked client)',
     mockDb.result = { data: null, error: failure };
 
     await expect(listRecentWorkOrders(5)).rejects.toBe(failure);
+  });
+});
+
+describe('workOrderRepository.updateWorkOrderSummary (real query, mocked client)', () => {
+  it('asks for the saved summary with every job', async () => {
+    mockDb.result = { data: [row], error: null };
+
+    await listWorkOrders();
+
+    const [columns] = mockDb.called('select')[0] as [string];
+    expect(columns).toContain('ai_summary');
+  });
+
+  it('saves only the summary text of the chosen job', async () => {
+    mockDb.result = { data: { ...row, ai_summary: 'Checked and fixed.' }, error: null };
+
+    const job = await updateWorkOrderSummary('w1', 'Checked and fixed.');
+
+    expect(mockDb.called('update')).toEqual([[{ ai_summary: 'Checked and fixed.' }]]);
+    expect(mockDb.called('eq')).toEqual([['id', 'w1']]);
+    expect(job.aiSummary).toBe('Checked and fixed.');
+  });
+
+  it('can clear the summary with null', async () => {
+    mockDb.result = { data: { ...row, ai_summary: null }, error: null };
+
+    const job = await updateWorkOrderSummary('w1', null);
+
+    expect(mockDb.called('update')).toEqual([[{ ai_summary: null }]]);
+    expect(job.aiSummary).toBeNull();
+  });
+
+  it('reports "not found" when nothing matched, and throws the service error otherwise', async () => {
+    mockDb.result = { data: null, error: null };
+    await expect(updateWorkOrderSummary('gone', 'x')).rejects.toThrow('Job not found');
+
+    const refusal = { code: '42501', message: 'permission denied' };
+    mockDb.result = { data: null, error: refusal };
+    await expect(updateWorkOrderSummary('w1', 'x')).rejects.toBe(refusal);
   });
 });

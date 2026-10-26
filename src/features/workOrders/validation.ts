@@ -90,3 +90,17 @@ export function validateCompletionNotes(text: string): CompletionNotesResult {
   }
   return { success: true, data: blankToNull(trimmed) };
 }
+
+// The saved summary: free text the owner has checked, optional. Blank means "no summary" (stored as null).
+// The limit mirrors the database check (2000 characters).
+export const summaryMaxLength = 2000;
+
+export type SummaryResult = { success: true; data: string | null } | { success: false; error: string };
+
+export function validateSummary(text: string): SummaryResult {
+  const trimmed = text.trim();
+  if (trimmed.length > summaryMaxLength) {
+    return { success: false, error: `Keep the summary under ${summaryMaxLength} characters` };
+  }
+  return { success: true, data: blankToNull(trimmed) };
+}

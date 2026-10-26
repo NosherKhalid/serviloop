@@ -47,6 +47,7 @@
     "test": "jest",
     "check": "npm run lint && npm run typecheck && npm test",
     "test:rls": "node --env-file=.env supabase/tests/rls-check.mjs",
+    "test:summary": "node --env-file=.env supabase/tests/summary-function-check.mjs",
     "db:types": "supabase gen types typescript --linked --schema public > src/types/database.ts"
   },
   "private": true,

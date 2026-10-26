@@ -20,6 +20,8 @@ jest.mock('expo-router', () => {
       }, [effect]),
   };
 });
+// The detail screen also hosts the summary section, which (indirectly) imports the real client; keep it inert.
+jest.mock('@/lib/supabase', () => ({ supabase: {} }));
 jest.mock('@/repositories/workOrderRepository', () => ({
   getWorkOrder: (id: string) => mockGet(id),
   updateWorkOrderProgress: (id: string, progress: unknown) => mockProgress(id, progress),
@@ -38,6 +40,7 @@ const open: WorkOrder = {
   technicianName: 'Sam Rivera',
   scheduledFor: null,
   completionNotes: null,
+  aiSummary: null,
 };
 const inProgress: WorkOrder = { ...open, status: 'in_progress' };
 

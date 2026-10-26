@@ -8,7 +8,7 @@ import type { WorkOrder, WorkOrderStatus } from '@/types/workOrder';
 // `!work_orders_..._same_business` hints name the foreign keys that link a job to its customer and
 // technician (see the M1 schema), so there is no second request per row.
 const COLUMNS =
-  'id, title, description, status, scheduled_for, completion_notes, customer_id, technician_id, ' +
+  'id, title, description, status, scheduled_for, completion_notes, ai_summary, customer_id, technician_id, ' +
   'customers!work_orders_customer_same_business(name), technicians!work_orders_technician_same_business(name)';
 
 // What the database sends back for one job (snake_case, with the joined names nested).
@@ -19,6 +19,7 @@ type WorkOrderRow = {
   status: string;
   scheduled_for: string | null;
   completion_notes: string | null;
+  ai_summary: string | null;
   customer_id: string;
   technician_id: string | null;
   customers: { name: string } | null;
@@ -45,6 +46,7 @@ export function toWorkOrder(row: WorkOrderRow): WorkOrder {
     technicianName: row.technicians?.name ?? null,
     scheduledFor: row.scheduled_for,
     completionNotes: row.completion_notes,
+    aiSummary: row.ai_summary,
   };
 }
 
@@ -69,6 +71,25 @@ export async function getWorkOrder(id: string): Promise<WorkOrder | null> {
     throw error;
   }
   return data === null ? null : toWorkOrder(data);
+}
+
+// Saves (or clears, with `null`) the customer-facing summary. Writes only `ai_summary`: the text was drafted by
+// the Edge Function but the owner has edited it, and it reaches the database through the normal RLS-protected path.
+export async function updateWorkOrderSummary(id: string, summary: string | null): Promise<WorkOrder> {
+  const { data, error } = await supabase
+    .from('work_orders')
+    .update({ ai_summary: summary })
+    .eq('id', id)
+    .select(COLUMNS)
+    .returns<WorkOrderRow>()
+    .maybeSingle();
+  if (error) {
+    throw error;
+  }
+  if (data === null) {
+    throw new Error('Job not found'); // updating a row that does not exist (or is not yours) changes nothing
+  }
+  return toWorkOrder(data);
 }
 
 // The newest activity first: the jobs changed most recently, whatever their status. `updated_at` is set by the
