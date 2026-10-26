@@ -293,12 +293,19 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **Alternatives:** a keyboard library such as `react-native-keyboard-controller` (a new dependency for one screen; rejected under the dependency rule); `KeyboardAvoidingView` (behaves differently per platform and does not scroll a tall form); `scrollToEnd` (hides the field when the screen is taller than the content below it).
 - **Lesson:** screenshots taken for the README found a defect the test passes had missed; the emulator should be used with the real keyboard (not the floating toolbar) for form checks.
 
-## D-046 — iOS verification skipped (M6, owner decision)
+## D-046 — iOS checklist not recorded; owner tested on the simulator (M6, owner decision)
+- **Update 2026-10-26 (owner):** the owner states they tested the app on the iOS simulator themselves. The README and test plan now say "verified on iOS simulator" on that basis, and that no checklist or screenshots were recorded. The text below was written before this statement and describes why no recorded pass exists.
 - **Date:** 2026-10-26
 - **What:** The owner decided not to run the iOS walkthrough ("difficult for me to do"). The checklist in `docs/TEST_PLAN.md` was run on **Android only**; the iOS column reads "Not run (owner decision)". I cannot tap or type in the iOS simulator (Expo Go has no automation tunnel, the macOS control tool lacks permission, a cloud simulator is a paid service), so no automated substitute exists today.
 - **What is still true about iOS:** the app has run on the iOS simulator during development (the owner found and reported iOS-specific issues, for example text alignment, D-029, and the customer form after saving, D-034), and the code uses only cross-platform React Native and Expo Go-compatible packages. Platform differences were handled in code (`automaticallyAdjustKeyboardInsets` on iOS, `useScrollToField` on Android only). None of that is a verification.
 - **Consequence for claims:** README, portfolio notes and any client conversation say "cross-platform codebase, verified on Android", never "tested on both platforms". Unverified on iOS: keyboard behaviour on the job detail and forms, native date and time pickers, the share sheet, VoiceOver, Dynamic Type, light mode, the new "‹ list" header button.
 - **Ways to close the gap later (BACKLOG):** a manual iOS pass with the same checklist (about 20 minutes); an XCUITest harness that drives Expo Go; or a development build with the Expo automation tunnel.
+
+## D-047 — Jest test timeout raised to 20 s for slow CI runners (M6 follow-up)
+- **Date:** 2026-10-26
+- **What:** `"testTimeout": 20000` in the Jest config in `package.json` (the default is 5 s). **No assertion was changed, skipped or weakened.**
+- **Why:** the first CI run on a docs-only PR failed twice, always on the same test ("shows a friendly error with a working retry when the choices cannot load"), with "Exceeded timeout of 5000 ms". That test is the first in `WorkOrderFormScreens.test.tsx` to render the full job form (pickers, date field), and on GitHub's shared runner that file takes 8 to 11 s against well under 1 s locally (the green run on PR #11 had already taken 8 s). The code was identical to what had passed; only the machine speed varied.
+- **Alternatives:** a per-test timeout (hides the same problem in the next slow test); splitting or lazily importing the form (a code change for a test-environment problem); skipping the test (not acceptable).
 
 ## Open issue (update, 2026-10-25) — Expo Router dev warning
 Seen a third time (Android, first cold start after signing in as a different account). Component stack still points into Expo Router's own `ContextNavigator` / `ExpoRoot`, nothing breaks, development builds only.

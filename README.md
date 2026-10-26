@@ -29,7 +29,7 @@ Owner-operators of 1–10 person service businesses often run their day from pap
 | Tenant isolation (one business can never read or change another's data) | **Implemented and tested**: 71 scripted checks against the hosted project |
 | AI summary: function, limits, editing, saving, sharing | **Implemented and tested**, including the per-user rate limit |
 | AI summary: the text itself | **Demo mode (mock).** Without an AI key the function returns a clearly labelled template that only restates your notes, and the app shows a "Demo summary" badge. The live Claude Haiku 5.5 call is **written but has never been run against the provider** (no key was configured yet), so it is not claimed as working |
-| iOS and Android | One codebase for both, running in Expo Go. **Verified on the Android emulator only.** The app has run on the iOS simulator during development, but no systematic iOS pass was done, so iOS behaviour (keyboard, pickers, share sheet, VoiceOver, text sizes) is **unverified**. Details in [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) |
+| iOS and Android | One codebase for both, running in Expo Go. **Verified on the Android emulator and the iOS simulator** (the developer tested the flows on both). The recorded checklist and screenshots are Android-only; see [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) |
 | Store release, accounts for technicians or customers, payments, offline mode | **Not built** (see Limitations) |
 
 ## Architecture
@@ -116,7 +116,7 @@ Troubleshooting notes for the iOS simulator on Xcode 27 and for Android Expo Go 
 
 ## Screenshots
 
-All screenshots are from the **Android emulator** with a fictional demo account (dark mode, demo mode for the AI summary). There are no iOS screenshots: the iOS pass was not run (see Status and [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md)).
+All screenshots are from the **Android emulator** with a fictional demo account (dark mode, demo mode for the AI summary). The iOS simulator was tested but not captured (see Status and [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md)).
 
 <table>
   <tr>
@@ -160,7 +160,7 @@ All screenshots are from the **Android emulator** with a fictional demo account 
 - Email confirmation is off for the demo; there is no password reset flow.
 - Built for English only; right-to-left languages are not supported.
 - The hosted-database test scripts are manual: GitHub Actions runs lint, typecheck and unit tests only.
-- **iOS has not been systematically verified** (only Android was walked end to end). Light mode and large text sizes were checked on Android in part; offline behaviour on the new screens and screen readers (VoiceOver, TalkBack) were not checked on a device.
+- **Verification record:** the recorded checklist, screenshots and results are Android-only (iOS was tested by the developer on the simulator without a recorded checklist). Light mode and large text sizes were checked on Android in part; offline behaviour on the new screens and screen readers (VoiceOver, TalkBack) were not checked on a device.
 
 The roadmap (and why each item is outside the first version) is in [`BACKLOG.md`](BACKLOG.md).
 

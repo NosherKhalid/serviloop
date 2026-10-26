@@ -12,11 +12,11 @@ Honest record of what is tested, how, and what is not. Updated at the end of eac
 | AI summary function (hosted project, demo mode) | **Pass**: 22 of 22 | `npm run test:summary`, re-run at close-out |
 | Secrets | **Clean**: no keys in the repo or in the 45+ commits of history | History and tree scans (D-044) |
 | Main journey on **Android** (sign-up to a completed job, summary, share, dashboard counts) | **Pass** | M4 and M5 tables, plus the 2026-10-26 walkthrough |
-| Main journey on **iOS** | **Not verified** | Skipped by owner decision (D-046) |
+| Main journey on **iOS** | **Verified by the owner** on the iOS simulator | Hands-on testing by the owner; no recorded checklist or screenshots (D-046) |
 | Live AI model | **Not verified** | No provider key was ever configured (D-041) |
 
 **Known issues and limits (none block the demo):**
-- iOS unverified: keyboard behaviour, native pickers, share sheet, VoiceOver, text sizes, light mode, the "‹ list" header button.
+- iOS was tested by the owner on the simulator, but nothing is recorded: there is no checklist result or screenshot for iOS.
 - The live Claude call has never run; the app shows "Demo summary" until a key is configured.
 - Offline behaviour on the Dashboard and Job detail was not re-checked on a device in M6; TalkBack and VoiceOver were not run.
 - The two large-text fixes (count label, tab names) and the Android keyboard fix are verified by unit tests; only the keyboard fix was re-checked on the emulator afterwards.
@@ -182,27 +182,27 @@ iOS simulator screenshots: after navigating to a screen, run the capture command
 
 | # | Step | Expected | Capture name | iOS | Android |
 |---|---|---|---|---|---|
-| 0 | Sign out of any real account. Create a new account with a fictional address (for example `you+demo1@example.com`), then **Start with demo data** and Continue | Lands on the Dashboard of "Demo Plumbing Co." |  | Not run (owner decision) | Pass: sign-up, onboarding and demo data on a fictional account |
-| 1 | Dashboard | Cards 2 / 1 / 2, "Cancelled: 1 · 6 jobs in total", five recent jobs | `dashboard` | Not run (owner decision) | Pass: 2 / 1 / 2, 6 jobs in total |
-| 2 | Jobs tab | Six jobs, unfinished ones first; "Add job" at the bottom | `jobs` | Not run (owner decision) | Pass: six jobs, unfinished first |
-| 3 | Open "Replace kitchen faucet" | Detail with customer, technician, date; buttons Back to open, Mark completed, Cancel job | `job-detail` | Not run (owner decision) | Pass |
-| 4 | Tap the notes box (keyboard opens), type a note | Field and "Save notes" stay reachable above the keyboard; Save notes saves | `notes-keyboard` | Not run (owner decision) | **Fail, fixed (D-045):** the notes box sat behind the keyboard; after the fix it scrolls above it. Pass |
-| 5 | Mark completed, go back to the Dashboard | Job shows Completed; counts become 2 open / 0 in progress / 3 completed |  | Not run (owner decision) | Partial: job became Completed and the list showed it; Dashboard counts not re-read in this pass (verified in M4) |
-| 6 | Customer summary: Generate summary | A draft appears with the yellow "Demo summary" badge (demo mode) | `summary` | Not run (owner decision) | Pass: demo badge shown |
-| 7 | Edit the draft, Save summary, then Share summary | Save turns off after saving; the system share sheet opens with the text | `share` | Not run (owner decision) | Partial: Share Pass (share sheet with the text); Save verified in M5, not re-run here |
-| 8 | Jobs, Add job, tap Add job with an empty form | "Enter at least 2 characters" and "Choose a customer for this job" | `new-job` | Not run (owner decision) | Pass: both errors shown |
-| 9 | Fill the form: customer and technician pickers, native date and time pickers, Add job | Job appears in the list; picker sheets are readable; date and time pickers are native | `pickers` | Not run (owner decision) | Partial: customer picker Pass; native date and time dialogs verified in M3, not re-run here |
-| 10 | Customers: Add customer, save | Returns to the Customers list with the new customer | `customers` | Not run (owner decision) | Partial: list Pass; the add-and-return flow was verified in M4 |
-| 11 | Open a customer who has jobs, Delete customer, confirm | Refused with "still has jobs..."; nothing deleted |  | Not run (owner decision) | Not run on a device (covered by unit tests and the security script) |
-| 12 | Settings, Manage technicians: add, edit, deactivate | List updates; inactive shown as inactive | `technicians` | Not run (owner decision) | Partial: list Pass; add, edit and deactivate not run on a device (unit tests only) |
-| 13 | Force-quit the app, reopen (cold start), tap a recent job on the Dashboard | Header shows "‹ Jobs"; tapping it opens the Jobs list |  | Not run (owner decision) | Pass: ‹ Jobs shown and works (checked read-only on an existing account) |
-| 14 | Sign out, sign back in | Everything persisted |  | Not run (owner decision) | Not re-run (verified in M4) |
-| 15 | Appearance: switch to light mode, view Dashboard and Job detail | Readable, good contrast | `light` | Not run (owner decision) | Pass: Dashboard and Job detail (existing account, read-only) |
-| 16 | Text size: set the system text size to its largest, view Dashboard, Job detail and the tab bar | No mid-word breaks; layout scrolls; tab names readable |  | Not run (owner decision) | Two defects found and fixed (test-verified); on-device re-check not completed (emulator hung) |
-| 17 | Offline: turn off the network, open a job, tap Generate summary | Friendly "We can't reach the server..." message; typed text kept |  | Not run (owner decision) | Not run on a device |
-| 18 | Screen reader quick pass (VoiceOver / TalkBack): move through the Dashboard and a job | Headings, buttons and fields are announced with sensible names |  | Not run (owner decision) | Not run |
+| 0 | Sign out of any real account. Create a new account with a fictional address (for example `you+demo1@example.com`), then **Start with demo data** and Continue | Lands on the Dashboard of "Demo Plumbing Co." |  | Not recorded (owner tested on simulator) | Pass: sign-up, onboarding and demo data on a fictional account |
+| 1 | Dashboard | Cards 2 / 1 / 2, "Cancelled: 1 · 6 jobs in total", five recent jobs | `dashboard` | Not recorded (owner tested on simulator) | Pass: 2 / 1 / 2, 6 jobs in total |
+| 2 | Jobs tab | Six jobs, unfinished ones first; "Add job" at the bottom | `jobs` | Not recorded (owner tested on simulator) | Pass: six jobs, unfinished first |
+| 3 | Open "Replace kitchen faucet" | Detail with customer, technician, date; buttons Back to open, Mark completed, Cancel job | `job-detail` | Not recorded (owner tested on simulator) | Pass |
+| 4 | Tap the notes box (keyboard opens), type a note | Field and "Save notes" stay reachable above the keyboard; Save notes saves | `notes-keyboard` | Not recorded (owner tested on simulator) | **Fail, fixed (D-045):** the notes box sat behind the keyboard; after the fix it scrolls above it. Pass |
+| 5 | Mark completed, go back to the Dashboard | Job shows Completed; counts become 2 open / 0 in progress / 3 completed |  | Not recorded (owner tested on simulator) | Partial: job became Completed and the list showed it; Dashboard counts not re-read in this pass (verified in M4) |
+| 6 | Customer summary: Generate summary | A draft appears with the yellow "Demo summary" badge (demo mode) | `summary` | Not recorded (owner tested on simulator) | Pass: demo badge shown |
+| 7 | Edit the draft, Save summary, then Share summary | Save turns off after saving; the system share sheet opens with the text | `share` | Not recorded (owner tested on simulator) | Partial: Share Pass (share sheet with the text); Save verified in M5, not re-run here |
+| 8 | Jobs, Add job, tap Add job with an empty form | "Enter at least 2 characters" and "Choose a customer for this job" | `new-job` | Not recorded (owner tested on simulator) | Pass: both errors shown |
+| 9 | Fill the form: customer and technician pickers, native date and time pickers, Add job | Job appears in the list; picker sheets are readable; date and time pickers are native | `pickers` | Not recorded (owner tested on simulator) | Partial: customer picker Pass; native date and time dialogs verified in M3, not re-run here |
+| 10 | Customers: Add customer, save | Returns to the Customers list with the new customer | `customers` | Not recorded (owner tested on simulator) | Partial: list Pass; the add-and-return flow was verified in M4 |
+| 11 | Open a customer who has jobs, Delete customer, confirm | Refused with "still has jobs..."; nothing deleted |  | Not recorded (owner tested on simulator) | Not run on a device (covered by unit tests and the security script) |
+| 12 | Settings, Manage technicians: add, edit, deactivate | List updates; inactive shown as inactive | `technicians` | Not recorded (owner tested on simulator) | Partial: list Pass; add, edit and deactivate not run on a device (unit tests only) |
+| 13 | Force-quit the app, reopen (cold start), tap a recent job on the Dashboard | Header shows "‹ Jobs"; tapping it opens the Jobs list |  | Not recorded (owner tested on simulator) | Pass: ‹ Jobs shown and works (checked read-only on an existing account) |
+| 14 | Sign out, sign back in | Everything persisted |  | Not recorded (owner tested on simulator) | Not re-run (verified in M4) |
+| 15 | Appearance: switch to light mode, view Dashboard and Job detail | Readable, good contrast | `light` | Not recorded (owner tested on simulator) | Pass: Dashboard and Job detail (existing account, read-only) |
+| 16 | Text size: set the system text size to its largest, view Dashboard, Job detail and the tab bar | No mid-word breaks; layout scrolls; tab names readable |  | Not recorded (owner tested on simulator) | Two defects found and fixed (test-verified); on-device re-check not completed (emulator hung) |
+| 17 | Offline: turn off the network, open a job, tap Generate summary | Friendly "We can't reach the server..." message; typed text kept |  | Not recorded (owner tested on simulator) | Not run on a device |
+| 18 | Screen reader quick pass (VoiceOver / TalkBack): move through the Dashboard and a job | Headings, buttons and fields are announced with sensible names |  | Not recorded (owner tested on simulator) | Not run |
 
-**Android column:** filled from the 2026-10-26 pass (fictional demo account on the Android emulator, dark mode) and says where an earlier milestone, not this pass, supplied the evidence. **iOS column:** the owner decided on 2026-10-26 not to run the iOS pass (D-046). "Not run" means exactly that: not verified, not failed.
+**Android column:** filled from the 2026-10-26 pass (fictional demo account on the Android emulator, dark mode) and says where an earlier milestone, not this pass, supplied the evidence. **iOS column:** the owner tested iOS on the simulator hands-on and chose not to record the checklist (D-046), so the cells read "Not recorded".
 
 ## Not yet tested
-iOS manual pass for M2, M3, M4 and M5, the live AI model (M5), accessibility at the largest text size, offline behaviour on data screens.
+a recorded iOS checklist with screenshots, the live AI model (M5), accessibility at the largest text size, offline behaviour on data screens.
