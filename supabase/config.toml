@@ -414,3 +414,8 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# Edge Functions. `generate-job-summary` (M5) is only for signed-in users: the platform checks the login
+# token before our code runs (verify_jwt stays on), and the function checks ownership of the job itself.
+[functions.generate-job-summary]
+verify_jwt = true

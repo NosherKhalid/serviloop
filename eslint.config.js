@@ -1,4 +1,4 @@
 const { defineConfig, globalIgnores } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 
-module.exports = defineConfig([globalIgnores(['dist/*', '.expo/*', 'coverage/*']), expoConfig]);
+module.exports = defineConfig([globalIgnores(['dist/*', '.expo/*', 'coverage/*', 'supabase/functions/*/index.ts']), expoConfig]);

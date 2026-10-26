@@ -7,7 +7,7 @@
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
 | M3 CRUD via repositories | complete, merged to main (PR #5, close-out PR #6); iOS flows still to be confirmed by the owner |
 | M4 Dashboard + status | complete, PR #7 open for review; iOS flows still to be confirmed by the owner |
-| M5 AI summary | not started |
+| M5 AI summary | in progress (slice 1 built: secure summary function, migration and tests; waiting for the owner to apply and deploy) |
 | M6 Tests, polish, docs | not started |
 
 ## Log

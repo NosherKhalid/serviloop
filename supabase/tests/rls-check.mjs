@@ -229,6 +229,26 @@ section('9. Demo data: one tap for a new user (user C), and no leaks');
 }
 
 // ---------------------------------------------------------------------------------------------
+section('10. AI summary limit (M5): the counter table is locked, the function is per account');
+expectRejected('A reads the usage table directly', await rest('GET', 'ai_summary_usage?select=*', tokenA), RLS_OR_GRANT);
+expectRejected('A inserts a usage row directly', await rest('POST', 'ai_summary_usage', tokenA, { user_id: '00000000-0000-0000-0000-000000000000' }), RLS_OR_GRANT);
+expectRejected('A deletes usage rows directly', await rest('DELETE', 'ai_summary_usage?user_id=not.is.null', tokenA), RLS_OR_GRANT);
+expectRejected('A edits usage rows directly', await rest('PATCH', 'ai_summary_usage?user_id=not.is.null', tokenA, { created_at: '2000-01-01T00:00:00Z' }), RLS_OR_GRANT);
+expectRejected('signed-out visitor reads the usage table', await rest('GET', 'ai_summary_usage?select=*', undefined), RLS_OR_GRANT);
+expectRejected('signed-out visitor claims a summary slot', await rpc('claim_ai_summary_slot', undefined), RLS_OR_GRANT);
+{
+  const claims = [];
+  for (let i = 0; i < 11; i += 1) {
+    claims.push((await rpc('claim_ai_summary_slot', tokenA)).json);
+  }
+  const allowed = claims.filter((c) => c?.allowed === true).length;
+  record(allowed === 10 && claims[10]?.allowed === false, 'A gets exactly 10 slots in the hour; the 11th is refused', `allowed ${allowed} of 11, last allowed=${claims[10]?.allowed}`);
+  record(claims[0]?.hour_remaining === 9 && claims[0]?.day_remaining === 29, 'the first claim reports 9 left this hour and 29 today', JSON.stringify(claims[0]));
+  const b = await rpc('claim_ai_summary_slot', tokenB);
+  record(b.json?.allowed === true && b.json?.hour_remaining === 9, 'B still has a full allowance: A cannot use up B\'s slots', JSON.stringify(b.json));
+}
+
+// ---------------------------------------------------------------------------------------------
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length} of ${results.length} checks passed.`);
 if (failed.length) {
