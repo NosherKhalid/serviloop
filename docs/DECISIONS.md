@@ -301,5 +301,11 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **Consequence for claims:** README, portfolio notes and any client conversation say "cross-platform codebase, verified on Android", never "tested on both platforms". Unverified on iOS: keyboard behaviour on the job detail and forms, native date and time pickers, the share sheet, VoiceOver, Dynamic Type, light mode, the new "‹ list" header button.
 - **Ways to close the gap later (BACKLOG):** a manual iOS pass with the same checklist (about 20 minutes); an XCUITest harness that drives Expo Go; or a development build with the Expo automation tunnel.
 
+## D-047 — Jest test timeout raised to 20 s for slow CI runners (M6 follow-up)
+- **Date:** 2026-10-26
+- **What:** `"testTimeout": 20000` in the Jest config in `package.json` (the default is 5 s). **No assertion was changed, skipped or weakened.**
+- **Why:** the first CI run on a docs-only PR failed twice, always on the same test ("shows a friendly error with a working retry when the choices cannot load"), with "Exceeded timeout of 5000 ms". That test is the first in `WorkOrderFormScreens.test.tsx` to render the full job form (pickers, date field), and on GitHub's shared runner that file takes 8 to 11 s against well under 1 s locally (the green run on PR #11 had already taken 8 s). The code was identical to what had passed; only the machine speed varied.
+- **Alternatives:** a per-test timeout (hides the same problem in the next slow test); splitting or lazily importing the form (a code change for a test-environment problem); skipping the test (not acceptable).
+
 ## Open issue (update, 2026-10-25) — Expo Router dev warning
 Seen a third time (Android, first cold start after signing in as a different account). Component stack still points into Expo Router's own `ContextNavigator` / `ExpoRoot`, nothing breaks, development builds only.
