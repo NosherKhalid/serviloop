@@ -1,6 +1,6 @@
 # Portfolio and market notes
 
-Working notes for presenting Serviloop to prospective clients and employers. Final public copy goes in the README (M6). Claims must stay honest: no implied customers, revenue or production use (spec header).
+Working notes for presenting Serviloop to prospective clients and employers. The public copy is the repository's `README.md`; keep the two consistent (the README is the source of truth for status). Claims must stay honest: no implied customers, revenue or production use (spec header).
 
 ## The pitch (one paragraph)
 Serviloop helps a small field-service business (plumbing, electrical, HVAC, cleaning) run its day: keep customers, create and assign jobs, track status, and turn a technician's rough notes into a clear, customer-friendly job summary with AI. One owner signs in on iOS or Android; their data is private to their business.

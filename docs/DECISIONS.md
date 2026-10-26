@@ -273,5 +273,17 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **Not done on a device (be honest):** the re-check of the two large-text fixes (the emulator hung after the system settings were changed; they are covered by unit tests only) and the offline pass on Dashboard and Job detail. Offline handling of the data screens was verified in earlier milestones and by unit tests.
 - **Tooling:** `npx expo-doctor` 21/21. App display name is now "Serviloop" and the splash colour matches the dark theme.
 
+## D-043 — CI runs lint, typecheck and unit tests only (M6 slice 2)
+- **Date:** 2026-10-26
+- **What:** `.github/workflows/ci.yml` runs `npm ci` and `npm run check` (Node 24, Ubuntu) on every pull request and every push to `main`, with read-only permissions, a 15-minute timeout, cancelled superseded runs and **no secrets**. It deliberately does **not** run `npm run test:rls` or `npm run test:summary`: they need a real hosted Supabase project and create throwaway users in it, so they remain a manual step before a release or demo (documented in the README and `docs/TEST_PLAN.md`).
+- **Why:** the project rule says CI must be green before merge, and until now nothing enforced it. Clean-clone proof (2026-10-26): a fresh clone with no `.env` installs in about 9 s and `npm run check` passes (41 suites, 353 tests).
+- **Alternatives:** running the hosted-database scripts in CI with repository secrets (spends the project's sign-up rate limit on every PR and puts a key in GitHub); pinning actions to commit hashes (stricter supply-chain hygiene; major-version tags are used for now, revisit if the repo gains contributors).
+- **Observation:** `npm ci` reports ESLint 9.39.5 as no longer supported; upgrading is a dependency change and needs the `/add-dependency` gate (BACKLOG).
+
+## D-044 — Public-repository stance (M6 slice 2)
+- **Date:** 2026-10-26
+- **What:** The repository is public. **No licence file** (owner decision): the README states "all rights reserved; published for portfolio review". The **full git history was scanned** for secrets (45 commits: no AI keys, no database passwords or URLs with credentials, no JWTs, no private key or certificate files; `.env.example` is the only env file ever committed; the single `sb_secret_` match is a deliberately fake string in a test). Only the project URL and publishable key are ever in the app.
+- **README honesty rules:** state the AI summary runs in demo mode until a key is configured; never claim customers, revenue, a store release or production use; list limitations and unverified items; disclose that Claude Code wrote most of the code under the developer's review.
+
 ## Open issue (update, 2026-10-25) — Expo Router dev warning
 Seen a third time (Android, first cold start after signing in as a different account). Component stack still points into Expo Router's own `ContextNavigator` / `ExpoRoot`, nothing breaks, development builds only.

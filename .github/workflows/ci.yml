@@ -1,0 +1,32 @@
+# Continuous integration: lint, typecheck and unit tests on every pull request and every push to main.
+#
+# Deliberately NOT run here: `npm run test:rls` and `npm run test:summary`. They talk to a real hosted Supabase
+# project and create throwaway users, so they need that project's URL and key. They stay a manual step before a
+# release or demo (see docs/TEST_PLAN.md). This workflow uses no secrets at all.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
