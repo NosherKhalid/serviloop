@@ -6,9 +6,9 @@
 | M1 Database, RLS, seed | complete, merged to main (PRs #2, #3) |
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
 | M3 CRUD via repositories | complete, merged to main (PR #5, close-out PR #6); iOS flows still to be confirmed by the owner |
-| M4 Dashboard + status | complete, PR #7 open for review; iOS flows still to be confirmed by the owner |
+| M4 Dashboard + status | complete, merged to main (PRs #7, #8); iOS flows still to be confirmed by the owner |
 | M5 AI summary | complete in labelled **mock mode** (PR #9); live Claude path built but not yet run against the provider; iOS flows still to be confirmed by the owner |
-| M6 Tests, polish, docs | not started |
+| M6 Tests, polish, docs | in progress (slice 1 built: header back button, accessibility and large-text fixes; next slice 2: reproducible setup, CI and README) |
 
 ## Log
 - 2026-10-13: Project restructured (spec moved to `docs/PROJECT_SPEC.md`, new `CLAUDE.md`, `.claude/` rules/skills/settings, git initialised). No app code yet.

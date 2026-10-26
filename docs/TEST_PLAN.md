@@ -137,5 +137,20 @@ Unit tests added in M5: 39 for the function's pure logic (request checks, prompt
 - Light mode, largest text size and offline behaviour on the new section; the Android hardware back button.
 - The 10-per-hour limit is shared across all summaries a user makes in any business (one account owns one business today).
 
+## Quality pass (M6 slice 1), Android emulator (Pixel 7 Pro, Expo Go), 2026-10-26
+Run read-only on an existing account (nothing was created or changed); system settings were restored afterwards.
+
+| Check | Result |
+|---|---|
+| A screen opened from another tab shows "‹ Jobs"; tapping it lands on the Jobs list (before: no back arrow) | Pass (fixed, D-042) |
+| Light mode: Dashboard and Job detail readable, good contrast | Pass |
+| Text size 150%: Job detail wraps and scrolls | Pass |
+| Text size 150%: Dashboard count label "Completed" broke mid-word | Found and fixed (test-verified; not re-checked on the device) |
+| Text size 150%: bottom tab names truncated ("Dashb…") | Found and fixed (test-verified; not re-checked on the device) |
+| Accessibility scan: every interactive element has a role and a label; four gaps (validation errors not announced, five screen titles not headings) | Found and fixed with tests |
+| `npx expo-doctor` | 21 of 21 |
+
+Not verified in this pass: the offline pass on Dashboard and Job detail on a device; the same checks on iOS (VoiceOver, Dynamic Type, light mode); TalkBack on Android.
+
 ## Not yet tested
 iOS manual pass for M2, M3, M4 and M5, the live AI model (M5), accessibility at the largest text size, offline behaviour on data screens.

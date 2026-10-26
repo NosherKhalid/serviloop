@@ -17,7 +17,9 @@ export function EmptyState({ title, message, actionLabel, onAction }: EmptyState
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
+        {title}
+      </Text>
       <Text style={[styles.message, { color: colors.textMuted }]}>{message}</Text>
       {actionLabel && onAction ? <Button title={actionLabel} onPress={onAction} /> : null}
     </View>

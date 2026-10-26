@@ -26,7 +26,12 @@ export function Input({ label, error, style, ...textInputProps }: InputProps) {
         ]}
       />
       {/* iOS: `cond && <View/>` is how you write `if` inside a view builder. */}
-      {error ? <Text style={[styles.error, { color: colors.danger }]}>{error}</Text> : null}
+      {error ? (
+        // An "alert" is announced by VoiceOver / TalkBack when it appears, so a validation message is not silent.
+        <Text accessibilityRole="alert" style={[styles.error, { color: colors.danger }]}>
+          {error}
+        </Text>
+      ) : null}
     </View>
   );
 }

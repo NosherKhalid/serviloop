@@ -1,9 +1,9 @@
 import { Stack } from 'expo-router';
 
 // Settings owns a small stack so "Manage technicians" opens a screen with a normal back button.
-// A section must always start at its list, even when another tab jumps straight to a screen inside it
-// (e.g. "Add customer" from the Jobs tab). Without this the stack holds only that screen: no back arrow,
-// no list underneath, and "back" after saving falls out to the first tab.
+// Correct for deep links: the section's stack starts at its list. It does NOT take effect when another tab
+// jumps straight into a screen here (found on a device, D-034); those screens use `backToListOptions` for a
+// "‹ list" button instead (D-042).
 export const unstable_settings = {
   anchor: 'index',
 };
