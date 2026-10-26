@@ -2,8 +2,30 @@
 
 Honest record of what is tested, how, and what is not. Updated at the end of each milestone.
 
+## Final results (M6, 2026-10-26) and known issues
+
+| Area | Result | Evidence |
+|---|---|---|
+| Lint, typecheck, unit tests | **Pass**: 358 tests in 42 suites | `npm run check`, run at close-out; also green in a clean clone with no `.env` |
+| Project health | **Pass**: 21 of 21 | `npx expo-doctor` |
+| Tenant isolation and AI-limit table (hosted project) | **Pass**: 71 of 71 | `npm run test:rls`, re-run at close-out |
+| AI summary function (hosted project, demo mode) | **Pass**: 22 of 22 | `npm run test:summary`, re-run at close-out |
+| Secrets | **Clean**: no keys in the repo or in the 45+ commits of history | History and tree scans (D-044) |
+| Main journey on **Android** (sign-up to a completed job, summary, share, dashboard counts) | **Pass** | M4 and M5 tables, plus the 2026-10-26 walkthrough |
+| Main journey on **iOS** | **Not verified** | Skipped by owner decision (D-046) |
+| Live AI model | **Not verified** | No provider key was ever configured (D-041) |
+
+**Known issues and limits (none block the demo):**
+- iOS unverified: keyboard behaviour, native pickers, share sheet, VoiceOver, text sizes, light mode, the "‹ list" header button.
+- The live Claude call has never run; the app shows "Demo summary" until a key is configured.
+- Offline behaviour on the Dashboard and Job detail was not re-checked on a device in M6; TalkBack and VoiceOver were not run.
+- The two large-text fixes (count label, tab names) and the Android keyboard fix are verified by unit tests; only the keyboard fix was re-checked on the emulator afterwards.
+- Expo Router prints a development-only React warning on some first cold starts (D-027 open issue); nothing breaks.
+- ESLint 9.39.5 is reported as no longer supported (needs a dependency decision, BACKLOG).
+- Test accounts created by the scripts (`rls-test-*`, `summary-test-*`, `m5-*`, `m6-*`, `serviloop-demo-*`) remain in Supabase Auth; delete them from the dashboard occasionally.
+
 ## Automated, no backend (`npm test`)
-261 tests in 35 suites (Jest + React Native Testing Library; counted by `npm run check` on 2026-10-25). M4 added 45: job detail (every status's allowed moves, notes saved with a status change, failures, too-long notes, refresh on return), completion-notes validation and button labels, the progress, recent-jobs and count repository queries, and the Dashboard (counts, singular/plural, recent rows, empty, error and retry, silent refresh, failed refresh keeps numbers); mutation-checked (saving stale notes with a status change fails a test). M3 added 120 (of the first 216): customer, technician and job repositories (recording mock client; the exact query, the column mapping, errors surface, deletes target one id), job and technician validation, status rules, sorting and time-zone formatting, `OptionPicker`, `DateTimeField` (iOS and Android paths), the customer, technician and job screens (loading, empty, error and retry, validation, create, edit, delete), the section layouts, and the job form's refresh when the owner returns to it. Mutation-checked: breaking that refresh made 3 tests fail. M0 (first 96 tests): customer form validation, job-status rules, date formatting, mock customer repository, customer form. M2: settings check, encrypted session storage (round trip, over 2 KB, lost key, failing keychain), auth validation and friendly errors, sign-in/sign-up screens, `AuthProvider` (restore, sign-out, listening), `BusinessProvider` (loading, error and retry, account switching never leaks, create, demo data), business repository (mocked client), onboarding screen. Mutation-checked: weakening the account-switch rule and the secret-key check each made the right test fail. Run with `npm run check` (lint + typecheck + tests).
+358 tests in 42 suites (M6 added 97: the cross-tab back button, accessibility roles, large-text layout and the Android keyboard scroll; the M4 and M5 additions below are included) (Jest + React Native Testing Library; counted by `npm run check` on 2026-10-25). M4 added 45: job detail (every status's allowed moves, notes saved with a status change, failures, too-long notes, refresh on return), completion-notes validation and button labels, the progress, recent-jobs and count repository queries, and the Dashboard (counts, singular/plural, recent rows, empty, error and retry, silent refresh, failed refresh keeps numbers); mutation-checked (saving stale notes with a status change fails a test). M3 added 120 (of the first 216): customer, technician and job repositories (recording mock client; the exact query, the column mapping, errors surface, deletes target one id), job and technician validation, status rules, sorting and time-zone formatting, `OptionPicker`, `DateTimeField` (iOS and Android paths), the customer, technician and job screens (loading, empty, error and retry, validation, create, edit, delete), the section layouts, and the job form's refresh when the owner returns to it. Mutation-checked: breaking that refresh made 3 tests fail. M0 (first 96 tests): customer form validation, job-status rules, date formatting, mock customer repository, customer form. M2: settings check, encrypted session storage (round trip, over 2 KB, lost key, failing keychain), auth validation and friendly errors, sign-in/sign-up screens, `AuthProvider` (restore, sign-out, listening), `BusinessProvider` (loading, error and retry, account switching never leaks, create, demo data), business repository (mocked client), onboarding screen. Mutation-checked: weakening the account-switch rule and the secret-key check each made the right test fail. Run with `npm run check` (lint + typecheck + tests).
 
 ## Security: tenant isolation (`npm run test:rls`), M1
 Runs against the **hosted Supabase project** over the same public HTTP API the app uses, with **only the publishable key**. It signs up three throwaway users, attacks data across accounts, and checks the exact database error. Re-run it after any change to a table, grant or policy, and before every demo.
@@ -136,6 +158,51 @@ Unit tests added in M5: 39 for the function's pure logic (request checks, prompt
 - iOS: the summary section, the keyboard in the summary box, and the share sheet.
 - Light mode, largest text size and offline behaviour on the new section; the Android hardware back button.
 - The 10-per-hour limit is shared across all summaries a user makes in any business (one account owns one business today).
+
+## Quality pass (M6 slice 1), Android emulator (Pixel 7 Pro, Expo Go), 2026-10-26
+Run read-only on an existing account (nothing was created or changed); system settings were restored afterwards.
+
+| Check | Result |
+|---|---|
+| A screen opened from another tab shows "‹ Jobs"; tapping it lands on the Jobs list (before: no back arrow) | Pass (fixed, D-042) |
+| Light mode: Dashboard and Job detail readable, good contrast | Pass |
+| Text size 150%: Job detail wraps and scrolls | Pass |
+| Text size 150%: Dashboard count label "Completed" broke mid-word | Found and fixed (test-verified; not re-checked on the device) |
+| Text size 150%: bottom tab names truncated ("Dashb…") | Found and fixed (test-verified; not re-checked on the device) |
+| Accessibility scan: every interactive element has a role and a label; four gaps (validation errors not announced, five screen titles not headings) | Found and fixed with tests |
+| `npx expo-doctor` | 21 of 21 |
+
+Not verified in this pass: the offline pass on Dashboard and Job detail on a device; the same checks on iOS (VoiceOver, Dynamic Type, light mode); TalkBack on Android.
+
+## Final walkthrough (M6): the same list on iOS and Android
+
+Run on **both platforms with a fictional demo account** (step 0). Never use a real account for this pass or for screenshots. Expected results assume the demo data (2 open, 1 in progress, 2 completed, 1 cancelled). Fill the two result columns with Pass, Fail (note what happened) or Skip.
+
+iOS simulator screenshots: after navigating to a screen, run the capture command in a terminal tab (from the repo folder): `xcrun simctl io booted screenshot docs/media/ios-<name>.png`.
+
+| # | Step | Expected | Capture name | iOS | Android |
+|---|---|---|---|---|---|
+| 0 | Sign out of any real account. Create a new account with a fictional address (for example `you+demo1@example.com`), then **Start with demo data** and Continue | Lands on the Dashboard of "Demo Plumbing Co." |  | Not run (owner decision) | Pass: sign-up, onboarding and demo data on a fictional account |
+| 1 | Dashboard | Cards 2 / 1 / 2, "Cancelled: 1 · 6 jobs in total", five recent jobs | `dashboard` | Not run (owner decision) | Pass: 2 / 1 / 2, 6 jobs in total |
+| 2 | Jobs tab | Six jobs, unfinished ones first; "Add job" at the bottom | `jobs` | Not run (owner decision) | Pass: six jobs, unfinished first |
+| 3 | Open "Replace kitchen faucet" | Detail with customer, technician, date; buttons Back to open, Mark completed, Cancel job | `job-detail` | Not run (owner decision) | Pass |
+| 4 | Tap the notes box (keyboard opens), type a note | Field and "Save notes" stay reachable above the keyboard; Save notes saves | `notes-keyboard` | Not run (owner decision) | **Fail, fixed (D-045):** the notes box sat behind the keyboard; after the fix it scrolls above it. Pass |
+| 5 | Mark completed, go back to the Dashboard | Job shows Completed; counts become 2 open / 0 in progress / 3 completed |  | Not run (owner decision) | Partial: job became Completed and the list showed it; Dashboard counts not re-read in this pass (verified in M4) |
+| 6 | Customer summary: Generate summary | A draft appears with the yellow "Demo summary" badge (demo mode) | `summary` | Not run (owner decision) | Pass: demo badge shown |
+| 7 | Edit the draft, Save summary, then Share summary | Save turns off after saving; the system share sheet opens with the text | `share` | Not run (owner decision) | Partial: Share Pass (share sheet with the text); Save verified in M5, not re-run here |
+| 8 | Jobs, Add job, tap Add job with an empty form | "Enter at least 2 characters" and "Choose a customer for this job" | `new-job` | Not run (owner decision) | Pass: both errors shown |
+| 9 | Fill the form: customer and technician pickers, native date and time pickers, Add job | Job appears in the list; picker sheets are readable; date and time pickers are native | `pickers` | Not run (owner decision) | Partial: customer picker Pass; native date and time dialogs verified in M3, not re-run here |
+| 10 | Customers: Add customer, save | Returns to the Customers list with the new customer | `customers` | Not run (owner decision) | Partial: list Pass; the add-and-return flow was verified in M4 |
+| 11 | Open a customer who has jobs, Delete customer, confirm | Refused with "still has jobs..."; nothing deleted |  | Not run (owner decision) | Not run on a device (covered by unit tests and the security script) |
+| 12 | Settings, Manage technicians: add, edit, deactivate | List updates; inactive shown as inactive | `technicians` | Not run (owner decision) | Partial: list Pass; add, edit and deactivate not run on a device (unit tests only) |
+| 13 | Force-quit the app, reopen (cold start), tap a recent job on the Dashboard | Header shows "‹ Jobs"; tapping it opens the Jobs list |  | Not run (owner decision) | Pass: ‹ Jobs shown and works (checked read-only on an existing account) |
+| 14 | Sign out, sign back in | Everything persisted |  | Not run (owner decision) | Not re-run (verified in M4) |
+| 15 | Appearance: switch to light mode, view Dashboard and Job detail | Readable, good contrast | `light` | Not run (owner decision) | Pass: Dashboard and Job detail (existing account, read-only) |
+| 16 | Text size: set the system text size to its largest, view Dashboard, Job detail and the tab bar | No mid-word breaks; layout scrolls; tab names readable |  | Not run (owner decision) | Two defects found and fixed (test-verified); on-device re-check not completed (emulator hung) |
+| 17 | Offline: turn off the network, open a job, tap Generate summary | Friendly "We can't reach the server..." message; typed text kept |  | Not run (owner decision) | Not run on a device |
+| 18 | Screen reader quick pass (VoiceOver / TalkBack): move through the Dashboard and a job | Headings, buttons and fields are announced with sensible names |  | Not run (owner decision) | Not run |
+
+**Android column:** filled from the 2026-10-26 pass (fictional demo account on the Android emulator, dark mode) and says where an earlier milestone, not this pass, supplied the evidence. **iOS column:** the owner decided on 2026-10-26 not to run the iOS pass (D-046). "Not run" means exactly that: not verified, not failed.
 
 ## Not yet tested
 iOS manual pass for M2, M3, M4 and M5, the live AI model (M5), accessibility at the largest text size, offline behaviour on data screens.

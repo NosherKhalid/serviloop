@@ -17,7 +17,9 @@ export function SignUpScreen() {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustKeyboardInsets>
-      <Text style={[styles.title, { color: colors.text }]}>Create your account</Text>
+      <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
+        Create your account
+      </Text>
 
       <Input
         label="Email"

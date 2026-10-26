@@ -137,3 +137,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - A hidden pitfall was the per-user limit: a plain "count then insert" can be beaten by a double tap, so the counter is claimed atomically inside the database, in a table the app cannot touch.
 - Workflow slip, twice: merging a PR before its last commit is pushed leaves the commit stranded (PRs #7 and #9). Check `gh pr view <n> --json state` in its own step before pushing.
 - Next: M6, the milestone that turns this into something clients can see: README, screenshots or video, architecture diagram, limitations and the AI-assistance note.
+
+## 2026-10-26 — M6 (quality pass, README, screenshots)
+- Taking screenshots for the README found a real defect that weeks of tests had missed: on Android the completion-notes box sat behind the keyboard. The earlier device checks used the emulator's small floating keyboard bar. Lesson: test forms with the full keyboard and a tall screen, and treat "capture the demo" as a test pass.
+- Android resizes the window for the keyboard but does not scroll the focused field into view (iOS does, via `automaticallyAdjustKeyboardInsets`). A small hook that scrolls the field after a short delay, on Android only, fixed it without a new dependency.
+- A screen opened from another tab is alone in its stack, so there is no back arrow. The first fix (`anchor`) never worked across tabs; a header-left button chosen by looking at the stack when the screen renders does.
+- "Someone else can clone it" is a test, not a belief: a fresh clone with no `.env` installs in about 9 seconds and passes the whole check. Scanning the full git history for secrets belongs in the same habit for a public repo.
+- Honest scope: iOS was skipped (it needs hands-on tapping that I cannot automate) and the live AI call was never run. Both are written down in the README, the test plan and the decision log instead of being implied away.

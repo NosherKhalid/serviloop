@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Input } from '@/components/Input';
 import { Screen } from '@/components/Screen';
 import { spacing, typography, useTheme } from '@/theme';
+import { useScrollToField } from '@/utils/useScrollToField';
 import type { WorkOrder, WorkOrderStatus } from '@/types/workOrder';
 
 import { formatScheduledDate } from '../format';
@@ -31,6 +32,8 @@ export function WorkOrderDetailScreen({ id }: WorkOrderDetailScreenProps) {
   const workOrderId = typeof id === 'string' && id !== '' ? id : undefined;
   const { state, reload, replace } = useWorkOrderDetail(workOrderId);
   const { changeStatus, saveNotes } = useWorkOrderProgress();
+  // Keeps the notes and summary boxes above the Android keyboard (the screen is taller than the visible area).
+  const { scrollRef, onLayoutFor, scrollToField } = useScrollToField();
 
   // `null` = the owner has not typed anything, so the box shows what is saved. Deriving it this way means a
   // fresh copy of the job from the database never fights with what is being typed.
@@ -87,6 +90,7 @@ export function WorkOrderDetailScreen({ id }: WorkOrderDetailScreenProps) {
 
       return (
         <ScrollView
+          ref={scrollRef}
           style={{ backgroundColor: colors.background }}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
@@ -125,7 +129,7 @@ export function WorkOrderDetailScreen({ id }: WorkOrderDetailScreenProps) {
             )}
           </View>
 
-          <View style={styles.section}>
+          <View style={styles.section} onLayout={onLayoutFor('notes')}>
             <Input
               label="Completion notes"
               value={notesText}
@@ -135,6 +139,7 @@ export function WorkOrderDetailScreen({ id }: WorkOrderDetailScreenProps) {
               textAlignVertical="top"
               style={styles.notes}
               editable={busy === null}
+              onFocus={() => scrollToField('notes')}
             />
             <Text style={[styles.hint, { color: colors.textMuted }]}>
               Optional. These notes are what the job summary is written from.
@@ -148,7 +153,14 @@ export function WorkOrderDetailScreen({ id }: WorkOrderDetailScreenProps) {
             />
           </View>
 
-          <JobSummarySection workOrder={workOrder} notesUnsaved={notesChanged} onWorkOrderChanged={replace} />
+          <View onLayout={onLayoutFor('summary')}>
+            <JobSummarySection
+              workOrder={workOrder}
+              notesUnsaved={notesChanged}
+              onWorkOrderChanged={replace}
+              onSummaryFocus={(offsetInSection) => scrollToField('summary', offsetInSection)}
+            />
+          </View>
 
           {actionError !== null ? (
             <Text accessibilityRole="alert" style={[styles.error, { color: colors.danger }]}>

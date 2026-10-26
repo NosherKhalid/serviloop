@@ -34,7 +34,9 @@ function SetupForm() {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustKeyboardInsets>
-      <Text style={[styles.title, { color: colors.text }]}>Set up your business</Text>
+      <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
+        Set up your business
+      </Text>
       <Text style={[styles.body, { color: colors.textMuted }]}>
         Serviloop keeps your customers, technicians and jobs together. Start with your own business name, or look around with sample data first.
       </Text>
@@ -55,7 +57,9 @@ function SetupForm() {
       <Text style={[styles.divider, { color: colors.textMuted }]}>or</Text>
 
       <View style={[styles.demoCard, { backgroundColor: colors.surface }]}>
-        <Text style={[styles.demoTitle, { color: colors.text }]}>Explore with demo data</Text>
+        <Text accessibilityRole="header" style={[styles.demoTitle, { color: colors.text }]}>
+          Explore with demo data
+        </Text>
         <Text style={{ color: colors.textMuted }}>
           Creates a fictional plumbing company with sample customers, technicians and jobs, so you can see how everything fits together.
         </Text>
@@ -82,7 +86,9 @@ function DemoLoadedPanel({ businessName, message, onContinue }: { businessName: 
 
   return (
     <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={styles.content}>
-      <Text style={[styles.title, { color: colors.text }]}>{"You're all set"}</Text>
+      <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
+        {"You're all set"}
+      </Text>
       <View style={[styles.demoCard, { backgroundColor: colors.surface }]}>
         <Text style={[styles.demoTitle, { color: colors.text }]}>{businessName}</Text>
         <Text accessibilityRole="summary" style={{ color: colors.text }}>

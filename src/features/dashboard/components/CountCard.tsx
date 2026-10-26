@@ -20,7 +20,10 @@ export function CountCard({ label, count, onPress }: CountCardProps) {
       onPress={onPress}
       style={({ pressed }) => [styles.card, { backgroundColor: colors.surface }, pressed && styles.pressed]}>
       <Text style={[styles.count, { color: colors.text }]}>{count}</Text>
-      <Text style={[styles.label, { color: colors.textMuted }]}>{label}</Text>
+      {/* With a large system text size the label shrinks to fit (up to two lines) instead of breaking mid-word. */}
+      <Text numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.label, { color: colors.textMuted }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }

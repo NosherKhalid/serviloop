@@ -1,6 +1,6 @@
 # Portfolio and market notes
 
-Working notes for presenting Serviloop to prospective clients and employers. Final public copy goes in the README (M6). Claims must stay honest: no implied customers, revenue or production use (spec header).
+Working notes for presenting Serviloop to prospective clients and employers. The public copy is the repository's `README.md`; keep the two consistent (the README is the source of truth for status). Claims must stay honest: no implied customers, revenue or production use (spec header).
 
 ## The pitch (one paragraph)
 Serviloop helps a small field-service business (plumbing, electrical, HVAC, cleaning) run its day: keep customers, create and assign jobs, track status, and turn a technician's rough notes into a clear, customer-friendly job summary with AI. One owner signs in on iOS or Android; their data is private to their business.
@@ -36,6 +36,9 @@ Serviloop helps a small field-service business (plumbing, electrical, HVAC, clea
 - AI is called only from a server function after verifying the caller owns the job; the app never holds the provider key.
 - The model is told to use only what the notes say (no invented parts, prices or warranties), and a human edits before saving.
 - Cost and abuse controls (limits, rate limiting, spend cap) are part of the design, not an afterthought.
+
+## What to say about platforms (honest)
+- One React Native codebase for iOS and Android. **Verified end to end on Android**; iOS was not systematically verified (owner decision, D-046). Say "cross-platform codebase, Android-verified", not "tested on both".
 
 ## Demo hygiene
 - Free Supabase projects **pause after about a week of inactivity**. Open the project in the dashboard (or run `npm run test:rls`) a day before any recording or client demo so it is awake.

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "serviloop",
+    "name": "Serviloop",
     "slug": "serviloop",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -24,7 +24,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0B1020",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }

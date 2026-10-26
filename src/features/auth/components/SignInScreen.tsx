@@ -18,7 +18,9 @@ export function SignInScreen() {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustKeyboardInsets>
-      <Text style={[styles.title, { color: colors.text }]}>Welcome back</Text>
+      <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
+        Welcome back
+      </Text>
 
       <Input
         label="Email"
