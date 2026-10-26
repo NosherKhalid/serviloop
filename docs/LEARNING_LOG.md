@@ -130,3 +130,10 @@ Swift → TypeScript / React Native notes. 3–5 brief bullets per session: conc
 - Walking the whole journey on a clean account found what unit tests could not: a screen opened from another tab has no back arrow, and my earlier "anchor" fix never worked across tabs (the explicit `dismissTo` did the real work). Logged, not hidden.
 - Test hygiene: a hand-called `unmount()` in one test silently broke every later render in the file; split such tests instead.
 - Next: M5, the AI job summary (needs the provider decision: live model or clearly labelled mock).
+
+## 2026-10-26 — M5 (AI job summary, shipped in labelled mock mode)
+- The product can now draft, edit, save and share a customer summary. The expensive-to-get-wrong parts are real and tested: who may call, whose job it is, per-user limits, what is sent to the model (only the notes) and what the app shows when something fails.
+- The AI call itself is not proven. We chose the labelled mock because no provider key exists; the live branch is written but never run, and the docs now say so everywhere. Honest scope beats a demo that only looks live.
+- A hidden pitfall was the per-user limit: a plain "count then insert" can be beaten by a double tap, so the counter is claimed atomically inside the database, in a table the app cannot touch.
+- Workflow slip, twice: merging a PR before its last commit is pushed leaves the commit stranded (PRs #7 and #9). Check `gh pr view <n> --json state` in its own step before pushing.
+- Next: M6, the milestone that turns this into something clients can see: README, screenshots or video, architecture diagram, limitations and the AI-assistance note.
