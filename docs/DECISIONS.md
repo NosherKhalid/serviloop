@@ -293,7 +293,8 @@ One entry per non-obvious technical choice: what, why, alternatives.
 - **Alternatives:** a keyboard library such as `react-native-keyboard-controller` (a new dependency for one screen; rejected under the dependency rule); `KeyboardAvoidingView` (behaves differently per platform and does not scroll a tall form); `scrollToEnd` (hides the field when the screen is taller than the content below it).
 - **Lesson:** screenshots taken for the README found a defect the test passes had missed; the emulator should be used with the real keyboard (not the floating toolbar) for form checks.
 
-## D-046 — iOS verification skipped (M6, owner decision)
+## D-046 — iOS checklist not recorded; owner tested on the simulator (M6, owner decision)
+- **Update 2026-10-26 (owner):** the owner states they tested the app on the iOS simulator themselves. The README and test plan now say "verified on iOS simulator" on that basis, and that no checklist or screenshots were recorded. The text below was written before this statement and describes why no recorded pass exists.
 - **Date:** 2026-10-26
 - **What:** The owner decided not to run the iOS walkthrough ("difficult for me to do"). The checklist in `docs/TEST_PLAN.md` was run on **Android only**; the iOS column reads "Not run (owner decision)". I cannot tap or type in the iOS simulator (Expo Go has no automation tunnel, the macOS control tool lacks permission, a cloud simulator is a paid service), so no automated substitute exists today.
 - **What is still true about iOS:** the app has run on the iOS simulator during development (the owner found and reported iOS-specific issues, for example text alignment, D-029, and the customer form after saving, D-034), and the code uses only cross-platform React Native and Expo Go-compatible packages. Platform differences were handled in code (`automaticallyAdjustKeyboardInsets` on iOS, `useScrollToField` on Android only). None of that is a verification.
