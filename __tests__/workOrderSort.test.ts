@@ -2,7 +2,7 @@ import { sortForList } from '@/features/workOrders/sort';
 import type { WorkOrder, WorkOrderStatus } from '@/types/workOrder';
 
 function job(title: string, status: WorkOrderStatus, scheduledFor: string | null): WorkOrder {
-  return { id: title, title, description: null, status, customerId: 'c', customerName: 'C', technicianId: null, technicianName: null, scheduledFor, completionNotes: null };
+  return { id: title, title, description: null, status, customerId: 'c', customerName: 'C', technicianId: null, technicianName: null, scheduledFor, completionNotes: null, aiSummary: null };
 }
 
 describe('sortForList', () => {

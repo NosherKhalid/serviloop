@@ -12,4 +12,5 @@ export type WorkOrder = {
   technicianName: string | null;
   scheduledFor: string | null; // UTC ISO timestamp, or null when not scheduled yet
   completionNotes: string | null; // what was done, written by the owner; null until something is entered
+  aiSummary: string | null; // the customer-facing summary the owner saved (drafted by the AI function, then edited); null until saved
 };

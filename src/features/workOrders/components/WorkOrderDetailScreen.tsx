@@ -13,6 +13,7 @@ import { formatScheduledDate } from '../format';
 import { useWorkOrderDetail } from '../hooks/useWorkOrderDetail';
 import { useWorkOrderProgress, type ProgressResult } from '../hooks/useWorkOrderProgress';
 import { nextStatuses, transitionLabel } from '../status';
+import { JobSummarySection } from './JobSummarySection';
 import { StatusChip } from './StatusChip';
 
 type WorkOrderDetailScreenProps = {
@@ -146,6 +147,8 @@ export function WorkOrderDetailScreen({ id }: WorkOrderDetailScreenProps) {
               onPress={() => run('notes', () => saveNotes(workOrder, notesText))}
             />
           </View>
+
+          <JobSummarySection workOrder={workOrder} notesUnsaved={notesChanged} onWorkOrderChanged={replace} />
 
           {actionError !== null ? (
             <Text accessibilityRole="alert" style={[styles.error, { color: colors.danger }]}>
