@@ -29,7 +29,7 @@ Owner-operators of 1–10 person service businesses often run their day from pap
 | Tenant isolation (one business can never read or change another's data) | **Implemented and tested**: 71 scripted checks against the hosted project |
 | AI summary: function, limits, editing, saving, sharing | **Implemented and tested**, including the per-user rate limit |
 | AI summary: the text itself | **Demo mode (mock).** Without an AI key the function returns a clearly labelled template that only restates your notes, and the app shows a "Demo summary" badge. The live Claude Haiku 5.5 call is **written but has never been run against the provider** (no key was configured yet), so it is not claimed as working |
-| iOS and Android | The same code runs on both in Expo Go. Most device verification so far was done on the Android emulator; what has and has not been verified on iOS is tracked in [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) |
+| iOS and Android | One codebase for both, running in Expo Go. **Verified on the Android emulator only.** The app has run on the iOS simulator during development, but no systematic iOS pass was done, so iOS behaviour (keyboard, pickers, share sheet, VoiceOver, text sizes) is **unverified**. Details in [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) |
 | Store release, accounts for technicians or customers, payments, offline mode | **Not built** (see Limitations) |
 
 ## Architecture
@@ -114,6 +114,33 @@ You need your own Supabase project (the free tier is enough). Nothing here needs
 
 Troubleshooting notes for the iOS simulator on Xcode 27 and for Android Expo Go are in [`docs/DECISIONS.md`](docs/DECISIONS.md) (D-008, D-011, D-012).
 
+## Screenshots
+
+All screenshots are from the **Android emulator** with a fictional demo account (dark mode, demo mode for the AI summary). There are no iOS screenshots: the iOS pass was not run (see Status and [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md)).
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/media/android-01-sign-in.png" width="230" alt="Sign in screen"><br><sub>1. Sign in</sub></td>
+    <td align="center"><img src="docs/media/android-02-onboarding.png" width="230" alt="Onboarding: create a business or start with demo data"><br><sub>2. First run: create a business or start with demo data</sub></td>
+    <td align="center"><img src="docs/media/android-03-dashboard.png" width="230" alt="Dashboard with job counts and recent jobs"><br><sub>3. Dashboard: live counts and recent jobs</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/media/android-04-jobs.png" width="230" alt="Jobs list, unfinished jobs first"><br><sub>4. Jobs, unfinished first</sub></td>
+    <td align="center"><img src="docs/media/android-05-job-detail.png" width="230" alt="Job detail with the allowed next moves"><br><sub>5. Job detail: only the allowed next moves</sub></td>
+    <td align="center"><img src="docs/media/android-06-notes-keyboard.png" width="230" alt="Completion notes above the keyboard"><br><sub>6. Completion notes stay above the keyboard</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/media/android-07-summary.png" width="230" alt="Customer summary draft labelled as a demo summary"><br><sub>7. Customer summary: editable draft, labelled "Demo summary" in demo mode</sub></td>
+    <td align="center"><img src="docs/media/android-08-share.png" width="230" alt="The Android share sheet with the summary text"><br><sub>8. Share the summary with the phone's share sheet</sub></td>
+    <td align="center"><img src="docs/media/android-09-new-job.png" width="230" alt="New job form showing validation messages"><br><sub>9. New job: validation messages</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/media/android-10-customer-picker.png" width="230" alt="Customer picker sheet"><br><sub>10. Pick a customer</sub></td>
+    <td align="center"><img src="docs/media/android-11-customers.png" width="230" alt="Customers list"><br><sub>11. Customers</sub></td>
+    <td align="center"><img src="docs/media/android-12-technicians.png" width="230" alt="Technicians list"><br><sub>12. Technicians</sub></td>
+  </tr>
+</table>
+
 ## Demo (about two minutes)
 
 1. Sign up, then **Start with demo data**: a fictional plumbing business appears.
@@ -133,7 +160,7 @@ Troubleshooting notes for the iOS simulator on Xcode 27 and for Android Expo Go 
 - Email confirmation is off for the demo; there is no password reset flow.
 - Built for English only; right-to-left languages are not supported.
 - The hosted-database test scripts are manual: GitHub Actions runs lint, typecheck and unit tests only.
-- iOS: see [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) for what was verified on which platform. Light mode, large text sizes and offline behaviour have been checked on Android only in part.
+- **iOS has not been systematically verified** (only Android was walked end to end). Light mode and large text sizes were checked on Android in part; offline behaviour on the new screens and screen readers (VoiceOver, TalkBack) were not checked on a device.
 
 The roadmap (and why each item is outside the first version) is in [`BACKLOG.md`](BACKLOG.md).
 

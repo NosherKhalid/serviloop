@@ -8,7 +8,7 @@
 | M3 CRUD via repositories | complete, merged to main (PR #5, close-out PR #6); iOS flows still to be confirmed by the owner |
 | M4 Dashboard + status | complete, merged to main (PRs #7, #8); iOS flows still to be confirmed by the owner |
 | M5 AI summary | complete in labelled **mock mode** (PR #9); live Claude path built but not yet run against the provider; iOS flows still to be confirmed by the owner |
-| M6 Tests, polish, docs | in progress (slice 1 built: header back button, accessibility and large-text fixes; slice 2 built: clean-clone proof, CI workflow, README and diagrams; next slice 3: screenshots on both platforms and close-out) |
+| M6 Tests, polish, docs | built: quality pass, README with diagrams, CI workflow, 12 Android screenshots, final results; iOS pass skipped by owner decision (D-046); awaiting `/finish-milestone M6` |
 
 ## Log
 - 2026-10-13: Project restructured (spec moved to `docs/PROJECT_SPEC.md`, new `CLAUDE.md`, `.claude/` rules/skills/settings, git initialised). No app code yet.

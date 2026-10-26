@@ -37,6 +37,9 @@ Serviloop helps a small field-service business (plumbing, electrical, HVAC, clea
 - The model is told to use only what the notes say (no invented parts, prices or warranties), and a human edits before saving.
 - Cost and abuse controls (limits, rate limiting, spend cap) are part of the design, not an afterthought.
 
+## What to say about platforms (honest)
+- One React Native codebase for iOS and Android. **Verified end to end on Android**; iOS was not systematically verified (owner decision, D-046). Say "cross-platform codebase, Android-verified", not "tested on both".
+
 ## Demo hygiene
 - Free Supabase projects **pause after about a week of inactivity**. Open the project in the dashboard (or run `npm run test:rls`) a day before any recording or client demo so it is awake.
 - Have a clean demo account: sign up, tap "Start with demo data" once. Demo data cannot be loaded twice; a reset action is in `BACKLOG.md`.

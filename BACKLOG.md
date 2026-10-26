@@ -33,3 +33,4 @@ Ideas outside the P0 scope. Do not build during the 30-day sprint (see `docs/PRO
 - Summary extras: tone or language options (including translating the summary for the customer), summary history, a per-business usage view
 - Upgrade ESLint (9.39.5 is reported as no longer supported by `npm ci`); needs the `/add-dependency` gate
 - Pin GitHub Actions to commit hashes (supply-chain hygiene) if the repository ever takes outside contributions
+- iOS verification pass: walk the checklist in `docs/TEST_PLAN.md` (Final walkthrough) on the iPhone simulator, or build an XCUITest harness, or move to a development build with the Expo automation tunnel (D-046)
