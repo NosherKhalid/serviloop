@@ -7,7 +7,7 @@
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
 | M3 CRUD via repositories | complete, merged to main (PR #5, close-out PR #6); iOS flows still to be confirmed by the owner |
 | M4 Dashboard + status | complete, PR #7 open for review; iOS flows still to be confirmed by the owner |
-| M5 AI summary | in progress (slices 1-2 built: secure function verified on the hosted project (71/71 security, 22/22 function checks) and the summary in the app (generate, edit, save, share) verified on Android with the mock; next slice 3: go live with Claude, then close-out) |
+| M5 AI summary | complete in labelled **mock mode** (PR #9); live Claude path built but not yet run against the provider; iOS flows still to be confirmed by the owner |
 | M6 Tests, polish, docs | not started |
 
 ## Log
@@ -47,8 +47,16 @@
 - Open: iOS flows not walked (detail, notes with keyboard, dashboard); light mode, largest text and offline behaviour on the new screens; no back arrow on screens opened from another tab (BACKLOG); Back from a job opened on the Dashboard returns to the Jobs list.
 - No CI in the repository (owner postponed it).
 
+## M5 close-out (2026-10-26)
+- `npm run check`: lint clean, typecheck clean, 342/342 tests (38 suites). No `any`/suppressions, `console`, non-null assertions or key values tracked; the secret's name appears only in the function and the docs; `.env.example` unchanged (the provider key is a function secret, never an app variable).
+- Security (schema changed this milestone, so the two-account check was repeated): `npm run test:rls` **71/71** (62 earlier + 9 for the usage table and limit); `npm run test:summary` **22/22** against the deployed function.
+- Gate: **function verifies caller + ownership** (401 without a valid login incl. the publishable key as a token; 400 for every malformed body; a foreign job and a missing job get identical 404s; checks run before any spend) - verified on the hosted project. **Summary editable and saved** - verified on Android (Generate -> editable draft, Save wrote the exact text, Share opened the share sheet). **Clearly labelled mock** - the app shows a "Demo summary" badge for `source: "mock"`; the gate allows the mock (owner decision, D-041). **Provider key only in function secrets** - by design and scan: no key exists yet, none is in the repo, the app or `.env.example`; not exercised because no key was ever set.
+- **Not verified / honest limits:** the live Claude call has **never run** (D-041; one known risk: `thinking: {type: "disabled"}` on Haiku 5.5); iOS for the summary section; light mode, large text and offline on the new section.
+- Decisions D-039 (function and limit design), D-040 (summary on the job screen), D-041 (ship with the mock).
+- Process note: two PRs (#7, #9) merged before their close-out docs were pushed, so each close-out needed a small follow-up docs PR (#8, #10). Check the PR state before pushing.
+
 ## Next
-Owner tries the M4 flows on iOS, merges PR #7, then `/start-milestone M5`: the AI job summary (Edge Function that verifies the caller and the job's owner, editable and saved summary).
+Owner merges PR #10, tries the M5 flows on iOS, then `/start-milestone M6`: tests, polish and documentation (README, architecture diagram, screenshots or video, limitations, AI-assistance disclosure). Going live with the AI model is optional and can happen any time (steps in D-041).
 
 ## Open questions
-- AI provider for M5: undecided. Live model, or a clearly labelled mock summary as the fallback (spec §7). The owner decides at `/start-milestone M5`.
+- Live AI: provider chosen (Claude Haiku 5.5) but no account or key yet, so the app runs in labelled mock mode (D-041). Go-live steps are in D-041; do them before any public demo that claims live AI.

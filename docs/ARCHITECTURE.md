@@ -73,5 +73,18 @@ Job detail    -> useWorkOrderDetail (refetch on focus) + useWorkOrderProgress ->
 - **Job detail** is separate from the edit form (D-036): the allowed next moves (`status.ts`, D-017) are buttons, "Mark completed" or any move saves the typed notes in the same update, and `updateWorkOrderProgress` writes only `status` and `completion_notes` (D-038). Routes: `work-orders/[id]/index` (detail) and `[id]/edit`.
 - **Known limit:** `anchor: 'index'` does not apply to jumps between tabs, so a screen opened that way has no back arrow (see `BACKLOG.md`).
 
+## AI job summary (M5)
+```
+Job detail -> useJobSummary -> summaryRepository -> supabase.functions.invoke('generate-job-summary', { workOrderId })
+   Edge Function: login check -> body check -> read the job AS THE CALLER (RLS) -> notes check -> claim_ai_summary_slot() -> model | labelled mock
+   reply { summary, source: 'ai' | 'mock' } -> editable draft in the app -> Save -> work_orders.ai_summary (normal RLS update)
+```
+- **The app sends only the job id.** The function loads the notes itself, so arbitrary text can never be sent to the model, and the provider key exists only as a function secret (D-039).
+- **Order of checks is the security design:** identity (platform JWT check plus `createSupabaseContext`), exact input shape, ownership through row-level security (a foreign job gets the same 404 as a missing one), empty or oversized notes refused before any spend, then the per-user limit, then the model call (one attempt, 20 s, no retries). Only the title, description and notes reach the model.
+- **Rate limit:** `ai_summary_usage` is a locked table (no privileges for the app); `claim_ai_summary_slot()` (SECURITY DEFINER, user = `auth.uid()`, per-user advisory lock) allows 10 per hour and 30 per day and fails closed.
+- **Mock mode:** with no `ANTHROPIC_API_KEY` the function returns a template that only restates the notes, labelled `source: 'mock'`; the app shows a "Demo summary" badge. **Current state: mock mode.** The live branch is implemented but has not been run against the provider (D-041).
+- **Pure logic** (`supabase/functions/generate-job-summary/logic.ts`) has no Deno APIs, so Jest tests it; `index.ts` is excluded from the app's `tsc` and ESLint.
+- **App side:** `summaryRepository` validates the reply with Zod and maps refusal codes to fixed sentences (`SummaryError`); `useJobSummary` separates the saved text from the unsaved draft; Share uses React Native's built-in share sheet.
+
 ## Not built yet
-The `generate-job-summary` Edge Function with per-user limits (M5).
+Live AI in production (needs the provider key, D-041), README and screenshots (M6).
