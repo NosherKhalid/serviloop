@@ -98,5 +98,44 @@ Run with throwaway accounts (the owner's own data was never touched). Database v
 
 **Not verified here (owner to check):** everything on **iOS** (detail screen, notes with the keyboard, dashboard, the cross-tab back-arrow finding), light mode and the largest text size on the new screens, offline behaviour on Dashboard and Job detail, Edit -> Save -> back to detail on a device, deleting from the edit screen, technician add/edit/deactivate (still unit-tested only), the Android hardware back button on every new screen.
 
+## AI summary (M5), hosted project and Android emulator, 2026-10-26
+**State: mock mode (no AI key configured).** Everything except the live model call was exercised.
+
+`npm run test:rls` against the hosted project: **71 of 71** (62 earlier + 9 for M5).
+
+| Check (`npm run test:rls`, section 10) | Result |
+|---|---|
+| A cannot read, add, edit or delete rows in `ai_summary_usage` directly; a signed-out visitor cannot read it or call `claim_ai_summary_slot()` | Pass (`42501`) |
+| A gets exactly 10 slots in the hour, the 11th is refused; the first claim reports 9 left this hour and 29 today | Pass |
+| B still has a full allowance after A used all of hers | Pass |
+
+`npm run test:summary` against the deployed function: **22 of 22**.
+
+| Check | Result |
+|---|---|
+| No login token, a made-up token, the publishable key used as a token, no api key: all refused; GET refused | Pass (401 / 405) |
+| An id that is not a UUID, an extra field, not JSON, an empty body, an oversized body, an injection attempt in the id | Pass (400 `bad_request`) |
+| B asks for A's job vs. a job id that does not exist | Pass (404 both, **identical bodies**: no way to probe which ids exist) |
+| A's job with no completion notes | Pass (422 `empty_notes`, uses no allowance) |
+| A's own job: 200 with a summary and `source: "mock"`; reply has only `summary` and `source`; no customer name, phone or address in the text | Pass |
+| Exactly 10 summaries allowed in an hour, the 11th is 429 `rate_limited`; B unaffected | Pass |
+
+Android emulator, deployed function, hosted database, throwaway account:
+
+| Check | Result |
+|---|---|
+| Customer summary section appears under the notes; Generate is on for a job with saved notes | Pass |
+| Generate returns a draft in an editable box with the visible "Demo summary" badge; nothing is saved by it | Pass |
+| Save writes the exact text to `work_orders.ai_summary` (database read-back); badge disappears and Save turns off | Pass |
+| Share opens the Android share sheet with the summary text | Pass |
+
+Unit tests added in M5: 39 for the function's pure logic (request checks, prompt rules, forged-tag removal, mock text, output cleanup, fail-closed limiter reply) and 42 for the app (summary repository error mapping, saved-summary repository, the section's states); mutation-checked (generating while notes are unsaved fails a test).
+
+**Not verified (limits to state honestly):**
+- **The live model path has never run.** No provider key exists, so the Claude call, the prompt's effect on real notes, the prompt-injection and no-invented-facts behaviour of the real model, and the bad-key and timeout fallbacks are untested. `npm run test:summary` includes the spot checks and will run them once a key is set (D-041). One known risk: whether Haiku 5.5 accepts `thinking: {type: "disabled"}`.
+- iOS: the summary section, the keyboard in the summary box, and the share sheet.
+- Light mode, largest text size and offline behaviour on the new section; the Android hardware back button.
+- The 10-per-hour limit is shared across all summaries a user makes in any business (one account owns one business today).
+
 ## Not yet tested
-iOS manual pass for M2, M3 and M4, the AI function (M5), accessibility at the largest text size, offline behaviour on data screens.
+iOS manual pass for M2, M3, M4 and M5, the live AI model (M5), accessibility at the largest text size, offline behaviour on data screens.

@@ -7,7 +7,7 @@
 | M2 Auth + onboarding | complete, merged to main (PR #4) |
 | M3 CRUD via repositories | complete, merged to main (PR #5, close-out PR #6); iOS flows still to be confirmed by the owner |
 | M4 Dashboard + status | complete, PR #7 open for review; iOS flows still to be confirmed by the owner |
-| M5 AI summary | in progress (slices 1-2 built: secure function verified on the hosted project (71/71 security, 22/22 function checks) and the summary in the app (generate, edit, save, share) verified on Android with the mock; next slice 3: go live with Claude, then close-out) |
+| M5 AI summary | complete in labelled **mock mode** (PR #9); live Claude path built but not yet run against the provider; iOS flows still to be confirmed by the owner |
 | M6 Tests, polish, docs | not started |
 
 ## Log
@@ -51,4 +51,4 @@
 Owner tries the M4 flows on iOS, merges PR #7, then `/start-milestone M5`: the AI job summary (Edge Function that verifies the caller and the job's owner, editable and saved summary).
 
 ## Open questions
-- AI provider for M5: undecided. Live model, or a clearly labelled mock summary as the fallback (spec §7). The owner decides at `/start-milestone M5`.
+- Live AI: provider chosen (Claude Haiku 5.5) but no account or key yet, so the app runs in labelled mock mode (D-041). Go-live steps are in D-041; do them before any public demo that claims live AI.

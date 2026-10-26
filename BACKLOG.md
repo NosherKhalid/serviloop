@@ -29,3 +29,5 @@ Ideas outside the P0 scope. Do not build during the 30-day sprint (see `docs/PRO
 - Open job detail from the list, with completion notes and the AI summary (M4 / M5)
 - Back arrow on screens opened from another tab (Dashboard -> Add job, Jobs -> Add customer): `anchor: 'index'` does not apply across tabs (D-034 update); options are pushing the list first (`navigate` then `push`) or a custom header back button
 - After opening a job from the Dashboard, Back returns to the Jobs list, not the Dashboard (tab stack behaviour, D-037)
+- Go live with the AI summary: create the provider account, set a spend limit, set `ANTHROPIC_API_KEY`, redeploy, run `npm run test:summary` (D-041); then confirm `thinking: {type: "disabled"}` is accepted by Haiku 5.5 and review real-note quality
+- Summary extras: tone or language options (including translating the summary for the customer), summary history, a per-business usage view

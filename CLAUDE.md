@@ -35,6 +35,7 @@ Keep in sync with `package.json`:
 - `npm run lint` · `npm run typecheck` · `npm test` (Jest + RNTL, tests in `__tests__/`)
 - `npm run check` — lint + typecheck + tests; must pass before every commit that ends a task
 - `npm run test:rls` — two-account security check against the hosted Supabase project (needs `.env`; re-run after any table/policy change)
+- `npm run test:summary` — AI summary function check against the deployed function (free in mock mode; a few real requests with a live key)
 - `npm run db:types` — regenerate `src/types/database.ts` from the hosted schema; `npx supabase db push --linked` applies migrations (owner runs it: needs the DB password)
 
 ## Environment gotchas
