@@ -9,15 +9,15 @@ Honest record of what is tested, how, and what is not. Updated at the end of eac
 | Lint, typecheck, unit tests | **Pass**: 358 tests in 42 suites | `npm run check`, run at close-out; also green in a clean clone with no `.env` |
 | Project health | **Pass**: 21 of 21 | `npx expo-doctor` |
 | Tenant isolation and AI-limit table (hosted project) | **Pass**: 71 of 71 | `npm run test:rls`, re-run at close-out |
-| AI summary function (hosted project, demo mode) | **Pass**: 22 of 22 | `npm run test:summary`, re-run at close-out |
+| AI summary function (hosted project, **live model**) | **Pass**: 21 of 21 | `npm run test:summary` against the deployed function with a real key, 2026-11-02 (22 of 22 in fallback mode, which also covers the rate limit) |
 | Secrets | **Clean**: no keys in the repo or in the 45+ commits of history | History and tree scans (D-044) |
 | Main journey on **Android** (sign-up to a completed job, summary, share, dashboard counts) | **Pass** | M4 and M5 tables, plus the 2026-10-26 walkthrough |
 | Main journey on **iOS** | **Verified by the owner** on the iOS simulator | Hands-on testing by the owner; no recorded checklist or screenshots (D-046) |
-| Live AI model | **Not verified** | No provider key was ever configured (D-041) |
+| Live AI model | **Verified at the function level** | `source: ai`; prompt-injection and no-invented-facts spot checks pass (heuristics, not proofs); not yet viewed in the app after going live (D-048) |
 
 **Known issues and limits (none block the demo):**
 - iOS was tested by the owner on the simulator, but nothing is recorded: there is no checklist result or screenshot for iOS.
-- The live Claude call has never run; the app shows "Demo summary" until a key is configured.
+- The live Claude call is verified at the function level only (D-048): not re-viewed in the app, the 10-per-hour limit was not exercised against the live model, and two spot checks are heuristics. One earlier fallback-mode run returned 503 instead of 401 for the publishable-key-as-token check and did not recur (cause unexplained).
 - Offline behaviour on the Dashboard and Job detail was not re-checked on a device in M6; TalkBack and VoiceOver were not run.
 - The two large-text fixes (count label, tab names) and the Android keyboard fix are verified by unit tests; only the keyboard fix was re-checked on the emulator afterwards.
 - Expo Router prints a development-only React warning on some first cold starts (D-027 open issue); nothing breaks.
@@ -121,7 +121,7 @@ Run with throwaway accounts (the owner's own data was never touched). Database v
 **Not verified here (owner to check):** everything on **iOS** (detail screen, notes with the keyboard, dashboard, the cross-tab back-arrow finding), light mode and the largest text size on the new screens, offline behaviour on Dashboard and Job detail, Edit -> Save -> back to detail on a device, deleting from the edit screen, technician add/edit/deactivate (still unit-tested only), the Android hardware back button on every new screen.
 
 ## AI summary (M5), hosted project and Android emulator, 2026-10-26
-**State: mock mode (no AI key configured).** Everything except the live model call was exercised.
+**State when these M5 results were recorded (2026-10-26): mock mode (no AI key configured).** Live results are in the 2026-11-02 section above and in D-048.
 
 `npm run test:rls` against the hosted project: **71 of 71** (62 earlier + 9 for M5).
 
@@ -154,7 +154,7 @@ Android emulator, deployed function, hosted database, throwaway account:
 Unit tests added in M5: 39 for the function's pure logic (request checks, prompt rules, forged-tag removal, mock text, output cleanup, fail-closed limiter reply) and 42 for the app (summary repository error mapping, saved-summary repository, the section's states); mutation-checked (generating while notes are unsaved fails a test).
 
 **Not verified (limits to state honestly):**
-- **The live model path has never run.** No provider key exists, so the Claude call, the prompt's effect on real notes, the prompt-injection and no-invented-facts behaviour of the real model, and the bad-key and timeout fallbacks are untested. `npm run test:summary` includes the spot checks and will run them once a key is set (D-041). One known risk: whether Haiku 5.5 accepts `thinking: {type: "disabled"}`.
+- **(Historical, 2026-10-26)** The live model path had not run yet; it was verified at the function level on 2026-11-02 (see Final results and D-048).
 - iOS: the summary section, the keyboard in the summary box, and the share sheet.
 - Light mode, largest text size and offline behaviour on the new section; the Android hardware back button.
 - The 10-per-hour limit is shared across all summaries a user makes in any business (one account owns one business today).
@@ -205,4 +205,4 @@ iOS simulator screenshots: after navigating to a screen, run the capture command
 **Android column:** filled from the 2026-10-26 pass (fictional demo account on the Android emulator, dark mode) and says where an earlier milestone, not this pass, supplied the evidence. **iOS column:** the owner tested iOS on the simulator hands-on and chose not to record the checklist (D-046), so the cells read "Not recorded".
 
 ## Not yet tested
-a recorded iOS checklist with screenshots, the live AI model (M5), accessibility at the largest text size, offline behaviour on data screens.
+a recorded iOS checklist with screenshots, the live AI model viewed inside the app, the rate limit against the live model,

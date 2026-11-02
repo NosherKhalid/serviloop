@@ -28,7 +28,7 @@ Owner-operators of 1–10 person service businesses often run their day from pap
 | Auth, onboarding, customers, technicians, jobs, status and notes, dashboard | **Implemented**, against a real hosted Supabase project (Postgres + RLS) |
 | Tenant isolation (one business can never read or change another's data) | **Implemented and tested**: 71 scripted checks against the hosted project |
 | AI summary: function, limits, editing, saving, sharing | **Implemented and tested**, including the per-user rate limit |
-| AI summary: the text itself | **Demo mode (mock).** Without an AI key the function returns a clearly labelled template that only restates your notes, and the app shows a "Demo summary" badge. The live Claude Haiku 5.5 call is **written but has never been run against the provider** (no key was configured yet), so it is not claimed as working |
+| AI summary: the text itself | **Live.** Claude Haiku 5.5 writes the draft inside the Edge Function. Checked against the deployed function with a real key: the draft is returned as `source: ai`, hidden instructions in the notes were not obeyed, and thin notes did not produce invented prices, warranties or parts (2026-11-02). Without a key the function falls back to a clearly labelled template ("Demo summary"), so anyone can clone and run the app. The 10-per-hour limit was tested in that free fallback mode, not with the live model |
 | iOS and Android | One codebase for both, running in Expo Go. **Verified on the Android emulator and the iOS simulator** (the developer tested the flows on both). The recorded checklist and screenshots are Android-only; see [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) |
 | Store release, accounts for technicians or customers, payments, offline mode | **Not built** (see Limitations) |
 
@@ -40,7 +40,7 @@ flowchart LR
     API --> DB[("Postgres<br/>row-level security on every table")]
     App -->|"job id only"| Fn["Edge Function<br/>generate-job-summary"]
     Fn -->|"caller's own permissions"| DB
-    Fn -->|"title, description, notes only"| AI["Claude Haiku 5.5<br/>(live path pending a key)"]
+    Fn -->|"title, description, notes only"| AI["Claude Haiku 5.5"]
     Fn -.->|"no key configured"| Mock["Labelled mock summary"]
 ```
 
@@ -109,14 +109,14 @@ You need your own Supabase project (the free tier is enough). Nothing here needs
    ```bash
    npx supabase functions deploy generate-job-summary
    ```
-   Without an AI key it answers in labelled demo mode. To enable the live model, create an Anthropic API account, set a monthly spend limit there, then `npx supabase secrets set ANTHROPIC_API_KEY=<your key>` and redeploy. The steps and the known risks are in D-041 of the decisions log.
+   Without an AI key it answers in labelled demo mode. To enable the live model: create an Anthropic API account, add a little credit and (optionally) a Workspace with its own spend limit, create a key for that workspace, then add it as the Supabase Edge Function secret **`ANTHROPIC_API_KEY`** (easiest in the Supabase dashboard: Edge Functions, Secrets, with the name and the value in separate boxes) and redeploy. Never put the key in `.env` or the app.
 6. **Verify your backend:** `npm run test:rls` and `npm run test:summary` (both create throwaway users in your project).
 
 Troubleshooting notes for the iOS simulator on Xcode 27 and for Android Expo Go are in [`docs/DECISIONS.md`](docs/DECISIONS.md) (D-008, D-011, D-012).
 
 ## Screenshots
 
-All screenshots are from the **Android emulator** with a fictional demo account (dark mode, demo mode for the AI summary). The iOS simulator was tested but not captured (see Status and [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md)).
+All screenshots are from the **Android emulator** with a fictional demo account (dark mode). The summary screenshots were taken before the live model was connected, so they show the labelled "Demo summary" fallback. The iOS simulator was tested but not captured (see Status and [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md)).
 
 <table>
   <tr>
@@ -147,14 +147,14 @@ All screenshots are from the **Android emulator** with a fictional demo account 
 2. **Dashboard:** open, in-progress and completed counts and the latest jobs.
 3. **Jobs → Add job:** pick a customer, optionally a technician, date and time.
 4. Open the job: **Start job**, type completion notes, **Mark completed**. The Dashboard counts change when you go back.
-5. **Generate summary:** a draft appears (labelled "Demo summary" in demo mode). Edit it, **Save**, **Share**.
+5. **Generate summary:** a draft written by the AI appears (a labelled "Demo summary" if no key is configured). Edit it, **Save**, **Share**.
 6. Sign out and back in: everything is still there.
 
 ## Limitations
 
 - **One owner login per business.** No technician or customer accounts, no roles.
 - **No payments, invoices, calendar view, push notifications, photo attachments, search or offline mode.**
-- **AI summary is in demo mode** until an AI key is configured; the live path is unverified (see Status).
+- **AI summary:** the live model path was verified at the function level (deployed function, real key, spot checks). It has not been re-captured in screenshots, and the rate limit was tested in fallback mode rather than against the live model.
 - **Job status rules are enforced by the app, not the database** (tenant isolation is database-enforced and unaffected).
 - A business cannot be renamed or deleted in the app, and there is no account deletion (required before any store release).
 - Email confirmation is off for the demo; there is no password reset flow.
