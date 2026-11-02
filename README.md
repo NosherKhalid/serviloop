@@ -116,7 +116,7 @@ Troubleshooting notes for the iOS simulator on Xcode 27 and for Android Expo Go 
 
 ## Screenshots
 
-All screenshots are from the **Android emulator** with a fictional demo account (dark mode). The summary screenshots were taken before the live model was connected, so they show the labelled "Demo summary" fallback. The iOS simulator was tested but not captured (see Status and [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md)).
+All screenshots are from the **Android emulator** with a fictional demo account (dark mode). The summary screenshots (7 and 8) show the **live model** (2026-11-03). The iOS simulator was tested but not captured (see Status and [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md)).
 
 <table>
   <tr>
@@ -130,7 +130,7 @@ All screenshots are from the **Android emulator** with a fictional demo account 
     <td align="center"><img src="docs/media/android-06-notes-keyboard.png" width="230" alt="Completion notes above the keyboard"><br><sub>6. Completion notes stay above the keyboard</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/media/android-07-summary.png" width="230" alt="Customer summary draft labelled as a demo summary"><br><sub>7. Customer summary: editable draft, labelled "Demo summary" in demo mode</sub></td>
+    <td align="center"><img src="docs/media/android-07-summary.png" width="230" alt="Customer summary draft written by AI, editable before saving"><br><sub>7. Customer summary: written by the live model from the notes, editable before saving</sub></td>
     <td align="center"><img src="docs/media/android-08-share.png" width="230" alt="The Android share sheet with the summary text"><br><sub>8. Share the summary with the phone's share sheet</sub></td>
     <td align="center"><img src="docs/media/android-09-new-job.png" width="230" alt="New job form showing validation messages"><br><sub>9. New job: validation messages</sub></td>
   </tr>
@@ -154,7 +154,7 @@ All screenshots are from the **Android emulator** with a fictional demo account 
 
 - **One owner login per business.** No technician or customer accounts, no roles.
 - **No payments, invoices, calendar view, push notifications, photo attachments, search or offline mode.**
-- **AI summary:** the live model path was verified at the function level (deployed function, real key, spot checks). It has not been re-captured in screenshots, and the rate limit was tested in fallback mode rather than against the live model.
+- **AI summary:** the live model path was verified at the function level and seen in the app on Android (2026-11-03). The rate limit was tested in fallback mode rather than against the live model, and the spot checks for prompt injection and invented facts are heuristics, not proofs.
 - **Job status rules are enforced by the app, not the database** (tenant isolation is database-enforced and unaffected).
 - A business cannot be renamed or deleted in the app, and there is no account deletion (required before any store release).
 - Email confirmation is off for the demo; there is no password reset flow.
