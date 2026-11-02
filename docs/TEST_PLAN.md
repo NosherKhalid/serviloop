@@ -13,11 +13,11 @@ Honest record of what is tested, how, and what is not. Updated at the end of eac
 | Secrets | **Clean**: no keys in the repo or in the 45+ commits of history | History and tree scans (D-044) |
 | Main journey on **Android** (sign-up to a completed job, summary, share, dashboard counts) | **Pass** | M4 and M5 tables, plus the 2026-10-26 walkthrough |
 | Main journey on **iOS** | **Verified by the owner** on the iOS simulator | Hands-on testing by the owner; no recorded checklist or screenshots (D-046) |
-| Live AI model | **Verified at the function level** | `source: ai`; prompt-injection and no-invented-facts spot checks pass (heuristics, not proofs); not yet viewed in the app after going live (D-048) |
+| Live AI model | **Verified at the function level** | `source: ai`; prompt-injection and no-invented-facts spot checks pass (heuristics, not proofs); seen in the app on Android after going live (2026-11-03: generate, save and share with a fictional demo account) |
 
 **Known issues and limits (none block the demo):**
 - iOS was tested by the owner on the simulator, but nothing is recorded: there is no checklist result or screenshot for iOS.
-- The live Claude call is verified at the function level only (D-048): not re-viewed in the app, the 10-per-hour limit was not exercised against the live model, and two spot checks are heuristics. One earlier fallback-mode run returned 503 instead of 401 for the publishable-key-as-token check and did not recur (cause unexplained).
+- The live Claude call is verified at the function level only (D-048): seen in the app on Android; the 10-per-hour limit was not exercised against the live model, and two spot checks are heuristics. One earlier fallback-mode run returned 503 instead of 401 for the publishable-key-as-token check and did not recur (cause unexplained).
 - Offline behaviour on the Dashboard and Job detail was not re-checked on a device in M6; TalkBack and VoiceOver were not run.
 - The two large-text fixes (count label, tab names) and the Android keyboard fix are verified by unit tests; only the keyboard fix was re-checked on the emulator afterwards.
 - Expo Router prints a development-only React warning on some first cold starts (D-027 open issue); nothing breaks.
